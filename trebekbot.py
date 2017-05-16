@@ -10,8 +10,10 @@ bot_id = os.environ.get('BOT_ID')
 slack_token = os.environ["SLACK_API_TOKEN"]
 '''
 
+
+
 # TODO: call this as env variable (see above), fix KeyError: SLACK_BOT_TOKEN
-slack_token = 'xoxb-183776207538-bVt3eahGLLMLmaEjzUkMNi4O'
+slack_token = 'xoxb-183776207538-ksUMUx7Si6OrHYEEmltLW5ii'
 sc = SlackClient(slack_token)
 
 author = 'bertrand_hustle'
@@ -20,9 +22,11 @@ bot_name = 'trebekbot'
 sc.api_call(
     'chat.postMessage',
     channel='#trebektest',
-    text='Hi Lana!'
+    text='Hi Lana?!'
 )
 print('test')
+
+
 
 '''
 if __name__ == "__main__":

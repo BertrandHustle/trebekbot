@@ -16,14 +16,12 @@ Holds details about questions and questions themselves
 '''
 
 class Question:
-
     def __init__(self, text, value, category, daily_double, answer):
-
-        self.text = ''
-        self.value = 0
-        self.category = ''
-        self.daily_double = False
-        self.answer = ''
+        self.text = text
+        self.value = value
+        self.category = category
+        self.daily_double = daily_double
+        self.answer = answer
 
     def get_value(self):
         return ('$' + str(self.value))
@@ -43,7 +41,12 @@ class Question:
             elif value > 2000 and value % 100 != 0:
                 return True
             else:
-                return False
+
+    # to remove $ and commas from question values, e.g. '$2,500'
+    def convert_value_to_int(value):
+        if type(value) is str:
+            # check to make sure value is over $1
+
 
 def get_question():
     jeopardy_json_file = open('./csv_files/JEOPARDY_QUESTIONS1.json').read()
@@ -51,8 +54,9 @@ def get_question():
     # json file has 216,930 questions
     question = question[randint(0, 216930)]
     text = question['question']
-    value = question['value']
+    value = int(question['value'][1:])
     category = question['category']
     daily_double = Question.is_daily_double(value)
     answer = question['answer']
+    print(text, value, category, daily_double, answer)
     return Question(text, value, category, daily_double, answer)

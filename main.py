@@ -21,5 +21,6 @@ if __name__=='__main__':
         slack_output = slack_client.rtm_read()
         print(slack_output)
         host.hello(slack_output)
+        host.ask_question(slack_output)
         print('========================================')
         time.sleep(1)

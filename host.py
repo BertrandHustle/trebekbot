@@ -60,17 +60,30 @@ class Host:
             as_user=True
         )
 
+    # get user by checking user id
+    def get_user(self, slack_output):
+        user_id = slack_output['user']
+        user = self.slack_client.api_call(
+        'users.info',
+        user=user_id
+        )
+        return user['user']['name']
+
     # COMMANDS
+    # say hi!
     def hello(self, slack_output):
         if self.hear(slack_output, 'hello'):
             slack_output = slack_output[0]
-            user_id = slack_output['user']
-            user = self.slack_client.api_call(
-            'users.info',
-            user=user_id
-            )
-            user = user['user']['name']
+            user = get_user(slack_output)
             self.say(main.channel, 'Hello @'+user)
+
+    def ask_question(self, slack_output):
+        if self.hear(slack_output, 'ask'):
+            slack_output = slack_output[0]
+            question = Question()
+            # parse this so it's pretty in slack
+            question_text = '[*'+question.category+'*] ' + '['+question.get_value()+'] ' + '_'+question.text+'_'
+            self.say(main.channel, question_text)
 
 '''
 Holds details about questions and questions themselves
@@ -82,12 +95,16 @@ Holds details about questions and questions themselves
 '''
 
 class Question:
-    def __init__(self, text, value, category, daily_double, answer):
-        self.text = text
-        self.value = value
-        self.category = category
-        self.daily_double = daily_double
-        self.answer = answer
+    def __init__(self):
+        jeopardy_json_file = open('./csv_files/JEOPARDY_QUESTIONS1.json').read()
+        question = json.loads(jeopardy_json_file)
+        # json file has 216,930 questions
+        question = question[randint(0, 216930)]
+        self.text = question['question']
+        self.value = self.convert_value_to_int(question['value'])
+        self.category = question['category']
+        self.daily_double = Question.is_daily_double(self.value)
+        self.answer = question['answer']
 
     def get_value(self):
         return ('$' + str(self.value))
@@ -110,7 +127,7 @@ class Question:
                 return False
 
     # to remove $ and commas from question values, e.g. '$2,500'
-    def convert_value_to_int(value):
+    def convert_value_to_int(self, value):
         try:
             # remove special characters if this is a string
             if type(value) == str:
@@ -128,6 +145,7 @@ class Question:
         except ValueError:
             return 'Invalid Value'
 
+'''
 def get_question():
     jeopardy_json_file = open('./csv_files/JEOPARDY_QUESTIONS1.json').read()
     question = json.loads(jeopardy_json_file)
@@ -140,3 +158,4 @@ def get_question():
     answer = question['answer']
     print(text, value, category, daily_double, answer)
     return Question(text, value, category, daily_double, answer)
+'''

@@ -1,10 +1,41 @@
 import json
 from random import randint
+from contextlib import suppress
 
 '''
  Class that acts as the "host" of Jeopardy
  e.g. asks clues, gets point values, etc.
 '''
+
+class Host:
+    def __init__(self, slack_client):
+        self.slack_client = slack_client
+        # connect to slack upon init
+        slack_client.rtm_connect()
+
+    # listens for output in slack channel
+    '''
+    output example:
+    [{'ts': '1495558884.473102',
+    'source_team': 'T5G5Z47RN',
+    'text': 'LOOK',
+    'user': 'U5G8Y4H89',
+    'team': 'T5G5Z47RN',
+    'type': 'message',
+    'channel': 'C5HLVN346'}]
+    '''
+
+    # unsure why it passes the Host object in as well, but that's why 'self' is needed here
+    def hear(self, slack_output):
+        with suppress(IndexError, KeyError):
+            # for some reason slack's output is a dict within a list, this gives us just the list
+            slack_output = slack_output[0]
+            if slack_output['text']:
+                print(slack_output['text'])
+            if slack_output['text'].startswith(';;'):
+                print('I HEAR IT!')
+
+
 
 '''
 Holds details about questions and questions themselves

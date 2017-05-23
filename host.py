@@ -1,3 +1,4 @@
+import main
 import json
 from random import randint
 from contextlib import suppress
@@ -5,9 +6,14 @@ from contextlib import suppress
 '''
  Class that acts as the "host" of Jeopardy
  e.g. asks clues, gets point values, etc.
+ think of this as the class that handles listening and talking to slack
 '''
 
 class Host:
+
+    # what to type before we give trebekbot a command
+    command_prefix = ';;'
+
     def __init__(self, slack_client):
         self.slack_client = slack_client
         # connect to slack upon init
@@ -26,16 +32,45 @@ class Host:
     '''
 
     # unsure why it passes the Host object in as well, but that's why 'self' is needed here
-    def hear(self, slack_output):
+    def hear(self, slack_output, listen_for):
         with suppress(IndexError, KeyError):
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
-            if slack_output['text']:
-                print(slack_output['text'])
-            if slack_output['text'].startswith(';;'):
-                print('I HEAR IT!')
+            text = slack_output['text']
+            # if the text starts with the command_prefix
+            # and the rest of the text minus the prefix matches what we're listening for
+            if text.startswith(self.command_prefix) \
+            and text[2:] == listen_for:
+                # return True if we 'hear' the command prefix
+                return True
+            # this might be redundant
+            else:
+                return False
 
+    # say things back to channel
+    '''
+    :param: channel: channel to which we are posting message
+    :param: message: message to post or 'say'
+    '''
+    def say(self, channel, message):
+        self.slack_client.api_call(
+            'chat.postMessage',
+            channel=channel,
+            text=message,
+            as_user=True
+        )
 
+    # COMMANDS
+    def hello(self, slack_output):
+        if self.hear(slack_output, 'hello'):
+            slack_output = slack_output[0]
+            user_id = slack_output['user']
+            user = self.slack_client.api_call(
+            'users.info',
+            user=user_id
+            )
+            user = user['user']['name']
+            self.say(main.channel, 'Hello @'+user)
 
 '''
 Holds details about questions and questions themselves

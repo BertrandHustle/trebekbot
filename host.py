@@ -41,12 +41,26 @@ class Question:
             elif value > 2000 and value % 100 != 0:
                 return True
             else:
+                return False
 
     # to remove $ and commas from question values, e.g. '$2,500'
     def convert_value_to_int(value):
-        if type(value) is str:
+        try:
+            # remove special characters if this is a string
+            if type(value) == str:
+                # check for negative numbers that haven't been converted to int yet
+                if '-' in value:
+                    return 'Invalid Value'
+                else:
+                    value = ''.join(c for c in value if c.isalnum())
+                    value = int(value)
             # check to make sure value is over $1
-
+            if value < 1:
+                return 'Invalid Value'
+            else:
+                return value
+        except ValueError:
+            return 'Invalid Value'
 
 def get_question():
     jeopardy_json_file = open('./csv_files/JEOPARDY_QUESTIONS1.json').read()

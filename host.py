@@ -13,6 +13,14 @@ class Host:
 
     # what to type before we give trebekbot a command
     command_prefix = ';;'
+    help_text = '''
+    This iiiiiis trebekbot!
+    Use ;; to prefix commands.
+    ;;help: bring up this help list
+    ;;hello: say hello to trebekbot
+    ;;ask: trebekbot will ask you a question
+    ;;whatis: use this to provide an answer to the quetion
+    '''
 
     def __init__(self, slack_client):
         self.slack_client = slack_client
@@ -43,9 +51,6 @@ class Host:
             and text[2:] == listen_for:
                 # return True if we 'hear' the command prefix
                 return True
-            # this might be redundant
-            else:
-                return False
 
     # say things back to channel
     '''
@@ -70,6 +75,12 @@ class Host:
         return user['user']['name']
 
     # COMMANDS
+
+    # lists trebekbot functions
+    def help(self, slack_output):
+        if self.hear(slack_output, 'help'):
+            self.say(main.channel, self.help_text)
+
     # say hi!
     def hello(self, slack_output):
         if self.hear(slack_output, 'hello'):
@@ -77,6 +88,7 @@ class Host:
             user = get_user(slack_output)
             self.say(main.channel, 'Hello @'+user)
 
+    # gets a random question from the jeopardy_json_file
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             slack_output = slack_output[0]
@@ -84,6 +96,28 @@ class Host:
             # parse this so it's pretty in slack
             question_text = '[*'+question.category+'*] ' + '['+question.get_value()+'] ' + '_'+question.text+'_'
             self.say(main.channel, question_text)
+            return question
+
+    # listens for someone trying to answer a question
+    def hear_answer(self, slack_output):
+        if self.hear(slack_output, 'whatis'):
+            return True
+
+    # TODO: add logic to check who answered it
+    def check_answer(self, slack_output, question):
+        if self.hear(slack_output, 'whatis'):
+            slack_output = slack_output[0]
+            user = self.get_user(slack_output)
+            user_answer = slack_output['text']
+            print(user_answer)
+            correct_answer = question.answer
+            # do lower to ensure that casing doesn't matter
+            if user_answer.lower() == question.answer.lower():
+                self.say(main.channel, 'That is correct.')
+                return True
+            else:
+                self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
+
 
 '''
 Holds details about questions and questions themselves

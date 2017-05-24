@@ -173,6 +173,8 @@ class Question:
                     value = ''.join(c for c in value if c.isalnum())
                     value = int(value)
             # check to make sure value is over $1
+            # TODO: fix this to check for this error:
+            # TypeError: unorderable types: NoneType() < int()
             if value < 1:
                 return 'Invalid Value'
             else:

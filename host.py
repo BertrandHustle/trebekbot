@@ -48,7 +48,7 @@ class Host:
             # if the text starts with the command_prefix
             # and the rest of the text minus the prefix matches what we're listening for
             if text.startswith(self.command_prefix) \
-            and text[2:] == listen_for:
+            and text[2:].split(' ')[0] == listen_for:
                 # return True if we 'hear' the command prefix
                 return True
 
@@ -91,7 +91,7 @@ class Host:
     # gets a random question from the jeopardy_json_file
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
-            slack_output = slack_output[0]
+            # slack_output = slack_output[0]
             question = Question()
             # parse this so it's pretty in slack
             question_text = '[*'+question.category+'*] ' + '['+question.get_value()+'] ' + '_'+question.text+'_'
@@ -117,7 +117,6 @@ class Host:
                 return True
             else:
                 self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
-
 
 '''
 Holds details about questions and questions themselves

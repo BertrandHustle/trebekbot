@@ -12,7 +12,7 @@ bot_name = 'trebekbot'
 bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
-channel = '#trebektest'
+channel = '#general'
 # this needs to be outside the loop so it stays persistant
 # TODO: put in logic to reset these after answer
 question_asked = None

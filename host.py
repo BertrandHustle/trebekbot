@@ -104,19 +104,21 @@ class Host:
             return True
 
     # TODO: add logic to check who answered it
+    # TODO: add algorithm for near-spelling
     def check_answer(self, slack_output, question):
-        if self.hear(slack_output, 'whatis'):
-            slack_output = slack_output[0]
-            user = self.get_user(slack_output)
-            user_answer = slack_output['text']
-            print(user_answer)
-            correct_answer = question.answer
-            # do lower to ensure that casing doesn't matter
-            if user_answer.lower() == question.answer.lower():
-                self.say(main.channel, 'That is correct.')
-                return True
-            else:
-                self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
+        # if self.hear(slack_output, 'whatis'):
+        slack_output = slack_output[0]
+        user = self.get_user(slack_output)
+        user_answer = slack_output['text']
+        correct_answer = question.answer
+        # do lower to ensure that casing doesn't matter
+        print(user_answer.lower(), question.answer.lower())
+        # split and slice to get the actual answer
+        if user_answer.lower()[2:].split(' ')[1] == question.answer.lower():
+            self.say(main.channel, 'That is correct.')
+            return True
+        else:
+            self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
 
 '''
 Holds details about questions and questions themselves

@@ -100,15 +100,39 @@ class Host:
     # TODO: add logic to check who answered it
     # TODO: add algorithm for near-spelling
     def check_answer(self, slack_output, question):
-        slack_output = slack_output[0]
-        user = self.get_user(slack_output)
-        user_answer = slack_output['text']
-        correct_answer = question.answer
-        # do lower to ensure that casing doesn't matter
-        print(user_answer.lower(), question.answer.lower())
-        # split and slice to get the actual answer
-        if user_answer.lower()[2:].split(' ')[1] == question.answer.lower():
-            self.say(main.channel, 'That is correct.')
+        if self.hear(slack_output, 'whatis'):
+            slack_output = slack_output[0]
+            user = self.get_user(slack_output)
+            user_answer = slack_output['text']
+            correct_answer = question.answer
+            # TODO: replace this with fuzz_answer
+            # do lower to ensure that casing doesn't matter
+            print(user_answer.lower(), question.answer.lower())
+            # split and slice to get the actual answer
+            if user_answer.lower()[2:].split(' ')[1] == question.answer.lower():
+                self.say(main.channel, 'That is correct.')
+                return user
+            else:
+                self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
+
+    '''
+    checks if given answer is close enough to the right answer by doing the following:
+    1. remove casing
+    2. remove whitespace
+    3. check if an acceptable fraction of the letters are correct
+    '''
+    def fuzz_answer(given_answer, correct_answer):
+        # remove casing and whitespace
+        given_answer = ''.join(given_answer.lower.split())
+        correct_answer = ''.join(correct_answer.lower.split())
+        # count how many mismatched letters we have
+        error_count = 0
+        error_ratio = len(correct_answer)/10
+        paired_letters = list(zip(given_answer, correct_answer))
+        for first_letter, second_letter in paired_letters:
+            if first_letter != second_letter:
+                error_count += 1
+        if error_count >= error_ratio:
             return True
         else:
-            self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
+            return False

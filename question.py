@@ -25,24 +25,8 @@ class Question:
     def get_value(self):
         return ('$' + str(self.value))
 
-    def is_daily_double(value):
-        if type(value) is str:
-            int_value = int(value[1:])
-            if int_value < 1:
-                return 'Invalid Value'
-            elif int_value > 2000 and int_value % 100 != 0:
-                return True
-            else:
-                return False
-        elif type(value) == int:
-            if value < 1:
-                return 'Invalid Value'
-            elif value > 2000 and value % 100 != 0:
-                return True
-            else:
-                return False
-
     # to remove $ and commas from question values, e.g. '$2,500'
+    @classmethod
     def convert_value_to_int(self, value):
         try:
             # remove special characters if this is a string
@@ -54,11 +38,21 @@ class Question:
                     value = ''.join(c for c in value if c.isalnum())
                     value = int(value)
             # check to make sure value is over $1
-            # TODO: fix this to check for this error:
-            # TypeError: unorderable types: NoneType() < int()
-            if value < 1:
+            # fix for this error --> unorderable types: NoneType() < int()
+            if value < 1 and value:
                 return 'Invalid Value'
             else:
                 return value
         except ValueError:
             return 'Invalid Value'
+
+    @staticmethod
+    def is_daily_double(value):
+        if type(value) is str:
+            value = Question.convert_value_to_int(value)
+        if value < 1:
+            return 'Invalid Value'
+        elif value > 2000 and value % 100 != 0:
+            return True
+        else:
+            return False

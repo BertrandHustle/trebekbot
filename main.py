@@ -35,7 +35,9 @@ if __name__=='__main__':
         if question_asked:
             print(question_asked.text)
 
-        current_answer = host.hear_answer(slack_output)
+        current_answer = None
+        if host.hear(slack_output, 'whatis'):
+            current_answer = host.hear(slack_output, 'whatis')
         if current_answer:
             answer_given = current_answer
 

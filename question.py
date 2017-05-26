@@ -38,19 +38,20 @@ class Question:
                     value = ''.join(c for c in value if c.isalnum())
                     value = int(value)
             # check to make sure value is over $1
-            # fix for this error --> unorderable types: NoneType() < int()
-            if value < 1 and value:
+            if value < 1:
                 return 'Invalid Value'
             else:
                 return value
-        except ValueError:
+        except (ValueError, TypeError) as error:
             return 'Invalid Value'
 
     @staticmethod
     def is_daily_double(value):
         if type(value) is str:
             value = Question.convert_value_to_int(value)
-        if value < 1:
+        if value == 'Invalid Value':
+            return value
+        elif value < 1:
             return 'Invalid Value'
         elif value > 2000 and value % 100 != 0:
             return True

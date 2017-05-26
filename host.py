@@ -1,5 +1,6 @@
 import main
 import question
+from re import sub
 from contextlib import suppress
 
 '''
@@ -121,18 +122,29 @@ class Host:
     2. remove whitespace
     3. check if an acceptable fraction of the letters are correct
     '''
+    @staticmethod
     def fuzz_answer(given_answer, correct_answer):
-        # remove casing and whitespace
-        given_answer = ''.join(given_answer.lower.split())
-        correct_answer = ''.join(correct_answer.lower.split())
-        # count how many mismatched letters we have
-        error_count = 0
-        error_ratio = len(correct_answer)/10
-        paired_letters = list(zip(given_answer, correct_answer))
-        for first_letter, second_letter in paired_letters:
-            if first_letter != second_letter:
-                error_count += 1
-        if error_count >= error_ratio:
-            return True
+        if type(given_answer) != str:
+            return 'Invalid Value'
+        # check for empty strings e.g. ''
+        elif not ''.join(given_answer.lower().split()).isalnum():
+            return 'Invalid Value'
         else:
-            return False
+            # remove casing and whitespace
+            # thanks to Ants Aasma on stack overflow for this solution
+            given_answer = sub(r'\W+', '', given_answer).lower()
+            correct_answer = sub(r'\W+', '', correct_answer).lower()
+            # count how many mismatched letters we have
+            error_count = 0
+            error_ratio = len(correct_answer)/8
+            paired_letters = list(zip(given_answer, correct_answer))
+            for first_letter, second_letter in paired_letters:
+                if first_letter != second_letter:
+                    error_count += 1
+            print(paired_letters)
+            print(given_answer, correct_answer)
+            print(error_count, error_ratio)
+            if error_count <= error_ratio:
+                return True
+            else:
+                return False

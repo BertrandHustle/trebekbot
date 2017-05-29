@@ -50,9 +50,9 @@ class Question:
         if type(value) is str:
             value = Question.convert_value_to_int(value)
         if value == 'Invalid Value':
-            return value
+            return False
         elif value < 1:
-            return 'Invalid Value'
+            return False
         elif value > 2000 and value % 100 != 0:
             return True
         else:

@@ -9,7 +9,17 @@ from main import slack_token
 sc = slackclient.SlackClient(slack_token)
 test_question = question.Question()
 test_host = host.Host(sc)
-test_db = db.db('test.db')
+
+# fixture for setting up test db
+@pytest.fixture
+def db_before():
+    test_db = db.db('test.db')
+    return test_db
+
+# fixture for tearing down test db
+@pytest.fixture
+def db_after():
+    db.delete_table('test_db')
 
 # tests question constructor
 def test_question_constructor():
@@ -33,9 +43,9 @@ def test_get_value():
  (200, False),
  (10239, True),
  (1, False),
- (-1, 'Invalid Value'),
- (0, 'Invalid Value'),
- ('0', 'Invalid Value')
+ (-1, False),
+ (0, False),
+ ('0', False)
 ])
 def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
@@ -71,7 +81,8 @@ def test_fuzz_answer(given_answer, expected_answer, expected_value):
  (77, False),
 ])
 '''
-def test_add_user_to_db():
+def test_add_user_to_db(db_before):
+    test_db = db_before
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_query = test_db.connection.execute(
     '''
@@ -79,4 +90,4 @@ def test_add_user_to_db():
     ''',
     ('Bob',)
     )
-    assert 'Bob' in test_query.fetchall()[1]
+    assert 'Bob' in test_query.fetchall()[0]

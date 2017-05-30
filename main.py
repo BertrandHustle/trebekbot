@@ -3,6 +3,7 @@
 import os
 import time
 import host
+import db
 from slackclient import SlackClient
 
 author = 'bertrand_hustle'
@@ -19,7 +20,12 @@ question_asked = None
 answer_given = None
 
 if __name__=='__main__':
+    # create host object
     host = host.Host(slack_client)
+    # setup database
+    user_db = db.db('users.db')
+    user_db.create_table_users(user_db.connection)
+    # host introduces itself to channel
     host.say(channel, host.help_text)
     while True:
         # print rolling slack output to cmd
@@ -28,6 +34,7 @@ if __name__=='__main__':
         # main functions
         host.hello(slack_output)
         host.help(slack_output)
+        host.myscore(slack_output, user_db)
         # this is how we store a persistant question
         current_question = host.ask_question(slack_output)
         print(current_question)
@@ -48,7 +55,8 @@ if __name__=='__main__':
 
         # logic for getting and checking question answers
         if question_asked and answer_given:
-            host.check_answer(slack_output, question_asked)
+            user_that_answered_question = host.check_answer(slack_output, question_asked)
+            user_db.add_user_to_db(user_db.connection, user_that_answered_question)
             question_asked = None
             answer_given = None
         print('========================================')

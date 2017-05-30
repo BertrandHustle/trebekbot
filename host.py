@@ -1,5 +1,6 @@
 import main
 import question
+import db
 from re import sub
 from contextlib import suppress
 
@@ -106,7 +107,6 @@ class Host:
             self.say(main.channel, question_text)
             return asked_question
 
-    # TODO: add logic to check who answered it
     def check_answer(self, slack_output, question):
         if self.hear(slack_output, 'whatis'):
             slack_output = slack_output[0]
@@ -119,9 +119,21 @@ class Host:
             print(user_answer)
             if self.fuzz_answer(user_answer, correct_answer):
                 self.say(main.channel, 'That is correct.')
+                # TODO: update user's score with question.value
                 return user
             else:
                 self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
+                return user
+
+    # TODO: add ;;top to return top 10 scorers
+    # TODO: add ;;myscore to help text
+
+    # returns user's current score
+    def myscore(self, slack_output, db):
+        if self.hear(slack_output, 'myscore'):
+            slack_output = slack_output[0]
+            user = self.get_user(slack_output)
+            self.say(main.channel, 'Your score is: '+db.return_score(db.connection, user))
 
     '''
     checks if given answer is close enough to the right answer by doing the following:

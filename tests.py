@@ -82,8 +82,8 @@ def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
 
 # TODO: rewrite database tests using Mock
-
-def test_add_user_to_db(db_after):
+# TODO: add bad values in here e.g. ' ', 0
+def test_add_user_to_db():
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')
@@ -98,3 +98,18 @@ def test_add_user_to_db(db_after):
     check_results = findall(r'Bob', str(query_results))
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1
+
+def test_update_score():
+    test_db.update_score(test_db.connection, user)
+    assert test_db.return_score(test_db.connection=, user) == 200
+
+def test_myscore(db_after):
+    test_db.add_user_to_db(test_db.connection, 'Lucy')
+    assert test_db.return_score(test_db.connection, 'Lucy') == 0
+    test_db.connection.execute(
+    '''
+    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    ''',
+    (100, 'Lucy')
+    )
+    assert test_db.return_score(test_db.connection, 'Lucy') == 100

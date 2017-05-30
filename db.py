@@ -58,3 +58,17 @@ class db(object):
         )
         # save changes to db
         self.connection.commit()
+
+    def return_score(self, connection, user):
+        cursor = connection.cursor()
+        select_score_results = cursor.execute(
+        '''
+        SELECT SCORE FROM USERS WHERE NAME = ?
+        ''',
+        (user,)
+        ).fetchall()
+        '''
+        fetchall results look like this: [(0,)],
+        so we need to drill into this data structure
+        '''
+        return select_score_results[0][0]

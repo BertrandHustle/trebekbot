@@ -20,7 +20,7 @@ class Host:
     ;;help: bring up this help list
     ;;hello: say hello to trebekbot
     ;;ask: trebekbot will ask you a question
-    ;;whatis: use this to provide an answer to the quetion
+    ;;whatis: use this to provide an answer to the question
     '''
 
     def __init__(self, slack_client):

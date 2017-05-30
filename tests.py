@@ -3,23 +3,28 @@ import host
 import question
 import db
 import slackclient
+from os import remove
 from main import slack_token
 
 # set up test objects
 sc = slackclient.SlackClient(slack_token)
 test_question = question.Question()
 test_host = host.Host(sc)
+test_db = db.db('test.db')
 
-# fixture for setting up test db
-@pytest.fixture
-def db_before():
-    test_db = db.db('test.db')
-    return test_db
-
-# fixture for tearing down test db
+# fixture for tearing down test database
 @pytest.fixture
 def db_after():
-    db.delete_table('test_db')
+    print('test.db users dropped')
+    yield db_after 
+    test_db.drop_table_users(test_db.connection)
+
+# TODO: make this work so it deleted test db after test
+# deletes test.db file
+@pytest.fixture
+def kill_test_db():
+    print('test.db deleted')
+    remove(test_db.db_file)
 
 # tests question constructor
 def test_question_constructor():
@@ -65,10 +70,10 @@ def test_convert_value_to_int(test_value, expected_value):
 @pytest.mark.parametrize("given_answer, expected_answer, expected_value", [
  ('Bath', 'Borth', False),
  ('Bath', 'beth', False),
- (600, 'Borth', 'Invalid Value'),
- (None, 'Borth', 'Invalid Value'),
+ (600, 'Borth', False),
+ (None, 'Borth', False),
  ('mary queen of scotts','Mary, Queen of Scots', True),
- ('','Mary, Queen of Scots', 'Invalid Value'),
+ ('','Mary, Queen of Scots', False),
  ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
  ('borp', 'Henry James', False)
 ])
@@ -77,8 +82,7 @@ def test_fuzz_answer(given_answer, expected_answer, expected_value):
 
 # TODO: rewrite database tests using Mock
 
-def test_add_user_to_db(db_before):
-    test_db = db_before
+def test_add_user_to_db(db_after):
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')

@@ -11,6 +11,7 @@ class db(object):
         self.db_file = "database_files/" + db_file
         self.connection = self.create_connection(self.db_file)
         self.create_table_users(self.connection)
+        self.connection.commit()
 
     def create_connection(self, db_file):
         return sqlite3.connect(db_file)
@@ -32,15 +33,19 @@ class db(object):
         );
         '''
         )
+        # save changes to db
+        self.connection.commit()
 
-    def delete_table(self, connection, table):
+    def drop_table_users(self, connection):
         cursor = connection.cursor()
         cursor.execute(
         '''
-        DROP TABLE ?;
-        ''', table
+        DROP TABLE users;
+        '''
         )
         return 1
+        # save changes to db
+        self.connection.commit()
 
     # add user if they don't already exist in the database
     def add_user_to_db(self, connection, user):

@@ -15,6 +15,7 @@ class Host:
     command_prefix = ';;'
     help_text = '''
     This iiiiiis trebekbot!
+
     Use ;; to prefix commands.
     ;;help: bring up this help list
     ;;hello: say hello to trebekbot
@@ -45,12 +46,18 @@ class Host:
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
             text = slack_output['text']
+            # prefix without the ';;'
+            prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
             # and the rest of the text minus the prefix matches what we're listening for
             if text.startswith(self.command_prefix) \
-            and text[2:].split(' ')[0] == listen_for:
-                # return True if we 'hear' the command prefix
-                return True
+            and prefix == listen_for:
+                answer = text.split(prefix)[1]
+                if answer:
+                    # return the answer without the prefix if we 'hear' the command prefix
+                    return answer
+                else:
+                    return True
 
     # say things back to channel
     '''
@@ -85,10 +92,11 @@ class Host:
     def hello(self, slack_output):
         if self.hear(slack_output, 'hello'):
             slack_output = slack_output[0]
-            user = get_user(slack_output)
+            user = self.get_user(slack_output)
             self.say(main.channel, 'Hello @'+user)
 
     # gets a random question from the jeopardy_json_file
+    # TODO: make this scrub out html links
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             # slack_output = slack_output[0]
@@ -103,8 +111,12 @@ class Host:
         if self.hear(slack_output, 'whatis'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            user_answer = slack_output['text']
+            user_answer = slack_output['text'].split('whatis')[1]
             correct_answer = question.answer
+            print('CORRECT ANSWER')
+            print(correct_answer)
+            print('USER ANSWER')
+            print(user_answer)
             if self.fuzz_answer(user_answer, correct_answer):
                 self.say(main.channel, 'That is correct.')
                 return user
@@ -120,10 +132,10 @@ class Host:
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         if type(given_answer) != str:
-            return 'Invalid Value'
+            return False
         # check for empty strings e.g. ''
         elif not ''.join(given_answer.lower().split()).isalnum():
-            return 'Invalid Value'
+            return False
         else:
             # remove casing and whitespace
             # thanks to Ants Aasma on stack overflow for this solution
@@ -136,9 +148,6 @@ class Host:
             for first_letter, second_letter in paired_letters:
                 if first_letter != second_letter:
                     error_count += 1
-            print(paired_letters)
-            print(given_answer, correct_answer)
-            print(error_count, error_ratio)
             if error_count <= error_ratio:
                 return True
             else:

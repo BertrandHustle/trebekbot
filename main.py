@@ -20,6 +20,7 @@ answer_given = None
 
 if __name__=='__main__':
     host = host.Host(slack_client)
+    host.say(channel, host.help_text)
     while True:
         # print rolling slack output to cmd
         slack_output = slack_client.rtm_read()
@@ -29,6 +30,7 @@ if __name__=='__main__':
         host.help(slack_output)
         # this is how we store a persistant question
         current_question = host.ask_question(slack_output)
+        print(current_question)
         if current_question:
             question_asked = current_question
 
@@ -41,6 +43,7 @@ if __name__=='__main__':
         if current_answer:
             answer_given = current_answer
 
+        print('GIVEN ANSWER')
         print(answer_given)
 
         # logic for getting and checking question answers

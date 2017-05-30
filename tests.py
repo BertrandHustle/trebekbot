@@ -69,20 +69,18 @@ def test_convert_value_to_int(test_value, expected_value):
  (None, 'Borth', 'Invalid Value'),
  ('mary queen of scotts','Mary, Queen of Scots', True),
  ('','Mary, Queen of Scots', 'Invalid Value'),
- ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False)
+ ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
+ ('borp', 'Henry James', False)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
 
 # TODO: rewrite database tests using Mock
-'''
-@pytest.mark.parametrize("test_user", "expected_output", [
- ('Bob', 'Bob'),
- (77, False),
-])
-'''
+
 def test_add_user_to_db(db_before):
     test_db = db_before
+    # do this twice to ensure that we're adhering to the UNIQUE constraint
+    test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_query = test_db.connection.execute(
     '''
@@ -90,4 +88,6 @@ def test_add_user_to_db(db_before):
     ''',
     ('Bob',)
     )
-    assert 'Bob' in test_query.fetchall()[0]
+    query_results = test_query.fetchall()
+    print(query_results)
+    assert 'Bob' in query_results[0]

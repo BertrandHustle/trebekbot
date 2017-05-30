@@ -3,6 +3,7 @@ import host
 import question
 import db
 import slackclient
+from re import findall
 from os import remove
 from main import slack_token
 
@@ -16,7 +17,7 @@ test_db = db.db('test.db')
 @pytest.fixture
 def db_after():
     print('test.db users dropped')
-    yield db_after 
+    yield db_after
     test_db.drop_table_users(test_db.connection)
 
 # TODO: make this work so it deleted test db after test
@@ -94,4 +95,6 @@ def test_add_user_to_db(db_after):
     )
     query_results = test_query.fetchall()
     print(query_results)
-    assert 'Bob' in query_results[0]
+    check_results = findall(r'Bob', str(query_results))
+    # asserts both that Bob was added and that he was only added once
+    assert len(check_results) == 1

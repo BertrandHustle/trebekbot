@@ -99,11 +99,19 @@ def test_add_user_to_db():
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1
 
-def test_update_score():
-    test_db.update_score(test_db.connection, user)
-    assert test_db.return_score(test_db.connection=, user) == 200
+@pytest.mark.parametrize("user, value_change, expected_result", [
+ ('LaVar', '-200', -200),
+ ('LaVar', '0', 0),
+ # TODO: add more exceptions here
+ # ('LaVar', 'ants', False)
+])
+def test_update_score(user, value_change, expected_result):
+    test_db.add_user_to_db(test_db.connection, user)
+    test_db.update_score(test_db.connection, user, value_change)
+    assert test_db.return_score(test_db.connection, user) == expected_result
 
-def test_myscore(db_after):
+
+def test_return_score(db_after):
     test_db.add_user_to_db(test_db.connection, 'Lucy')
     assert test_db.return_score(test_db.connection, 'Lucy') == 0
     test_db.connection.execute(

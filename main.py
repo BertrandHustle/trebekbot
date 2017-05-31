@@ -59,5 +59,12 @@ if __name__=='__main__':
             user_db.add_user_to_db(user_db.connection, user_that_answered_question)
             question_asked = None
             answer_given = None
+        # having an answer_given stored without a question can lead to
+        # trebekbot becoming unable to be asked questions
+        elif answer_given:
+            question_asked = None
+            answer_given = None
+        else:
+            pass
         print('========================================')
         time.sleep(1)

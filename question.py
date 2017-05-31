@@ -26,6 +26,7 @@ class Question:
         return ('$' + str(self.value))
 
     # to remove $ and commas from question values, e.g. '$2,500'
+    # TODO: fix this so it doesn't return 'Invalid Value'
     @classmethod
     def convert_value_to_int(self, value):
         try:

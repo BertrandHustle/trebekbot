@@ -22,6 +22,7 @@ class Host:
     ;;hello: say hello to trebekbot
     ;;ask: trebekbot will ask you a question
     ;;whatis: use this to provide an answer to the question
+    ;;myscore: find out what your current score is
     '''
 
     def __init__(self, slack_client):
@@ -126,14 +127,13 @@ class Host:
                 return user
 
     # TODO: add ;;top to return top 10 scorers
-    # TODO: add ;;myscore to help text
 
     # returns user's current score
     def myscore(self, slack_output, db):
         if self.hear(slack_output, 'myscore'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            self.say(main.channel, 'Your score is: '+db.return_score(db.connection, user))
+            self.say(main.channel, 'Your score is: '+ ' $' + str(db.return_score(db.connection, user)))
 
     '''
     checks if given answer is close enough to the right answer by doing the following:
@@ -141,6 +141,7 @@ class Host:
     2. remove whitespace
     3. check if an acceptable fraction of the letters are correct
     '''
+
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         if type(given_answer) != str:

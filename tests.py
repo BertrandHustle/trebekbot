@@ -100,8 +100,8 @@ def test_add_user_to_db():
     assert len(check_results) == 1
 
 @pytest.mark.parametrize("user, value_change, expected_result", [
- ('LaVar', '-200', -200),
  ('LaVar', '0', 0),
+ ('LaVar', '-200', -200)
  # TODO: add more exceptions here
  # ('LaVar', 'ants', False)
 ])

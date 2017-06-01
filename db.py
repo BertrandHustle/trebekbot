@@ -22,7 +22,17 @@ class db(object):
     :sql_param score: current money value of user
     '''
 
-    # TODO: make decorator for cursor since we do this in every below function
+    # TODO: refactor from this:
+    '''
+    def create_table_users(self, connection):
+        cursor = connection.cursor()
+    '''
+    # to this:
+    '''
+    @staticmethod
+    def create_table_users():
+        cursor = self.connection.cursor()
+    '''
 
     def create_table_users(self, connection):
         cursor = connection.cursor()
@@ -85,7 +95,7 @@ class db(object):
         cursor = connection.cursor()
         cursor.execute(
         '''
-        UPDATE USERS SET SCORE = ? WHERE NAME = ?
+        UPDATE USERS SET SCORE = SCORE + ? WHERE NAME = ?
         ''', (score_change, user)
         )
         self.connection.commit()

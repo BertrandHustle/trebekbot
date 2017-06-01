@@ -101,7 +101,6 @@ class Host:
     # TODO: make this scrub out html links
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
-            # slack_output = slack_output[0]
             asked_question = question.Question()
             # parse this so it's pretty in slack
             question_text = '[*'+asked_question.category+'*] ' + '['+asked_question.get_value()+'] ' + '_'+asked_question.text+'_'
@@ -110,9 +109,13 @@ class Host:
 
     def check_answer(self, slack_output, question):
         if self.hear(slack_output, 'whatis'):
+            # initalize database
+            user_db = db.db('users.db')
+            # this drills down into the slack output to get the given answer
             slack_output = slack_output[0]
-            user = self.get_user(slack_output)
             user_answer = slack_output['text'].split('whatis')[1]
+            # who asked the question
+            user = self.get_user(slack_output)
             correct_answer = question.answer
             print('CORRECT ANSWER')
             print(correct_answer)
@@ -120,10 +123,13 @@ class Host:
             print(user_answer)
             if self.fuzz_answer(user_answer, correct_answer):
                 self.say(main.channel, 'That is correct.')
-                # TODO: update user's score with question.value
+                # award points to user
+                user_db.update_score(user_db.connection, user, question.value)
                 return user
             else:
                 self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
+                # take away points from user
+                user_db.update_score(user_db.connection, user, -question.value)
                 return user
 
     # TODO: add ;;top to return top 10 scorers

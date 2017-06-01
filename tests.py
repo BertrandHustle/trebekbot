@@ -13,19 +13,41 @@ test_question = question.Question()
 test_host = host.Host(sc)
 test_db = db.db('test.db')
 
-# fixture for tearing down test database
+# fixture for tearing down test database completely
 @pytest.fixture
 def db_after():
-    print('test.db users dropped')
     yield db_after
     test_db.drop_table_users(test_db.connection)
+    print('test.db users dropped')
 
-# TODO: make this work so it deleted test db after test
-# deletes test.db file
+# fixture for cleaning out test users from database (but leaving table present)
 @pytest.fixture
-def kill_test_db():
-    print('test.db deleted')
-    remove(test_db.db_file)
+def scrub_test_users():
+    yield scrub_test_users
+    test_db.connection.execute(
+    '''
+    DELETE FROM USERS
+    '''
+    )
+
+# set up fixture to populate test db with a range of scorers
+@pytest.fixture
+def populate_db():
+    test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
+    test_score = 101
+    # ensure that we have a varied list of scorers
+    for user in test_users:
+        test_db.add_user_to_db(test_db.connection, user)
+        test_db.update_score(test_db.connection, user, test_score)
+        test_score += 100
+    # check to make sure negative numbers work too
+    test_db.connection.execute(
+    '''
+    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    ''',
+    (-156, 'Eve')
+    )
+    print('test.db populated')
 
 # tests question constructor
 def test_question_constructor():
@@ -105,11 +127,20 @@ def test_add_user_to_db():
  # TODO: add more exceptions here
  # ('LaVar', 'ants', False)
 ])
-def test_update_score(user, value_change, expected_result):
+def test_update_score(user, value_change, expected_result, scrub_test_users):
     test_db.add_user_to_db(test_db.connection, user)
     test_db.update_score(test_db.connection, user, value_change)
     assert test_db.return_score(test_db.connection, user) == expected_result
 
+def test_return_top_ten(populate_db, scrub_test_users):
+    expected_list = [
+    (5, 'Morp', 501),
+    (3, 'Carol', 301),
+    (2, 'Jim', 201),
+    (1, 'Bob', 101),
+    (4, 'Eve', -156)
+    ]
+    assert test_db.return_top_ten(test_db.connection) == expected_list
 
 def test_return_score(db_after):
     test_db.add_user_to_db(test_db.connection, 'Lucy')

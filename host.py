@@ -23,6 +23,7 @@ class Host:
     ;;ask: trebekbot will ask you a question
     ;;whatis: use this to provide an answer to the question
     ;;myscore: find out what your current score is
+    ;;topten: find out who the top ten scorers are
     '''
 
     def __init__(self, slack_client):
@@ -110,6 +111,7 @@ class Host:
     def check_answer(self, slack_output, question):
         if self.hear(slack_output, 'whatis'):
             # initalize database
+            # TODO: fix this, its silly to init a db every time we check an answer
             user_db = db.db('users.db')
             # this drills down into the slack output to get the given answer
             slack_output = slack_output[0]
@@ -132,14 +134,26 @@ class Host:
                 user_db.update_score(user_db.connection, user, -question.value)
                 return user
 
-    # TODO: add ;;top to return top 10 scorers
-
     # returns user's current score
     def myscore(self, slack_output, db):
         if self.hear(slack_output, 'myscore'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
             self.say(main.channel, 'Your score is: '+ ' $' + str(db.return_score(db.connection, user)))
+
+    # returns top ten scorers
+    def top_ten(self, slack_output):
+        if self.hear(slack_output, 'topten'):
+            user_db = db.db('users.db')
+            top_ten_list = user_db.return_top_ten(user_db.connection)
+            slack_list = 'Here\'s our top scorers: \n'
+            count = 1
+            for id,name,score in top_ten_list:
+                # format: 1. Morp - $501
+                slack_list += str(count) + '. ' + name + ' - ' + '$' \
+                + str(score) + '\n'
+                count += 1
+            self.say(main.channel, slack_list)
 
     '''
     checks if given answer is close enough to the right answer by doing the following:

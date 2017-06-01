@@ -35,6 +35,7 @@ if __name__=='__main__':
         host.hello(slack_output)
         host.help(slack_output)
         host.myscore(slack_output, user_db)
+        host.top_ten(slack_output)
         # this is how we store a persistant question
         current_question = host.ask_question(slack_output)
         print(current_question)

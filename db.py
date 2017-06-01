@@ -87,6 +87,17 @@ class db(object):
         '''
         return select_score_results[0][0]
 
+    # gets top ten scorers from database
+    def return_top_ten(self, connection):
+        cursor = connection.cursor()
+        top_ten = cursor.execute(
+        '''
+        SELECT * FROM USERS ORDER BY SCORE DESC LIMIT 10
+        ''',
+        ).fetchall()
+        print (top_ten)
+        return top_ten
+
     '''
     updates the score of a given user
     :param score_change: the amount by which we will change the user's score

@@ -108,6 +108,7 @@ class Host:
             self.say(main.channel, question_text)
             return asked_question
 
+    # TODO: change this to /what /who for mobile users
     def check_answer(self, slack_output, question):
         if self.hear(slack_output, 'whatis'):
             # initalize database

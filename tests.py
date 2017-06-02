@@ -100,6 +100,22 @@ def test_convert_value_to_int(test_value, expected_value):
  ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
  ('borp', 'Henry James', False)
 ])
+# TODO: introduce the following test case (this is where substrings would come in handy):
+'''
+;;whatis bagpipe
+
+trebekbotAPP [7:53 PM]
+Sorry, that is incorrect.  The correct answer was a bagpipe
+
+
+This -vv- is probably happening because a single missed letter
+moves the whole word over one space, so it interprets all the
+following letters as wrong 
+;;whatis infintesimal
+
+trebekbotAPP [8:02 PM]
+Sorry, that is incorrect.  The correct answer was infinitesimal
+'''
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
 

@@ -34,17 +34,17 @@ class Question:
             if type(value) == str:
                 # check for negative numbers that haven't been converted to int yet
                 if '-' in value:
-                    return 'Invalid Value'
+                    return 0
                 else:
                     value = ''.join(c for c in value if c.isalnum())
                     value = int(value)
             # check to make sure value is over $1
             if value < 1:
-                return 'Invalid Value'
+                return 0
             else:
                 return value
         except (ValueError, TypeError) as error:
-            return 'Invalid Value'
+            return 0
 
     @staticmethod
     def is_daily_double(value):

@@ -80,12 +80,12 @@ def test_is_daily_double(test_value, expected_value):
 
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$2,500', 2500),
- ('asjdjasdj', 'Invalid Value'),
- (0, 'Invalid Value'),
- (-1, 'Invalid Value'),
- (-888, 'Invalid Value'),
- ('-$4,001', 'Invalid Value'),
- (None, 'Invalid Value')
+ ('asjdjasdj', 0),
+ (0, 0),
+ (-1, 0),
+ (-888, 0),
+ ('-$4,001', 0),
+ (None, 0)
 ])
 def test_convert_value_to_int(test_value, expected_value):
     assert test_question.convert_value_to_int(test_value) == expected_value
@@ -98,24 +98,10 @@ def test_convert_value_to_int(test_value, expected_value):
  ('mary queen of scotts','Mary, Queen of Scots', True),
  ('','Mary, Queen of Scots', False),
  ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
- ('borp', 'Henry James', False)
+ ('borp', 'Henry James', False),
+ ('bagpipe', 'a bagpipe', True),
+ ('infintesimal', 'infinitesimal', True)
 ])
-# TODO: introduce the following test case (this is where substrings would come in handy):
-'''
-;;whatis bagpipe
-
-trebekbotAPP [7:53 PM]
-Sorry, that is incorrect.  The correct answer was a bagpipe
-
-
-This -vv- is probably happening because a single missed letter
-moves the whole word over one space, so it interprets all the
-following letters as wrong
-;;whatis infintesimal
-
-trebekbotAPP [8:02 PM]
-Sorry, that is incorrect.  The correct answer was infinitesimal
-'''
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
 
@@ -138,17 +124,10 @@ def test_add_user_to_db():
     assert len(check_results) == 1
 
 # TODO: test to make sure a new user gets their score updated on first answer
-# TODO: test to make sure 'Invalid Value' questions aren't added in
-# e.g.
-'''
-[*AFRICAN COUNTRIES*] [$Invalid Value]
-
-user_db.update_score(user_db.connection, user, -question.value)
-TypeError: bad operand type for unary -: 'str'
-'''
 @pytest.mark.parametrize("user, value_change, expected_result", [
  ('LaVar', '0', 0),
- ('LaVar', '-200', -200)
+ ('LaVar', '-200', -200),
+ ('Stemp', 'Invalid Value', 0)
  # TODO: add more exceptions here
  # ('LaVar', 'ants', False)
 ])

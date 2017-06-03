@@ -30,47 +30,45 @@ if __name__=='__main__':
     user_db.create_table_users(user_db.connection)
     # host introduces itself to channel
     host.say(channel, host.help_text)
+
     while True:
-        # print rolling slack output to cmd
+        # get rolling slack output
         slack_output = slack_client.rtm_read()
-        print(slack_output)
         # main functions
         host.hello(slack_output)
         host.help(slack_output)
         host.myscore(slack_output, user_db)
         host.top_ten(slack_output)
-        # this is how we store a persistant question
+
+        # this is how we store a persistant question/answer
         current_question = host.ask_question(slack_output)
-        print(current_question)
         if current_question:
             question_asked = current_question
-
-        if question_asked:
-            print(question_asked.text)
-
         current_answer = None
         if host.hear(slack_output, 'whatis'):
             current_answer = host.hear(slack_output, 'whatis')
         if current_answer:
             answer_given = current_answer
 
-        print('GIVEN ANSWER')
-        print(answer_given)
-
         # logic for getting and checking question answers
         if question_asked and answer_given:
-            user_that_answered_question = host.check_answer(slack_output, question_asked)
-            user_db.add_user_to_db(user_db.connection, user_that_answered_question)
+            # user_that_answered_question = host.check_answer(slack_output, question_asked)
+            # user_db.add_user_to_db(user_db.connection, user_that_answered_question)
             question_asked = None
             answer_given = None
-        # having an answer_given stored without a question can lead to
-        # trebekbot becoming unable to be asked questions
+        '''
+        having an answer_given stored without a question can lead to
+        trebekbot becoming unable to be asked questions, so we need
+        to make sure that if there's an answer stored without a question,
+        we wipe them both
+        '''
         elif answer_given:
             question_asked = None
             answer_given = None
         else:
             pass
-        print('========================================')
+
+        # timeout mechanism 
         if question_asked:
             timer += 1
         if timer >= 120:
@@ -80,5 +78,14 @@ if __name__=='__main__':
             timer = 0
         if not question_asked and not answer_given:
             timer = 0
+
+        # printing for debug purposes
+        print(slack_output)
+        if question_asked:
+            print(question_asked.text)
+        print('GIVEN ANSWER')
+        print(answer_given)
+        print('========================================')
         print(timer)
+        # delay so trebekbot has time to think
         time.sleep(1)

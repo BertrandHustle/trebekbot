@@ -18,7 +18,6 @@ test_db = db.db('test.db')
 def db_after():
     yield db_after
     test_db.drop_table_users(test_db.connection)
-    print('test.db users dropped')
 
 # fixture for cleaning out test users from database (but leaving table present)
 @pytest.fixture
@@ -47,7 +46,6 @@ def populate_db():
     ''',
     (-156, 'Eve')
     )
-    print('test.db populated')
 
 # tests question constructor
 def test_question_constructor():

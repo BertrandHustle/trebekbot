@@ -20,13 +20,13 @@ class Host:
     help_text = '''
     This iiiiiis trebekbot!
 
-    Use ;; to prefix commands.
-    ;;help: bring up this help list
-    ;;hello: say hello to trebekbot
-    ;;ask: trebekbot will ask you a question
-    ;;whatis: use this to provide an answer to the question
-    ;;myscore: find out what your current score is
-    ;;topten: find out who the top ten scorers are
+    Use / to prefix commands.
+    /help: bring up this help list
+    /hello: say hello to trebekbot
+    /ask: trebekbot will ask you a question
+    /whatis: use this to provide an answer to the question
+    /myscore: find out what your current score is
+    /topten: find out who the top ten scorers are
     '''
 
     def __init__(self, slack_client):

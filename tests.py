@@ -110,7 +110,7 @@ Sorry, that is incorrect.  The correct answer was a bagpipe
 
 This -vv- is probably happening because a single missed letter
 moves the whole word over one space, so it interprets all the
-following letters as wrong 
+following letters as wrong
 ;;whatis infintesimal
 
 trebekbotAPP [8:02 PM]
@@ -137,6 +137,15 @@ def test_add_user_to_db():
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1
 
+# TODO: test to make sure a new user gets their score updated on first answer
+# TODO: test to make sure 'Invalid Value' questions aren't added in
+# e.g.
+'''
+[*AFRICAN COUNTRIES*] [$Invalid Value]
+
+user_db.update_score(user_db.connection, user, -question.value)
+TypeError: bad operand type for unary -: 'str'
+'''
 @pytest.mark.parametrize("user, value_change, expected_result", [
  ('LaVar', '0', 0),
  ('LaVar', '-200', -200)
@@ -158,6 +167,7 @@ def test_return_top_ten(populate_db, scrub_test_users):
     ]
     assert test_db.return_top_ten(test_db.connection) == expected_list
 
+# TODO: test if user doesn't exist
 def test_return_score(db_after):
     test_db.add_user_to_db(test_db.connection, 'Lucy')
     assert test_db.return_score(test_db.connection, 'Lucy') == 0

@@ -5,6 +5,9 @@ Class for database setup/functions
 This will primarily serve to store users and track their scores/money totals
 '''
 
+# TODO: make sure users get initialized when they do anything w/trebekbot,
+# not just answer a question
+
 class db(object):
 
     def __init__(self, db_file):
@@ -85,7 +88,9 @@ class db(object):
         fetchall results look like this: [(0,)],
         so we need to drill into this data structure
         '''
-        return select_score_results[0][0]
+        # TODO: make this more elegant
+        if select_score_results:
+            return select_score_results[0][0]
 
     # gets top ten scorers from database
     def return_top_ten(self, connection):

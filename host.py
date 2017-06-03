@@ -119,18 +119,21 @@ class Host:
             user_answer = slack_output['text'].split('whatis')[1]
             # who asked the question
             user = self.get_user(slack_output)
+            user_id = slack_output['user']
             correct_answer = question.answer
             print('CORRECT ANSWER')
             print(correct_answer)
             print('USER ANSWER')
             print(user_answer)
+            # TODO: add :x: and :white_check_mark: emojis, and repond to user
+            # with @user
             if self.fuzz_answer(user_answer, correct_answer):
-                self.say(main.channel, 'That is correct.')
+                self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :white_check_mark: That is correct.')
                 # award points to user
                 user_db.update_score(user_db.connection, user, question.value)
                 return user
             else:
-                self.say(main.channel, 'Sorry, that is incorrect.  The correct answer was '+correct_answer)
+                self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.  The correct answer was '+correct_answer)
                 # take away points from user
                 user_db.update_score(user_db.connection, user, -question.value)
                 return user

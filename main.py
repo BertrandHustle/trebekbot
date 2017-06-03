@@ -18,6 +18,8 @@ channel = '#trivia'
 
 question_asked = None
 answer_given = None
+# timeout for questions
+timer = 0
 
 #TODO: impliment timeout on questions
 if __name__=='__main__':
@@ -69,4 +71,14 @@ if __name__=='__main__':
         else:
             pass
         print('========================================')
+        if question_asked:
+            timer += 1
+        if timer >= 120:
+            host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
+            question_asked = None
+            answer_given = None
+            timer = 0
+        if not question_asked and not answer_given:
+            timer = 0
+        print(timer)
         time.sleep(1)

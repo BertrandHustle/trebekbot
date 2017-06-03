@@ -4,6 +4,9 @@ import db
 from re import sub
 from contextlib import suppress
 
+# initialize user database
+user_db = db.db('users.db')
+
 '''
  Class that acts as the "host" of Jeopardy
  e.g. asks clues, gets point values, etc.
@@ -13,7 +16,7 @@ from contextlib import suppress
 class Host:
 
     # what to type before we give trebekbot a command
-    command_prefix = ';;'
+    command_prefix = '/'
     help_text = '''
     This iiiiiis trebekbot!
 
@@ -43,12 +46,12 @@ class Host:
     'channel': 'C5HLVN346'}]
     '''
 
-    # unsure why it passes the Host object in as well, but that's why 'self' is needed here
     def hear(self, slack_output, listen_for):
         with suppress(IndexError, KeyError):
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
             text = slack_output['text']
+            user = self.get_user(slack_output)
             # prefix without the ';;'
             prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
@@ -56,6 +59,7 @@ class Host:
             if text.startswith(self.command_prefix) \
             and prefix == listen_for:
                 answer = text.split(prefix)[1]
+                user_db.add_user_to_db(user)
                 if answer:
                     # return the answer without the prefix if we 'hear' the command prefix
                     return answer
@@ -111,9 +115,6 @@ class Host:
     # TODO: change this to /what /who for mobile users
     def check_answer(self, slack_output, question):
         if self.hear(slack_output, 'whatis'):
-            # initalize database
-            # TODO: fix this, its silly to init a db every time we check an answer
-            user_db = db.db('users.db')
             # this drills down into the slack output to get the given answer
             slack_output = slack_output[0]
             user_answer = slack_output['text'].split('whatis')[1]
@@ -148,7 +149,6 @@ class Host:
     # returns top ten scorers
     def top_ten(self, slack_output):
         if self.hear(slack_output, 'topten'):
-            user_db = db.db('users.db')
             top_ten_list = user_db.return_top_ten(user_db.connection)
             slack_list = 'Here\'s our top scorers: \n'
             count = 1
@@ -164,6 +164,17 @@ class Host:
     1. remove casing
     2. remove whitespace
     3. check if an acceptable fraction of the letters are correct
+    '''
+
+    '''
+    1. every time there's a match, remove the pair
+    2. when we reach a pair that doesn't match, see if the first
+    word is a big enough substring of the second
+    infintesimal
+    infinitesimal
+
+    esimal
+    tesimal
     '''
 
     @staticmethod

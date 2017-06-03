@@ -101,6 +101,7 @@ def test_convert_value_to_int(test_value, expected_value):
  ('borp', 'Henry James', False),
  ('bagpipe', 'a bagpipe', True),
  ('infintesimal', 'infinitesimal', True)
+ ('infiniitesimal', 'infinitesimal', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

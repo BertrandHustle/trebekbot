@@ -52,23 +52,23 @@ if __name__=='__main__':
 
         # logic for getting and checking question answers
         if question_asked and answer_given:
-            # user_that_answered_question = host.check_answer(slack_output, question_asked)
+            host.check_answer(slack_output, question_asked)
             # user_db.add_user_to_db(user_db.connection, user_that_answered_question)
             question_asked = None
             answer_given = None
-        '''
-        having an answer_given stored without a question can lead to
-        trebekbot becoming unable to be asked questions, so we need
-        to make sure that if there's an answer stored without a question,
-        we wipe them both
-        '''
+
+        # having an answer_given stored without a question can lead to
+        # trebekbot becoming unable to be asked questions, so we need
+        # to make sure that if there's an answer stored without a question,
+        # we wipe them both
+
         elif answer_given:
             question_asked = None
             answer_given = None
         else:
             pass
 
-        # timeout mechanism 
+        # timeout mechanism
         if question_asked:
             timer += 1
         if timer >= 120:

@@ -16,17 +16,17 @@ user_db = db.db('users.db')
 class Host:
 
     # what to type before we give trebekbot a command
-    command_prefix = '/'
+    command_prefix = '..'
     help_text = '''
     This iiiiiis trebekbot!
 
-    Use / to prefix commands.
-    /help: bring up this help list
-    /hello: say hello to trebekbot
-    /ask: trebekbot will ask you a question
-    /whatis: use this to provide an answer to the question
-    /myscore: find out what your current score is
-    /topten: find out who the top ten scorers are
+    Use '''+command_prefix+''' to prefix commands.
+    '''+command_prefix+'''help: bring up this help list
+    '''+command_prefix+'''hello: say hello to trebekbot
+    '''+command_prefix+'''ask: trebekbot will ask you a question
+    '''+command_prefix+'''whatis: use this to provide an answer to the question
+    '''+command_prefix+'''myscore: find out what your current score is
+    '''+command_prefix+'''topten: find out who the top ten scorers are
     '''
 
     def __init__(self, slack_client):
@@ -59,7 +59,7 @@ class Host:
             if text.startswith(self.command_prefix) \
             and prefix == listen_for:
                 answer = text.split(prefix)[1]
-                user_db.add_user_to_db(user)
+                user_db.add_user_to_db(user_db.connection, user)
                 if answer:
                     # return the answer without the prefix if we 'hear' the command prefix
                     return answer

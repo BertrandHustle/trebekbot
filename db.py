@@ -45,7 +45,7 @@ class db(object):
         CREATE TABLE IF NOT EXISTS users (
         id integer PRIMARY KEY,
         name text NOT NULL UNIQUE,
-        score integer NOT NULL DEFAULT 0
+        score integer NOT NULL DEFAULT 0 CHECK (score >= -10000)
         );
         '''
         )

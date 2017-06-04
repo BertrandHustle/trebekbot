@@ -6,6 +6,7 @@ import host
 import db
 import question
 from slackclient import SlackClient
+from math import ceil
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
@@ -33,6 +34,8 @@ if __name__=='__main__':
     host.say(channel, host.help_text)
 
     while True:
+        # time loops for debug purposes
+        loop_start_time = time.time()
         # get rolling slack output
         slack_output = slack_client.rtm_read()
         # main functions
@@ -93,5 +96,7 @@ if __name__=='__main__':
         print(answer_given)
         print('========================================')
         print(timer)
+        # track time per loop for debugging
+        print(round(time.time()-loop_start_time, 5))
         # delay so trebekbot has time to think
         time.sleep(1)

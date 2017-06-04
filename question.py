@@ -17,7 +17,7 @@ class Question:
         # json file has 216,930 questions
         question = question[randint(0, 216930)]
         self.text = question['question']
-        self.value = self.convert_value_to_int(question['value'])
+        self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question['answer']
@@ -26,9 +26,8 @@ class Question:
         return ('$' + str(self.value))
 
     # to remove $ and commas from question values, e.g. '$2,500'
-    # TODO: fix this so it doesn't return 'Invalid Value'
-    @classmethod
-    def convert_value_to_int(self, value):
+    @staticmethod
+    def convert_value_to_int(value):
         try:
             # remove special characters if this is a string
             if type(value) == str:

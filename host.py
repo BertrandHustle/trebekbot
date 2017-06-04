@@ -159,6 +159,23 @@ class Host:
                 count += 1
             self.say(main.channel, slack_list)
 
+    # allows contestants to bet on daily doubles
+    def daily_double(self, slack_output):
+        if self.hear(slack_output, 'wager'):
+            # format: <wager>|<answer>
+            slack_output = slack_output[0]
+            try:
+                split_on_pipe = slack_output.split('|')
+                wager = split_on_pipe[0]
+                answer = split_on_pipe[1]
+                # in case we get $2,000 instead of 2000
+                if type(wager) == 'str':
+                    wager = Question.convert_value_to_int(wager)
+                return (wager, answer)
+            except IndexError:
+                self.say(main.channel, 'Please answer in the correct format:\
+                answer|wager')
+
     '''
     checks if given answer is close enough to the right answer by doing the following:
     1. remove casing

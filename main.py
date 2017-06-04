@@ -4,6 +4,7 @@ import os
 import time
 import host
 import db
+import question
 from slackclient import SlackClient
 
 author = 'bertrand_hustle'
@@ -44,6 +45,11 @@ if __name__=='__main__':
         current_question = host.ask_question(slack_output)
         if current_question:
             question_asked = current_question
+            '''
+            if question.Question.is_daily_double(current_question):
+                host.say(channel, 'It\s a DAILY DOUBLE')
+                # TODO: fully impliment scoring here
+            '''
         current_answer = None
         if host.hear(slack_output, 'whatis'):
             current_answer = host.hear(slack_output, 'whatis')

@@ -98,9 +98,10 @@ def test_convert_value_to_int(test_value, expected_value):
  ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
  ('borp', 'Henry James', False),
  ('bagpipe', 'a bagpipe', True),
- ('infintesimal', 'infinitesimal', True)
- ('infiniitesimal', 'infinitesimal', True)
- ('amber alert', 'an Amber alert', True)
+ ('infintesimal', 'infinitesimal', True),
+ ('infiniitesimal', 'infinitesimal', True),
+ ('amber alert', 'an Amber alert', True),
+ ('the good Samaritan', 'The Good Samaritan', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
@@ -128,7 +129,7 @@ def test_add_user_to_db():
 @pytest.mark.parametrize("user, value_change, expected_result", [
  ('LaVar', '0', 0),
  ('LaVar', '-200', -200),
- ('Stemp', 'Invalid Value', 0)
+ ('Stemp', 'Invalid Value', 0),
  ('boop', '-10511', -10000)
  # TODO: add more exceptions here
  # ('LaVar', 'ants', False)

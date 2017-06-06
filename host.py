@@ -176,6 +176,22 @@ class Host:
                 self.say(main.channel, 'Please answer in the correct format:\
                 answer|wager')
 
+    # strips answers of extraneous punctuation, whitespace, etc.
+    @staticmethod
+    def strip_answer(answer):
+        '''
+        remove casing, we also prefix a space so the next regex will
+        catch articles that start the string (otherwise we'd need a
+        '^' in addition to a '\s')
+        '''
+        answer = ' ' + answer.lower()
+        # remove articles and conjunctions
+        answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', '', answer)
+        # remove anything that's not alphanumeric
+        answer = sub(r'[^A-Za-z0-9]', '', answer)
+        return answer
+
+
     '''
     checks if given answer is close enough to the right answer by doing the following:
     1. remove casing
@@ -196,18 +212,16 @@ class Host:
 
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
-        if type(given_answer) != str:
-            return False
-        # check for empty strings e.g. ''
-        elif not ''.join(given_answer.lower().split()).isalnum():
+        if type(given_answer) != str or type(correct_answer) != str:
             return False
         else:
             # remove casing, whitespace, punctuation, and articles
-            # thanks to Ants Aasma on stack overflow for this solution
-            # TODO: move this to separate function
-            given_answer = sub(r'(?i)\W+|an|the|^a\W', '', given_answer).lower()
-            correct_answer = sub(r'(?i)\W+|an|the|^a\W', '', correct_answer).lower()
-            print (given_answer, correct_answer)
+            print (given_answer)
+            print (correct_answer)
+            given_answer = Host.strip_answer(given_answer)
+            correct_answer = Host.strip_answer(correct_answer)
+            print (given_answer)
+            print (correct_answer)
             # count how many mismatched letters we have
             error_count = 0
             error_ratio = len(correct_answer)/8
@@ -215,7 +229,11 @@ class Host:
             for first_letter, second_letter in paired_letters:
                 if first_letter != second_letter:
                     error_count += 1
-            if error_count <= error_ratio:
+            '''
+            check if paired_letters is empty, e.g. []
+            this happens if we pass in an empty string ('')
+            '''
+            if paired_letters and error_count <= error_ratio:
                 return True
             else:
                 return False

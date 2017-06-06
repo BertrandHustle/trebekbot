@@ -8,6 +8,8 @@ import question
 from slackclient import SlackClient
 from math import ceil
 
+#TODO: make a readme detailing installation process
+
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 

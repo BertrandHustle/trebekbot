@@ -88,6 +88,15 @@ def test_is_daily_double(test_value, expected_value):
 def test_convert_value_to_int(test_value, expected_value):
     assert test_question.convert_value_to_int(test_value) == expected_value
 
+@pytest.mark.parametrize("test_value, expected_value", [
+ ('Hall & Oates', 'halloates'),
+ ('Hall and Oates', 'halloates'),
+ ('Androgynous', 'androgynous'),
+ ('Hall & Oates\'s Oats and Halls', 'halloatessoatshalls')
+])
+def test_strip_answer(test_value, expected_value):
+    assert test_host.strip_answer(test_value) == expected_value
+
 @pytest.mark.parametrize("given_answer, expected_answer, expected_value", [
  ('Bath', 'Borth', False),
  ('Bath', 'beth', False),
@@ -101,7 +110,9 @@ def test_convert_value_to_int(test_value, expected_value):
  ('infintesimal', 'infinitesimal', True),
  ('infiniitesimal', 'infinitesimal', True),
  ('amber alert', 'an Amber alert', True),
- ('the good Samaritan', 'The Good Samaritan', True)
+ ('the good Samaritan', 'The Good Samaritan', True),
+ ('it’s a wonderful life', 'It\'s A Wonderful Life', True),
+ ('Hall and Oates', 'Hall & Oates', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

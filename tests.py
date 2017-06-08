@@ -135,20 +135,32 @@ def test_add_user_to_db():
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1
 
-# TODO: test to make sure a new user gets their score updated on first answer
-# TODO: test to make sure lower limit of -$10000 works
 @pytest.mark.parametrize("user, value_change, expected_result", [
  ('LaVar', '0', 0),
  ('LaVar', '-200', -200),
+ ('LaVar', '-200', -400),
  ('Stemp', 'Invalid Value', 0),
- ('boop', '-10511', -10000)
+ ('boop', '-9000', -9000),
+ ('boop', '-500', -9500)
  # TODO: add more exceptions here
  # ('LaVar', 'ants', False)
 ])
-def test_update_score(user, value_change, expected_result, scrub_test_users):
+def test_update_score(user, value_change, expected_result):
     test_db.add_user_to_db(test_db.connection, user)
     test_db.update_score(test_db.connection, user, value_change)
     assert test_db.return_score(test_db.connection, user) == expected_result
+'''
+redundant, but making sure the test itself
+was working properly w/parametrization
+'''
+def test_test_update_score(scrub_test_users):
+    test_db.add_user_to_db(test_db.connection, 'test')
+    test_db.update_score(test_db.connection, 'test', '500')
+    assert test_db.return_score(test_db.connection, 'test') == 500
+    test_db.update_score(test_db.connection, 'test', '-5000')
+    assert test_db.return_score(test_db.connection, 'test') == -4500
+    test_db.update_score(test_db.connection, 'test', '-100000')
+    assert test_db.return_score(test_db.connection, 'test') == -4500
 
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [

@@ -50,6 +50,8 @@ if __name__=='__main__':
         current_question = host.ask_question(slack_output)
         if current_question:
             question_asked = current_question
+            # reset the timer when we ask for a new question
+            timer = 0
             '''
             if question.Question.is_daily_double(current_question):
                 host.say(channel, 'It\s a DAILY DOUBLE')
@@ -63,10 +65,9 @@ if __name__=='__main__':
 
         # logic for getting and checking question answers
         if question_asked and answer_given:
-            host.check_answer(slack_output, question_asked)
-            # user_db.add_user_to_db(user_db.connection, user_that_answered_question)
-            question_asked = None
-            answer_given = None
+            if host.check_answer(slack_output, question_asked):
+                question_asked = None
+                answer_given = None
 
         # having an answer_given stored without a question can lead to
         # trebekbot becoming unable to be asked questions, so we need

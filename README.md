@@ -26,6 +26,7 @@ Windows:
 3b). select “Advanced system settings” → “Environment Variables”.
 
 // Thank you to https://www.fullstackpython.com/blog/build-first-slack-bot-python.html for this script
+
 4. Get your bot's ID:
 $ python3 print_bot_id.py
 

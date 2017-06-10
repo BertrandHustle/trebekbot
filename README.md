@@ -13,12 +13,16 @@ Take note of the API token you get after configuring your new bot.
 3. Set TREBEKBOT_API_TOKEN variable:
 
 Linux:
+
 3a) add the following to /etc/environment:
 TREBEKBOT_API_TOKEN=<API token from step 2>
+
 3b) $ source /etc/environment
 
 Windows:
+
 3a). right-click the start button or hit win+break
+
 3b). select “Advanced system settings” → “Environment Variables”.
 
 // Thank you to https://www.fullstackpython.com/blog/build-first-slack-bot-python.html for this script

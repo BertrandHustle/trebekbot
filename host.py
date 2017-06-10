@@ -52,12 +52,15 @@ class Host:
             slack_output = slack_output[0]
             text = slack_output['text']
             user = self.get_user(slack_output)
+            channel = self.get_channel(slack_output)
             # prefix without the ';;'
             prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
             # and the rest of the text minus the prefix matches what we're listening for
+            # and we're in the right channel
             if text.startswith(self.command_prefix) \
-            and prefix == listen_for:
+            and prefix == listen_for \
+            and channel == main.channel:
                 answer = text.split(prefix)[1]
                 user_db.add_user_to_db(user_db.connection, user)
                 if answer:
@@ -78,6 +81,20 @@ class Host:
             text=message,
             as_user=True
         )
+
+    '''
+    [{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+    'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
+    'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}]
+    '''
+    # get channel by checking channel id
+    def get_channel(self, slack_output):
+        channel_id = slack_output['channel']
+        channel = self.slack_client.api_call(
+        'channel.info',
+        channel=channel_id
+        )
+        return channel['channel']['name']
 
     # get user by checking user id
     def get_user(self, slack_output):
@@ -100,7 +117,8 @@ class Host:
         if self.hear(slack_output, 'hello'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            self.say(main.channel, 'Hello @'+user)
+            channel = self.get_channel(slack_output)
+            self.say(main.channel, 'Hello @'+user+ ' in ' +channel)
 
     # gets a random question from the jeopardy_json_file
     # TODO: make this scrub out html links

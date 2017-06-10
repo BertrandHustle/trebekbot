@@ -1,4 +1,5 @@
 import json
+import re
 from random import randint
 
 '''
@@ -10,12 +11,29 @@ Holds details about questions and questions themselves
 :boolean daily_double: True if question is a daily double
 '''
 
+# TODO: strip out hyperlinks e.g.
+
+'''
+'This patron saint of Lourdes'
+<a href="http://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
+target="_blank">body</a>
+has remained unchanged in its glass display case since her death in 1879'
+'''
+
+# match href="<link>" --> href="(.*?)"
+# https://www.mkyong.com/regular-expressions/how-to-extract-html-links-with-regular-expression/
+# match html tags --> (?i)<[a-z]([^>]+)>(.+?)</[a-z]>
+# TODO: this ^^ may need to be fixed since it only works for single chars
+
 class Question:
     def __init__(self):
         jeopardy_json_file = open('./json_files/JEOPARDY_QUESTIONS1.json').read()
         question = json.loads(jeopardy_json_file)
         # json file has 216,930 questions
         question = question[randint(0, 216930)]
+        # if there are any html <a> tags:
+        if re.fullmatch(r"(?i)<[a-z]([^>]+)>(.+?)</[a-z]>"):
+
         self.text = question['question']
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']

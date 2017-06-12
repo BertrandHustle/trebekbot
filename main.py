@@ -95,16 +95,12 @@ if __name__=='__main__':
         # printing for debug purposes
         print(slack_output)
         if question_asked:
-            print(question_asked.text)
-        print('GIVEN ANSWER')
-        print(answer_given)
+            print('QUESTION: '+question_asked.text)
+            print('ANSWER: '+question_asked.answer)
+        if answer_given:
+            print('GIVEN ANSWER: ' + answer_given)
         print('========================================')
         print(timer)
-        # get_channel test
-        try:
-            print('CHANNEL: '+host.get_channel(slack_output))
-        except (TypeError, KeyError):
-            pass
         # track time per loop for debugging
         print(round(time.time()-loop_start_time, 5))
         # delay so trebekbot has time to think

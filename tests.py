@@ -115,7 +115,8 @@ def test_strip_answer(test_value, expected_value):
  ('amber alert', 'an Amber alert', True),
  ('the good Samaritan', 'The Good Samaritan', True),
  ('it’s a wonderful life', 'It\'s A Wonderful Life', True),
- ('Hall and Oates', 'Hall & Oates', True)
+ ('Hall and Oates', 'Hall & Oates', True),
+ ('b', 'the Boston Massacre', False)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

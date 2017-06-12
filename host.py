@@ -52,16 +52,13 @@ class Host:
             slack_output = slack_output[0]
             text = slack_output['text']
             user = self.get_user(slack_output)
-            channel = self.get_channel(slack_output)
-            print(channel)
             # prefix without the ';;'
             prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
             # and the rest of the text minus the prefix matches what we're listening for
             # and we're in the right channel
             if text.startswith(self.command_prefix) \
-            and prefix == listen_for \
-            and channel == main.channel:
+            and prefix == listen_for:
                 answer = text.split(prefix)[1]
                 user_db.add_user_to_db(user_db.connection, user)
                 if answer:
@@ -89,27 +86,13 @@ class Host:
     'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}]
     '''
 
-    # get list of channels that trebekbot is in
-    def get_channels_list(self):
-        trebekbot_id = main.bot_id
-        membership_list = []
-        channels_list = self.slack_client.api_call(
-        'channels.list'
-        )
-        # print(channels_list['channels'][0]['members'])
-        for c in channels_list['channels']:
-            if trebekbot_id in c['members']:
-                membership_list.append(c['name'])
-        return membership_list
-
-    # check if user is in channel
-    def user_in_channel(self, slack_output):
+    def get_channel(self, slack_output):
         channel_id = slack_output['channel']
         channel = self.slack_client.api_call(
-        'channel.info',
-        channel=channel_id
+        'channels.info'
         )
-        return channel['channel']['name']
+        # add the hash to make it match the main.channel value
+        return '#'+channel['channel']['name']
 
     # get user by checking user id
     def get_user(self, slack_output):
@@ -132,8 +115,7 @@ class Host:
         if self.hear(slack_output, 'hello'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            channel = self.get_channel(slack_output)
-            self.say(main.channel, 'Hello @'+user+ ' in ' +channel)
+            self.say(main.channel, 'Hello @'+user)
 
     # gets a random question from the jeopardy_json_file
     # TODO: make this scrub out html links
@@ -251,24 +233,25 @@ class Host:
             return False
         else:
             # remove casing, whitespace, punctuation, and articles
-            print (given_answer)
-            print (correct_answer)
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
-            print (given_answer)
-            print (correct_answer)
             # count how many mismatched letters we have
             error_count = 0
             error_ratio = len(correct_answer)/8
+            '''
+            the max acceptable length that we count as close enough
+            for a second chance
+            '''
+            acceptable_length = len(correct_answer)*0.8
             paired_letters = list(zip(given_answer, correct_answer))
             for first_letter, second_letter in paired_letters:
                 if first_letter != second_letter:
                     error_count += 1
-            '''
-            check if paired_letters is empty, e.g. []
-            this happens if we pass in an empty string ('')
-            '''
-            if paired_letters and error_count <= error_ratio:
+            # if the answer is too short, don't bother
+            if len(given_answer) <= acceptable_length:
+                return False
+            # check if we got an empty string as an answer
+            elif paired_letters and error_count <= error_ratio:
                 return True
             else:
                 return False

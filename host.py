@@ -53,6 +53,7 @@ class Host:
             text = slack_output['text']
             user = self.get_user(slack_output)
             channel = self.get_channel(slack_output)
+            print(channel)
             # prefix without the ';;'
             prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
@@ -87,8 +88,22 @@ class Host:
     'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
     'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}]
     '''
-    # get channel by checking channel id
-    def get_channel(self, slack_output):
+
+    # get list of channels that trebekbot is in
+    def get_channels_list(self):
+        trebekbot_id = main.bot_id
+        membership_list = []
+        channels_list = self.slack_client.api_call(
+        'channels.list'
+        )
+        # print(channels_list['channels'][0]['members'])
+        for c in channels_list['channels']:
+            if trebekbot_id in c['members']:
+                membership_list.append(c['name'])
+        return membership_list
+
+    # check if user is in channel
+    def user_in_channel(self, slack_output):
         channel_id = slack_output['channel']
         channel = self.slack_client.api_call(
         'channel.info',

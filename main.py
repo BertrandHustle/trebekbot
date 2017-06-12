@@ -12,6 +12,7 @@ from math import ceil
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
+build_version = '0.2'
 
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')
@@ -74,7 +75,7 @@ if __name__=='__main__':
         # to make sure that if there's an answer stored without a question,
         # we wipe them both
 
-        elif answer_given:
+        elif answer_given and not question_asked:
             question_asked = None
             answer_given = None
         else:
@@ -99,6 +100,11 @@ if __name__=='__main__':
         print(answer_given)
         print('========================================')
         print(timer)
+        # get_channel test
+        try:
+            print('CHANNEL: '+host.get_channel(slack_output))
+        except (TypeError, KeyError):
+            pass
         # track time per loop for debugging
         print(round(time.time()-loop_start_time, 5))
         # delay so trebekbot has time to think

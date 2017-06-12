@@ -63,6 +63,9 @@ def test_get_value():
     value_no_dollar_sign = test_question.get_value()[2:]
     assert int(value_no_dollar_sign) % 100 == 0
 
+def test_get_channels_list():
+    assert test_host.get_channels_list() == ['notbeer', 'trivia']
+
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$100', False),
  ('$5578', True),

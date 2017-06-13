@@ -18,6 +18,10 @@ Holds details about questions and questions themselves
 <a href="http://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
 target="_blank">body</a>
 has remained unchanged in its glass display case since her death in 1879'
+
+These might be challenging 
+<a href="http://www.j-archive.com/media/2010-06-15_DJ_20.jpg" target=
+"_blank">What</a> the ant had in song'
 '''
 
 # match href="<link>" --> href="(.*?)"
@@ -32,8 +36,7 @@ class Question:
         # json file has 216,930 questions
         question = question[randint(0, 216930)]
         # if there are any html <a> tags:
-        if re.fullmatch(r"(?i)<[a-z]([^>]+)>(.+?)</[a-z]>"):
-
+        # if re.fullmatch(r"(?i)<[a-z]([^>]+)>(.+?)</[a-z]>"):
         self.text = question['question']
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']

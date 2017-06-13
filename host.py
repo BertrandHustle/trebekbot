@@ -3,9 +3,13 @@ import question
 import db
 from re import sub
 from contextlib import suppress
+import difflib
 
 # initialize user database
 user_db = db.db('users.db')
+# initialize dictionary
+# TODO: detect if os.name == linux, use /usr/bin/words if so
+eng_dict = open('./json_files/words.txt').read().splitlines()
 
 '''
  Class that acts as the "host" of Jeopardy
@@ -137,18 +141,20 @@ class Host:
             user = self.get_user(slack_output)
             user_id = slack_output['user']
             correct_answer = question.answer
+            answer_check = self.fuzz_answer(user_answer, correct_answer)
 
             print('CORRECT ANSWER')
             print(correct_answer)
             print('USER ANSWER')
             print(user_answer)
 
-            if self.fuzz_answer(user_answer, correct_answer):
+            if answer_check:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
                 # award points to user
                 user_db.update_score(user_db.connection, user, question.value)
                 return 1
-            elif user_answer in correct_answer:
+            # TODO: move this logic into fuzz_answer()
+            elif not answer_check and user_answer in correct_answer:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' Please be more specific.')
             else:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.  The correct answer was '+correct_answer)
@@ -211,12 +217,6 @@ class Host:
 
     '''
     checks if given answer is close enough to the right answer by doing the following:
-    1. remove casing
-    2. remove whitespace
-    3. check if an acceptable fraction of the letters are correct
-    '''
-
-    '''
     1. every time there's a match, remove the pair
     2. when we reach a pair that doesn't match, see if the first
     word is a big enough substring of the second
@@ -227,6 +227,31 @@ class Host:
     tesimal
     '''
 
+
+    @staticmethod
+    def fuzz_answer(given_answer, correct_answer):
+        if type(given_answer) != str \
+        or type(correct_answer) != str \
+        or not given_answer:
+            return False
+        else:
+            # remove casing, whitespace, punctuation, and articles
+            given_answer = Host.strip_answer(given_answer)
+            correct_answer = Host.strip_answer(correct_answer)
+            # use lambda to only pick words w/first letter of given_answer
+            first_letter_eng_dict = filter(lambda x: x[:1] == given_answer[:1], eng_dict)
+            check_word_closeness = difflib.get_close_matches \
+            (given_answer, first_letter_eng_dict, n=5, cutoff=0.8)
+            print (check_word_closeness)
+            # TODO: check this word by word
+            if correct_answer in check_word_closeness or \
+            given_answer in correct_answer:
+                return True
+            else:
+                return False
+
+    '''
+    #TODO: utilize enchant library here and combine with substring checking
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         if type(given_answer) != str or type(correct_answer) != str:
@@ -238,10 +263,10 @@ class Host:
             # count how many mismatched letters we have
             error_count = 0
             error_ratio = len(correct_answer)/8
-            '''
-            the max acceptable length that we count as close enough
-            for a second chance
-            '''
+
+            #the max acceptable length that we count as close enough
+            #for a second chance
+
             acceptable_length = len(correct_answer)*0.8
             paired_letters = list(zip(given_answer, correct_answer))
             for first_letter, second_letter in paired_letters:
@@ -255,3 +280,4 @@ class Host:
                 return True
             else:
                 return False
+    '''

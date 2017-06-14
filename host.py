@@ -154,7 +154,7 @@ class Host:
                 user_db.update_score(user_db.connection, user, question.value)
                 return 1
             # TODO: move this logic into fuzz_answer()
-        elif answer_check is 'close':
+            elif answer_check is 'close':
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' Please be more specific.')
             else:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.  The correct answer was '+correct_answer)
@@ -230,17 +230,30 @@ class Host:
 
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
+        # check if
         if type(given_answer) != str \
         or type(correct_answer) != str \
-        # check for empty strings
         or not given_answer \
-        # check to make sure given_answer isn't just one letter
         or len(given_answer) < len(correct_answer)*0.8:
             return False
         else:
+
+            '''
+            for every word
+            1. strip word
+            2. if it == answer word or matches dict, True
+            3. elif it is a big enough substring, close
+            4. else: false
+            '''
+
             # remove casing, whitespace, punctuation, and articles
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
+            print(given_answer, correct_answer)
+
+            split_words = given_answer.split(' ')
+            for word in split_words:
+
             # use lambda to only pick words w/first letter of given_answer
             first_letter_eng_dict = filter(lambda x: x[:1] == given_answer[:1], eng_dict)
             check_word_closeness = difflib.get_close_matches \

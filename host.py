@@ -154,7 +154,7 @@ class Host:
                 user_db.update_score(user_db.connection, user, question.value)
                 return 1
             # TODO: move this logic into fuzz_answer()
-            elif not answer_check and user_answer in correct_answer:
+        elif answer_check is 'close':
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' Please be more specific.')
             else:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.  The correct answer was '+correct_answer)
@@ -232,7 +232,10 @@ class Host:
     def fuzz_answer(given_answer, correct_answer):
         if type(given_answer) != str \
         or type(correct_answer) != str \
-        or not given_answer:
+        # check for empty strings
+        or not given_answer \
+        # check to make sure given_answer isn't just one letter
+        or len(given_answer) < len(correct_answer)*0.8:
             return False
         else:
             # remove casing, whitespace, punctuation, and articles
@@ -244,9 +247,12 @@ class Host:
             (given_answer, first_letter_eng_dict, n=5, cutoff=0.8)
             print (check_word_closeness)
             # TODO: check this word by word
-            if correct_answer in check_word_closeness or \
-            given_answer in correct_answer:
+            if correct_answer in check_word_closeness:
                 return True
+            elif given_answer in correct_answer \
+            and len(given_answer) <= len(correct_answer)*0.8:
+                # TODO: put "close enough" logic here and pass to host
+                return 'close'
             else:
                 return False
 

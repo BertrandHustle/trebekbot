@@ -247,27 +247,31 @@ class Host:
             '''
 
             # remove casing, whitespace, punctuation, and articles
-            given_answer = Host.strip_answer(given_answer)
-            correct_answer = Host.strip_answer(correct_answer)
-            print(given_answer, correct_answer)
+            #given_answer = Host.strip_answer(given_answer)
+            #correct_answer = Host.strip_answer(correct_answer)
+            #print(given_answer, correct_answer)
 
             split_words = given_answer.split(' ')
             for word in split_words:
-
-            # use lambda to only pick words w/first letter of given_answer
-            first_letter_eng_dict = filter(lambda x: x[:1] == given_answer[:1], eng_dict)
-            check_word_closeness = difflib.get_close_matches \
-            (given_answer, first_letter_eng_dict, n=5, cutoff=0.8)
-            print (check_word_closeness)
-            # TODO: check this word by word
-            if correct_answer in check_word_closeness:
-                return True
-            elif given_answer in correct_answer \
-            and len(given_answer) <= len(correct_answer)*0.8:
-                # TODO: put "close enough" logic here and pass to host
-                return 'close'
-            else:
-                return False
+                # remove casing, whitespace, punctuation, and articles
+                stripped_given_word = Host.strip_answer(given_answer)
+                stripped_correct_word = Host.strip_answer(correct_answer)
+                # print test
+                print(stripped_given_word, stripped_correct_word)
+                # use lambda to pare down dict
+                first_letter_eng_dict = filter(lambda x: x[:1] == given_answer[:1], eng_dict)
+                # get list of close words (spell check)
+                check_word_closeness = difflib.get_close_matches \
+                (given_answer, first_letter_eng_dict, n=5, cutoff=0.8)
+                # print test
+                print (check_word_closeness)
+                # if it's in the spell check, it's correct
+                if stripped_given_word not in check_word_closeness or \
+                # check if the guessed word is a big enough substring of the correct word
+                given_answer not in correct_answer \
+                or len(given_answer) >= len(correct_answer)*0.8:
+                    return False
+            return True
 
     '''
     #TODO: utilize enchant library here and combine with substring checking

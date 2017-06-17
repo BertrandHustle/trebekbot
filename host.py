@@ -9,7 +9,6 @@ import difflib
 # initialize user database
 user_db = db.db('users.db')
 # initialize dictionary
-# TODO: detect if os.name == linux, use /usr/bin/words if so
 eng_dict = ''
 if path.isfile('/usr/share/dict/words'):
     words_file = open('/usr/share/dict/words', 'r')
@@ -218,6 +217,8 @@ class Host:
         answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', answer)
         # remove anything that's not alphanumeric
         answer = sub(r'[^A-Za-z0-9]', ' ', answer)
+        # clean up extra whitespace
+        answer = sub(r'\s{2,}', ' ', answer)
         # remove extra space
         return answer[1:]
 
@@ -274,15 +275,18 @@ class Host:
                 first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
                 # get list of close words (spell check)
                 check_word_closeness = difflib.get_close_matches \
-                (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
+                (given_word, first_letter_eng_dict, n=5, cutoff=0.7)
                 # print test
                 print (check_word_closeness)
-                # if it's in the spell check, it's correct
-                if stripped_given_word in check_word_closeness:
+                # if it's in the spell check or the right word, it's correct
+                if stripped_given_word in check_word_closeness or \
+                stripped_given_word == stripped_correct_word:
                     continue
                 # check if the guessed word is a big enough substring of the correct word
+                # or vice versa
                 elif given_word in correct_word \
-                and len(given_word) >= len(correct_word)*0.8:
+                and len(given_word) >= len(correct_word)*0.8 or \
+                correct_word in given_word and len(correct_word) >= len(correct_word):
                     return 'close'
                 else:
                     return False

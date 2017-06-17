@@ -95,7 +95,7 @@ def test_convert_value_to_int(test_value, expected_value):
  ('Hall & Oates', 'hall oates'),
  ('Hall and Oates', 'hall oates'),
  ('Androgynous', 'androgynous'),
- ('Hall & Oates\'s Oats and Halls', 'hall oatess oats halls')
+ ('Hall & Oates\' Oats and Halls', 'hall oates oats halls')
 ])
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value

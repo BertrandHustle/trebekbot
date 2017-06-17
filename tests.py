@@ -92,10 +92,10 @@ def test_convert_value_to_int(test_value, expected_value):
     assert test_question.convert_value_to_int(test_value) == expected_value
 
 @pytest.mark.parametrize("test_value, expected_value", [
- ('Hall & Oates', 'halloates'),
- ('Hall and Oates', 'halloates'),
+ ('Hall & Oates', 'hall oates'),
+ ('Hall and Oates', 'hall oates'),
  ('Androgynous', 'androgynous'),
- ('Hall & Oates\'s Oats and Halls', 'halloatessoatshalls')
+ ('Hall & Oates\'s Oats and Halls', 'hall oatess oats halls')
 ])
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value

@@ -2,6 +2,7 @@ import main
 import question
 import db
 from re import sub
+from os import path
 from contextlib import suppress
 import difflib
 
@@ -9,7 +10,12 @@ import difflib
 user_db = db.db('users.db')
 # initialize dictionary
 # TODO: detect if os.name == linux, use /usr/bin/words if so
-eng_dict = open('./json_files/words.txt').read().splitlines()
+eng_dict = ''
+if path.isfile('/usr/share/dict/words'):
+    words_file = open('/usr/share/dict/words', 'r')
+    eng_dict = words_file.readlines()
+else:
+    eng_dict = open('./json_files/words.txt').read().splitlines()
 
 '''
  Class that acts as the "host" of Jeopardy
@@ -209,11 +215,11 @@ class Host:
         '''
         answer = ' ' + answer.lower()
         # remove articles and conjunctions
-        answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', '', answer)
+        answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', answer)
         # remove anything that's not alphanumeric
-        answer = sub(r'[^A-Za-z0-9]', '', answer)
-        return answer
-
+        answer = sub(r'[^A-Za-z0-9]', ' ', answer)
+        # remove extra space
+        return answer[1:]
 
     '''
     checks if given answer is close enough to the right answer by doing the following:
@@ -227,7 +233,7 @@ class Host:
     tesimal
     '''
 
-
+    # TODO: rename this
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         # check if
@@ -251,25 +257,34 @@ class Host:
             #correct_answer = Host.strip_answer(correct_answer)
             #print(given_answer, correct_answer)
 
-            split_words = given_answer.split(' ')
-            for word in split_words:
+            # strip out conjunctions and articles, split on spaces
+            given_answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', \
+            given_answer).split(' ')
+            correct_answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', \
+            correct_answer).split(' ')
+            zipped_words = list(zip(given_answer, correct_answer))
+            print(zipped_words)
+            for given_word, correct_word in zipped_words:
                 # remove casing, whitespace, punctuation, and articles
-                stripped_given_word = Host.strip_answer(given_answer)
-                stripped_correct_word = Host.strip_answer(correct_answer)
+                stripped_given_word = Host.strip_answer(given_word)
+                stripped_correct_word = Host.strip_answer(correct_word)
                 # print test
                 print(stripped_given_word, stripped_correct_word)
                 # use lambda to pare down dict
-                first_letter_eng_dict = filter(lambda x: x[:1] == given_answer[:1], eng_dict)
+                first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
                 # get list of close words (spell check)
                 check_word_closeness = difflib.get_close_matches \
-                (given_answer, first_letter_eng_dict, n=5, cutoff=0.8)
+                (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
                 # print test
                 print (check_word_closeness)
                 # if it's in the spell check, it's correct
-                if stripped_given_word not in check_word_closeness or \
+                if stripped_given_word in check_word_closeness:
+                    continue
                 # check if the guessed word is a big enough substring of the correct word
-                given_answer not in correct_answer \
-                or len(given_answer) >= len(correct_answer)*0.8:
+                elif given_word in correct_word \
+                and len(given_word) >= len(correct_word)*0.8:
+                    return 'close'
+                else:
                     return False
             return True
 

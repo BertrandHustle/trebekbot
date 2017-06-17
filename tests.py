@@ -110,13 +110,16 @@ def test_strip_answer(test_value, expected_value):
  ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
  ('borp', 'Henry James', False),
  ('bagpipe', 'a bagpipe', True),
+ ('amber alert', 'an Amber alert', True),
  ('infintesimal', 'infinitesimal', True),
  ('infiniitesimal', 'infinitesimal', True),
- ('amber alert', 'an Amber alert', True),
  ('the good Samaritan', 'The Good Samaritan', True),
  ('it’s a wonderful life', 'It\'s A Wonderful Life', True),
  ('Hall and Oates', 'Hall & Oates', True),
- ('b', 'the Boston Massacre', False)
+ ('b', 'the Boston Massacre', False),
+ ('The Great Star of Bethlehem', 'The Star of Bethelhem', True),
+ ('lawn', 'The Great Lawn', True),
+ ('bechamel', 'béchamel', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

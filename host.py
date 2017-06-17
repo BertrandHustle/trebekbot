@@ -5,6 +5,7 @@ from re import sub
 from os import path
 from contextlib import suppress
 import difflib
+import editdistance
 
 # initialize user database
 user_db = db.db('users.db')
@@ -205,6 +206,7 @@ class Host:
                 answer|wager')
 
     # strips answers of extraneous punctuation, whitespace, etc.
+    # TODO: impliment unidecode here to remove diacritical marks
     @staticmethod
     def strip_answer(answer):
         '''
@@ -222,71 +224,49 @@ class Host:
         # remove extra space
         return answer[1:]
 
-    '''
-    checks if given answer is close enough to the right answer by doing the following:
-    1. every time there's a match, remove the pair
-    2. when we reach a pair that doesn't match, see if the first
-    word is a big enough substring of the second
-    infintesimal
-    infinitesimal
-
-    esimal
-    tesimal
-    '''
-
+    # checks if given answer is close enough to correct answer
     # TODO: rename this
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
-        # check if
-        if type(given_answer) != str \
-        or type(correct_answer) != str \
-        or not given_answer \
-        or len(given_answer) < len(correct_answer)*0.8:
+        # if answers aren't strings, or we get an empty string, don't bother
+        if type(given_answer) != str or type(correct_answer) != str \
+        or not given_answer:
             return False
         else:
-
-            '''
-            for every word
-            1. strip word
-            2. if it == answer word or matches dict, True
-            3. elif it is a big enough substring, close
-            4. else: false
-            '''
-
-            # remove casing, whitespace, punctuation, and articles
-            #given_answer = Host.strip_answer(given_answer)
-            #correct_answer = Host.strip_answer(correct_answer)
-            #print(given_answer, correct_answer)
-
-            # strip out conjunctions and articles, split on spaces
-            given_answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', \
-            given_answer).split(' ')
-            correct_answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', \
-            correct_answer).split(' ')
+            # remove casing, punctuation, and articles
+            given_answer = Host.strip_answer(given_answer).split(' ')
+            correct_answer = Host.strip_answer(correct_answer).split(' ')
             zipped_words = list(zip(given_answer, correct_answer))
             print(zipped_words)
             for given_word, correct_word in zipped_words:
-                # remove casing, whitespace, punctuation, and articles
-                stripped_given_word = Host.strip_answer(given_word)
-                stripped_correct_word = Host.strip_answer(correct_word)
-                # print test
-                print(stripped_given_word, stripped_correct_word)
                 # use lambda to pare down dict
                 first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
-                # get list of close words (spell check)
-                check_word_closeness = difflib.get_close_matches \
-                (given_word, first_letter_eng_dict, n=5, cutoff=0.7)
+                # get lists of close words (spell check)
+                check_given_word_closeness = difflib.get_close_matches \
+                (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
+                check_correct_word_closeness = difflib.get_close_matches \
+                (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
+                # get levenshtein distance
+                lev_dist = editdistance.eval(given_word, correct_word)
                 # print test
-                print (check_word_closeness)
-                # if it's in the spell check or the right word, it's correct
-                if stripped_given_word in check_word_closeness or \
-                stripped_given_word == stripped_correct_word:
+                print(check_given_word_closeness, check_correct_word_closeness)
+                '''
+                if the word is:
+
+                '''
+                if len(given_word) >= len(correct_word)*0.8 \
+                and given_word in check_given_word_closeness \
+                and given_word in check_correct_word_closeness \
+                or given_word == correct_word \
+                or lev_dist <= 1:
                     continue
                 # check if the guessed word is a big enough substring of the correct word
                 # or vice versa
                 elif given_word in correct_word \
-                and len(given_word) >= len(correct_word)*0.8 or \
-                correct_word in given_word and len(correct_word) >= len(correct_word):
+                and len(given_word) >= len(correct_word)*0.8 \
+                or correct_word in given_word \
+                and len(correct_word) >= len(given_word)*0.8 \
+                or given answer in correct_answer:
                     return 'close'
                 else:
                     return False

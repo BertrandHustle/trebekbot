@@ -8,7 +8,7 @@ import question
 from slackclient import SlackClient
 from math import ceil
 
-#TODO: make a readme detailing installation process
+# TODO: make a setup.py file including editdistance and slackclient
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'

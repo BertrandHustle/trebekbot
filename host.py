@@ -4,6 +4,7 @@ import db
 from re import sub
 from os import path
 from contextlib import suppress
+from unidecode import unidecode
 import difflib
 import editdistance
 
@@ -215,6 +216,8 @@ class Host:
         '^' in addition to a '\s')
         '''
         answer = ' ' + answer.lower()
+        # remove diacritical marks
+        answer = unidecode(answer)
         # remove articles and conjunctions
         answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', answer)
         # remove anything that's not alphanumeric
@@ -266,40 +269,9 @@ class Host:
                 and len(given_word) >= len(correct_word)*0.8 \
                 or correct_word in given_word \
                 and len(correct_word) >= len(given_word)*0.8 \
-                or given answer in correct_answer:
+                or given_answer in correct_answer \
+                or given_word in correct_answer:
                     return 'close'
                 else:
                     return False
             return True
-
-    '''
-    #TODO: utilize enchant library here and combine with substring checking
-    @staticmethod
-    def fuzz_answer(given_answer, correct_answer):
-        if type(given_answer) != str or type(correct_answer) != str:
-            return False
-        else:
-            # remove casing, whitespace, punctuation, and articles
-            given_answer = Host.strip_answer(given_answer)
-            correct_answer = Host.strip_answer(correct_answer)
-            # count how many mismatched letters we have
-            error_count = 0
-            error_ratio = len(correct_answer)/8
-
-            #the max acceptable length that we count as close enough
-            #for a second chance
-
-            acceptable_length = len(correct_answer)*0.8
-            paired_letters = list(zip(given_answer, correct_answer))
-            for first_letter, second_letter in paired_letters:
-                if first_letter != second_letter:
-                    error_count += 1
-            # if the answer is too short, don't bother
-            if len(given_answer) <= acceptable_length:
-                return False
-            # check if we got an empty string as an answer
-            elif paired_letters and error_count <= error_ratio:
-                return True
-            else:
-                return False
-    '''

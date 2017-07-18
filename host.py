@@ -35,9 +35,10 @@ class Host:
     '''+command_prefix+'''help: bring up this help list
     '''+command_prefix+'''hello: say hello to trebekbot
     '''+command_prefix+'''ask: trebekbot will ask you a question
-    '''+command_prefix+'''whatis: use this to provide an answer to the question
+    '''+command_prefix+'''whatis or whois: use this to provide an answer to the question
     '''+command_prefix+'''myscore: find out what your current score is
     '''+command_prefix+'''topten: find out who the top ten scorers are
+    '''+command_prefix+'''wager: put in your wager for daily doubles
     '''
 
     def __init__(self, slack_client):
@@ -121,6 +122,15 @@ class Host:
         if self.hear(slack_output, 'help'):
             self.say(main.channel, self.help_text)
 
+    # gets wager value from output for daily doubles
+    def get_wager(self, slack_output):
+        with suppress(ValueError):
+            if self.hear(slack_output, 'wager'):
+                slack_output = slack_output[0]
+                print(slack_output)
+                wager = slack_output['text'].split('wager')[1]
+                return int(wager)
+
     # say hi!
     def hello(self, slack_output):
         if self.hear(slack_output, 'hello'):
@@ -133,14 +143,21 @@ class Host:
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             asked_question = question.Question()
+            # we need to know who asked the question for daily doubles
+            asked_question.asker = self.get_user(slack_output)
             # parse this so it's pretty in slack
             question_text = '[*'+asked_question.category+'*] ' + '['+asked_question.get_value()+'] ' + '_'+asked_question.text+'_'
             self.say(main.channel, question_text)
             return asked_question
 
-    # TODO: change this to /what /who for mobile users
-    def check_answer(self, slack_output, question):
-        if self.hear(slack_output, 'whatis'):
+    '''
+    checks if the answer to a question is correct and updates score accordingly
+    :param slack_output: the output we hear coming from slack_output
+    :param question: the question object
+    :param wager: optional, the wager if the question is a Daily Double
+    '''
+    def check_answer(self, slack_output, question, wager=None):
+        if self.hear(slack_output, 'whatis') or self.hear(slack_output, 'whois'):
             # this drills down into the slack output to get the given answer
             slack_output = slack_output[0]
             user_answer = slack_output['text'].split('whatis')[1]
@@ -158,15 +175,20 @@ class Host:
             if answer_check:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
                 # award points to user
-                user_db.update_score(user_db.connection, user, question.value)
+                if question.is_daily_double:
+                    user_db.update_score(user_db.connection, user, wager)
+                else:
+                    user_db.update_score(user_db.connection, user, question.value)
                 return 1
-            # TODO: move this logic into fuzz_answer()
             elif answer_check is 'close':
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' Please be more specific.')
             else:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.  The correct answer was '+correct_answer)
                 # take away points from user
-                user_db.update_score(user_db.connection, user, -question.value)
+                if question.is_daily_double:
+                    user_db.update_score(user_db.connection, user, -wager)
+                else:
+                    user_db.update_score(user_db.connection, user, -question.value)
 
 
     # returns user's current score
@@ -175,6 +197,7 @@ class Host:
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
             self.say(main.channel, 'Your score is: '+ ' $' + str(db.return_score(db.connection, user)))
+
 
     # returns top ten scorers
     def top_ten(self, slack_output):
@@ -189,22 +212,6 @@ class Host:
                 count += 1
             self.say(main.channel, slack_list)
 
-    # allows contestants to bet on daily doubles
-    def daily_double(self, slack_output):
-        if self.hear(slack_output, 'wager'):
-            # format: <wager>|<answer>
-            slack_output = slack_output[0]
-            try:
-                split_on_pipe = slack_output.split('|')
-                wager = split_on_pipe[0]
-                answer = split_on_pipe[1]
-                # in case we get $2,000 instead of 2000
-                if type(wager) == 'str':
-                    wager = Question.convert_value_to_int(wager)
-                return (wager, answer)
-            except IndexError:
-                self.say(main.channel, 'Please answer in the correct format:\
-                answer|wager')
 
     # strips answers of extraneous punctuation, whitespace, etc.
     # TODO: impliment unidecode here to remove diacritical marks

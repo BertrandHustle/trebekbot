@@ -63,6 +63,20 @@ def test_get_value():
     value_no_dollar_sign = test_question.get_value()[2:]
     assert int(value_no_dollar_sign) % 100 == 0
 
+@pytest.mark.parametrize("test_output, expected_value", [
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+ 'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+ '..wager 500', 'type': 'message', 'ts': '1497097067.238474',
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], 500),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+ '..wager bees', 'type': 'message', 'ts': '1497097067.238474',
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None)
+])
+def test_get_wager(test_output, expected_value):
+    assert test_host.get_wager(test_output) == expected_value
+
 def test_get_channels_list():
     assert test_host.get_channels_list() == ['notbeer', 'trivia']
 

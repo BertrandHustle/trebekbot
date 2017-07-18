@@ -9,6 +9,7 @@ Holds details about questions and questions themselves
 :int value: The dollar value of the question
 :str category: The category of the question
 :boolean daily_double: True if question is a daily double
+:str asker: User who asked the question
 '''
 
 # TODO: strip out hyperlinks e.g.
@@ -19,7 +20,7 @@ Holds details about questions and questions themselves
 target="_blank">body</a>
 has remained unchanged in its glass display case since her death in 1879'
 
-These might be challenging 
+These might be challenging
 <a href="http://www.j-archive.com/media/2010-06-15_DJ_20.jpg" target=
 "_blank">What</a> the ant had in song'
 '''
@@ -42,6 +43,7 @@ class Question:
         self.category = question['category']
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question['answer']
+        self.asker = None
 
     def get_value(self):
         return ('$' + str(self.value))

@@ -12,7 +12,7 @@ from math import ceil
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
-build_version = '0.2'
+build_version = '0.3'
 
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')
@@ -20,11 +20,13 @@ slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 channel = '#trebektest'
 # this needs to be outside the loop so it stays persistant
-
 question_asked = None
 answer_given = None
 # timeout for questions
 timer = 0
+# vars for daily doubles
+wager = 0
+daily_double_answerer = None
 
 #TODO: impliment timeout on questions
 if __name__=='__main__':
@@ -49,15 +51,17 @@ if __name__=='__main__':
 
         # this is how we store a persistant question/answer
         current_question = host.ask_question(slack_output)
+
+        if question.is_daily_double(current_question):
+            host.say(channel, 'It\s a DAILY DOUBLE! Please enter a wager \
+            by typing ..wager <your wager>')
+            #wager = slack_output.
+
         if current_question:
             question_asked = current_question
             # reset the timer when we ask for a new question
             timer = 0
-            '''
-            if question.Question.is_daily_double(current_question):
-                host.say(channel, 'It\s a DAILY DOUBLE')
-                # TODO: fully impliment scoring here
-            '''
+
         current_answer = None
         if host.hear(slack_output, 'whatis'):
             current_answer = host.hear(slack_output, 'whatis')

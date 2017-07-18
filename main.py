@@ -26,6 +26,7 @@ answer_given = None
 timer = 0
 # vars for daily doubles
 wager = 0
+# this is who asked the daily double
 daily_double_answerer = None
 
 #TODO: impliment timeout on questions
@@ -52,25 +53,32 @@ if __name__=='__main__':
         # this is how we store a persistant question/answer
         current_question = host.ask_question(slack_output)
 
-        if question.is_daily_double(current_question):
-            host.say(channel, 'It\s a DAILY DOUBLE! Please enter a wager \
-            by typing ..wager <your wager>')
-            #wager = slack_output.
-
         if current_question:
             question_asked = current_question
             # reset the timer when we ask for a new question
             timer = 0
+            if current_question.daily_double:
+                host.say(channel, 'It\s a DAILY DOUBLE! Please enter a wager \
+                by typing ..wager <your wager>')
+                wager, daily_double_answerer = host.get_wager(slack_output)
+                # make sure only the person who got the daily double can answer
+                if host.hear(slack_output, 'whatis') and \
+                host.get_user(slack_output[0]) == daily_double_answerer:
+                    host.check_answer(host.hear(slack_output, 'whatis'), question_asked)
+                    # reset the question/answer
+                    question_asked = None
+                    answer_given = None
 
         current_answer = None
-        if host.hear(slack_output, 'whatis'):
+        if host.hear(slack_output, 'whatis') and not question_asked.daily_double:
             current_answer = host.hear(slack_output, 'whatis')
         if current_answer:
             answer_given = current_answer
 
         # logic for getting and checking question answers
-        if question_asked and answer_given:
+        if question_asked and answer_given and not question_asked.daily_double:
             if host.check_answer(slack_output, question_asked):
+                # reset the question/answer
                 question_asked = None
                 answer_given = None
 
@@ -90,6 +98,10 @@ if __name__=='__main__':
             timer += 1
         if timer >= 120:
             host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
+            # we want to take points away if it's a daily double
+            if question_asked.is_daily_double:
+                user_db.update_score(user_db.connection, \
+                daily_double_answerer, -wager)
             question_asked = None
             answer_given = None
             timer = 0

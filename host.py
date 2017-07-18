@@ -29,7 +29,7 @@ class Host:
     # what to type before we give trebekbot a command
     command_prefix = '..'
     help_text = '''
-    This iiiiiis trebekbot!
+    This iiiiiis trebekbot! Version: '''+main.build_version+'''
 
     Use '''+command_prefix+''' to prefix commands.
     '''+command_prefix+'''help: bring up this help list
@@ -127,9 +127,11 @@ class Host:
         with suppress(ValueError):
             if self.hear(slack_output, 'wager'):
                 slack_output = slack_output[0]
+                # we need to know who put in the wager as well
+                user = self.get_user(slack_output)
                 print(slack_output)
                 wager = slack_output['text'].split('wager')[1]
-                return int(wager)
+                return int(wager), user
 
     # say hi!
     def hello(self, slack_output):
@@ -143,8 +145,6 @@ class Host:
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             asked_question = question.Question()
-            # we need to know who asked the question for daily doubles
-            asked_question.asker = self.get_user(slack_output)
             # parse this so it's pretty in slack
             question_text = '[*'+asked_question.category+'*] ' + '['+asked_question.get_value()+'] ' + '_'+asked_question.text+'_'
             self.say(main.channel, question_text)

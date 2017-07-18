@@ -69,7 +69,7 @@ def test_get_value():
  'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None),
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  '..wager 500', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], 500),
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], (500, 'bertrand_hustle')),
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  '..wager bees', 'type': 'message', 'ts': '1497097067.238474',
  'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None)
@@ -137,6 +137,8 @@ def test_strip_answer(test_value, expected_value):
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
+
+# DATABASE TESTS
 
 # TODO: rewrite database tests using Mock
 # TODO: add bad values in here e.g. ' ', 0

@@ -25,25 +25,32 @@ These might be challenging
 "_blank">What</a> the ant had in song'
 '''
 
-# match href="<link>" --> href="(.*?)"
-# https://www.mkyong.com/regular-expressions/how-to-extract-html-links-with-regular-expression/
-# match html tags --> (?i)<[a-z]([^>]+)>(.+?)</[a-z]>
-# TODO: this ^^ may need to be fixed since it only works for single chars
+'''
+json example:
+{"category": "HISTORY",
+"air_date": "2004-12-31",
+"question": "'For the last 8 years of his life,
+Galileo was under house arrest for espousing this man's theory'",
+"value": "$200",
+"answer": "Copernicus"
+"round": "Jeopardy!"
+"show_number": 4680}
+'''
 
 class Question:
     def __init__(self):
         jeopardy_json_file = open('./json_files/JEOPARDY_QUESTIONS1.json').read()
         question = json.loads(jeopardy_json_file)
+        # used to test daily doubles
+        question = list(filter(lambda x: self.is_daily_double(x['value']), question))
+        print (question)
         # json file has 216,930 questions
         question = question[randint(0, 216930)]
-        # if there are any html <a> tags:
-        # if re.fullmatch(r"(?i)<[a-z]([^>]+)>(.+?)</[a-z]>"):
         self.text = question['question']
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question['answer']
-        self.asker = None
 
     def get_value(self):
         return ('$' + str(self.value))

@@ -64,19 +64,20 @@ class Question:
     '''
     def filter_questions(self, question_list, daily_double=None,
     banned_categories=None):
+        # if we want to filter for only daily doubles
         if daily_double:
-            question_list = list(filter(lambda x: \
+            return list(filter(lambda x: \
             self.is_daily_double(x['value']), question_list))
+            # if list of categories is passed in
         elif banned_categories and type(banned_categories) is list:
             banned_categories = [c.upper() for c in banned_categories]
-            question_list = list(filter(lambda x: x['category'] not in\
+            return list(filter(lambda x: x['category'] not in\
             banned_categories, question_list))
         # if single category is passed in as a string
         elif banned_categories and type(banned_categories) is str:
             banned_categories = banned_categories.upper()
-            question_list = list(filter(lambda x: x['category'] !=\
+            return list(filter(lambda x: x['category'] !=\
             banned_categories, question_list))
-        return question_list
 
     # to remove $ and commas from question values, e.g. '$2,500'
     @staticmethod

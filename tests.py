@@ -94,6 +94,7 @@ def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
 
 def test_filter_questions():
+    print('testing')
     test_question_list = [{"category": "HISTORY",
     "air_date": "2004-12-31",
     "question": "'For the last 8 years of his life, Galileo was under house\
@@ -121,8 +122,8 @@ def test_filter_questions():
     dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
+    print(dd_filter, history_filter, science_filter)
     for c in dd_filter: assert test_question.is_daily_double(c['value'])
-    # print(history_filter)
     for c in history_filter: assert c['category'] != 'HISTORY'
     assert len(science_filter) == 1 and science_filter[0]['category'] not in ['science', 'biology', 'chemistry']
 

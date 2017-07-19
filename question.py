@@ -42,8 +42,7 @@ class Question:
         jeopardy_json_file = open('./json_files/JEOPARDY_QUESTIONS1.json').read()
         question = json.loads(jeopardy_json_file)
         # used to test daily doubles
-        question = list(filter(lambda x: self.is_daily_double(x['value']), question))
-        print (question)
+        # question = self.filter_questions(question, daily_double=1)
         # json file has 216,930 questions
         question = question[randint(0, 216930)]
         self.text = question['question']
@@ -54,6 +53,30 @@ class Question:
 
     def get_value(self):
         return ('$' + str(self.value))
+
+    '''
+    filters list of questions and returns filtered list
+    :param question_list: list of questions we pass in (in json form)
+    :param daily_double: if this is passed in we filter for only daily doubles
+    (for testing purposes)
+    :param banned_categories: list of categories to filter out, can be a single
+    str category instead
+    '''
+    def filter_questions(self, question_list, daily_double=None,
+    banned_categories=None):
+        if daily_double:
+            question_list = list(filter(lambda x: \
+            self.is_daily_double(x['value']), question_list))
+        elif banned_categories and type(banned_categories) is list:
+            banned_categories = [c.upper() for c in banned_categories]
+            question_list = list(filter(lambda x: x['category'] not in\
+            banned_categories, question_list))
+        # if single category is passed in as a string
+        elif banned_categories and type(banned_categories) is str:
+            banned_categories = banned_categories.upper()
+            question_list = list(filter(lambda x: x['category'] !=\
+            banned_categories, question_list))
+        return question_list
 
     # to remove $ and commas from question values, e.g. '$2,500'
     @staticmethod

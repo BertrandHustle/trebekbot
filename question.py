@@ -89,6 +89,7 @@ class Question:
                 if '-' in value:
                     return 0
                 else:
+                    # remove whitespace/symbols and convert to int
                     value = ''.join(c for c in value if c.isalnum())
                     value = int(value)
             # check to make sure value is over $1
@@ -103,11 +104,9 @@ class Question:
     def is_daily_double(value):
         if type(value) is str:
             value = Question.convert_value_to_int(value)
-        if value == 'Invalid Value':
+        if value < 1:
             return False
-        elif value < 1:
-            return False
-        elif value > 2000 and value % 100 != 0:
+        elif value > 2000 or value % 100 != 0:
             return True
         else:
             return False

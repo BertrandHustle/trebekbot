@@ -84,8 +84,9 @@ def test_get_channels_list():
  ('$100', False),
  ('$5578', True),
  (200, False),
+ ('$201', True),
  (10239, True),
- (1, False),
+ (1, True),
  (-1, False),
  (0, False),
  ('0', False)
@@ -120,6 +121,7 @@ def test_filter_questions():
     "round": "Jeopardy!",
     "show_number": 4680}]
     dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
+    print(test_question.is_daily_double('$201'))
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
     print(dd_filter, history_filter, science_filter)

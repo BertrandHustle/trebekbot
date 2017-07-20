@@ -238,6 +238,7 @@ class Host:
     # TODO: rename this
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
+        # TODO: we may need a dict here so we don't get misaligned zips
         # if answers aren't strings, or we get an empty string, don't bother
         if type(given_answer) != str or type(correct_answer) != str \
         or not given_answer:
@@ -247,7 +248,6 @@ class Host:
             given_answer = Host.strip_answer(given_answer).split(' ')
             correct_answer = Host.strip_answer(correct_answer).split(' ')
             zipped_words = list(zip(given_answer, correct_answer))
-            print(zipped_words)
             for given_word, correct_word in zipped_words:
                 # use lambda to pare down dict
                 first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
@@ -256,27 +256,40 @@ class Host:
                 (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
                 check_correct_word_closeness = difflib.get_close_matches \
                 (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
+                # remove newline chars from spell check lists
+                check_given_word_closeness = sub(r'\n', ' ', ''.join(check_given_word_closeness)).split(' ')
+                check_correct_word_closeness = sub(r'\n', ' ', ''.join(check_correct_word_closeness)).split(' ')
+                stripped_given_word = Host.strip_answer(given_word)
+                stripped_correct_word = Host.strip_answer(correct_word)
                 # get levenshtein distance
                 lev_dist = editdistance.eval(given_word, correct_word)
-                # print test
-                print(check_given_word_closeness, check_correct_word_closeness)
-                '''
-                if the word is:
 
                 '''
+                if the word is:
+                - long enough
+                - in the spell check results for both itself and correct word
+                - identical to the correct word
+                - one levenshtein distance off from correct word
+                then keep looping through the words
+                elif word is:
+                - in the correct word and long enough or in the correct answer
+                - or vice versa (but we dont check if correct word is in given answer)
+                then it's close enough
+                '''
+
+                # TODO: add a substring check where we treat answers as single strings without whitespace
+                # via Phebus: check for substring but add word boundaries (e.g. /\s+word\s+/)
+
                 if len(given_word) >= len(correct_word)*0.8 \
                 and given_word in check_given_word_closeness \
                 and given_word in check_correct_word_closeness \
                 or given_word == correct_word \
                 or lev_dist <= 1:
                     continue
-                # check if the guessed word is a big enough substring of the correct word
-                # or vice versa
                 elif given_word in correct_word \
                 and len(given_word) >= len(correct_word)*0.8 \
                 or correct_word in given_word \
                 and len(correct_word) >= len(given_word)*0.8 \
-                or given_answer in correct_answer \
                 or given_word in correct_answer:
                     return 'close'
                 else:

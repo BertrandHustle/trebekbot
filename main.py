@@ -58,8 +58,9 @@ if __name__=='__main__':
             # reset the timer when we ask for a new question
             timer = 0
             if current_question.daily_double:
-                host.say(channel, 'It\s a DAILY DOUBLE! Please enter a wager \
-                by typing ..wager <your wager>')
+                host.say(channel, 'It\'s a DAILY DOUBLE!')
+                host.say(channel, 'Please enter a wager by typing ..wager <your wager>')
+                print(host.get_wager(slack_output))
                 wager, daily_double_answerer = host.get_wager(slack_output)
                 # make sure only the person who got the daily double can answer
                 if host.hear(slack_output, 'whatis') and \

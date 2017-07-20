@@ -121,10 +121,11 @@ def test_filter_questions():
     "round": "Jeopardy!",
     "show_number": 4680}]
     dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
-    print(test_question.is_daily_double('$201'))
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
-    print(dd_filter, history_filter, science_filter)
+    print(dd_filter)
+    print(history_filter)
+    print(science_filter)
     for c in dd_filter: assert test_question.is_daily_double(c['value'])
     for c in history_filter: assert c['category'] != 'HISTORY'
     assert len(science_filter) == 1 and science_filter[0]['category'] not in ['science', 'biology', 'chemistry']

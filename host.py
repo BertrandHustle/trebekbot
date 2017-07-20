@@ -1,3 +1,5 @@
+import pdb
+
 import main
 import question
 import db
@@ -124,8 +126,9 @@ class Host:
 
     # gets wager value from output for daily doubles
     def get_wager(self, slack_output):
-        with suppress(ValueError):
-            if self.hear(slack_output, 'wager'):
+        pdb.set_trace()
+        if self.hear(slack_output, 'wager'):
+            with suppress(ValueError):
                 slack_output = slack_output[0]
                 # we need to know who put in the wager as well
                 user = self.get_user(slack_output)

@@ -38,13 +38,18 @@ Galileo was under house arrest for espousing this man's theory'",
 '''
 
 class Question:
+
+    # init
+    jeopardy_json_file = open('./json_files/JEOPARDY_QUESTIONS1.json').read()
+    question_list = json.loads(jeopardy_json_file)
+
     def __init__(self):
-        jeopardy_json_file = open('./json_files/JEOPARDY_QUESTIONS1.json').read()
-        question = json.loads(jeopardy_json_file)
         # used to test daily doubles
-        # question = self.filter_questions(question, daily_double=1)
+        question_list = self.question_list
+        question_list = self.filter_questions(question_list, daily_double=1)
         # json file has 216,930 questions
-        question = question[randint(0, 216930)]
+        # question = question_list[randint(0, 216930)]
+        question = question_list[randint(0, 2888)]
         self.text = question['question']
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']
@@ -102,11 +107,13 @@ class Question:
 
     @staticmethod
     def is_daily_double(value):
-        if type(value) is str:
-            value = Question.convert_value_to_int(value)
-        if value < 1:
-            return False
-        elif value > 2000 or value % 100 != 0:
-            return True
-        else:
-            return False
+        # check if we have a value at all
+        if value:
+            if type(value) is str:
+                value = Question.convert_value_to_int(value)
+            if value < 1:
+                return False
+            elif value > 2000 or value % 100 != 0:
+                return True
+            else:
+                return False

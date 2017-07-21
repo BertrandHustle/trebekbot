@@ -146,7 +146,10 @@ class Host:
         if self.hear(slack_output, 'ask'):
             asked_question = question.Question()
             # parse this so it's pretty in slack
-            question_text = '[*'+asked_question.category+'*] ' + '['+asked_question.get_value()+'] ' + '_'+asked_question.text+'_'
+            if asked_question.daily_double:
+                question_text = '[*'+asked_question.category+'*] ' + '_'+asked_question.text+'_'
+            else:
+                question_text = '[*'+asked_question.category+'*] ' + '['+asked_question.get_value()+'] ' + '_'+asked_question.text+'_'
             self.say(main.channel, question_text)
             return asked_question
 

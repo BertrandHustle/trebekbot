@@ -6,6 +6,7 @@ import host
 import db
 import question
 from slackclient import SlackClient
+from contextlib import suppress
 from math import ceil
 
 # TODO: make a setup.py file including editdistance and slackclient
@@ -57,35 +58,48 @@ if __name__=='__main__':
             question_asked = current_question
             # reset the timer when we ask for a new question
             timer = 0
-            # Daily Double control flow
             if current_question.daily_double:
-                host.say(channel, 'It\'s a DAILY DOUBLE!')
-                host.say(channel, 'Please enter a wager by typing ..wager <your wager>')
                 daily_double_answerer = host.get_user(slack_output[0])
-                if host.hear(slack_output, 'wager'):
-                    wager = host.get_wager(slack_output)
-                '''
-                we need to check two things before someone can answer
-                a daily double:
-                1. are they the person who asked for it?
-                2. have they entered in a wager?
-                '''
-                if host.hear(slack_output, 'whatis') and \
-                host.get_user(slack_output[0]) == daily_double_answerer and \
-                wager:
-                    host.check_answer(slack_output, question_asked)
-                    # reset the question/answer
-                    question_asked = None
-                    answer_given = None
+                host.say(channel, 'It\'s a DAILY DOUBLE!')
+                host.say(channel, '@'+daily_double_answerer+\
+                ' Please enter a wager by typing ..wager <your wager>')
+
+        # TODO: shorten timer for these questions
+        # Daily Double control flow
+        if question_asked and question_asked.daily_double:
+            # try even if we don't have output
+            with suppress(IndexError, KeyError):
+                current_contestant = host.get_user(slack_output[0])
+            # make sure that no one else gets to do the wagering
+            if host.hear(slack_output, 'wager') and \
+            current_contestant == daily_double_answerer:
+                wager = host.get_wager(slack_output)
+            '''
+            we need to check two things before someone can answer
+            a daily double:
+            1. are they the person who asked for it?
+            2. have they entered in a wager?
+            '''
+            if host.hear(slack_output, 'whatis') and \
+            current_contestant == daily_double_answerer and \
+            wager:
+                host.check_answer(slack_output, question_asked)
+                # reset the question/answer
+                question_asked = None
+                answer_given = None
+            elif host.hear(slack_output, 'whatis') and not wager:
+                host.say(channel, 'Please enter a wager first.')
 
         current_answer = None
-        if host.hear(slack_output, 'whatis') and not question_asked.daily_double:
+        if host.hear(slack_output, 'whatis') and question_asked \
+        and not question_asked.daily_double:
             current_answer = host.hear(slack_output, 'whatis')
         if current_answer:
             answer_given = current_answer
 
         # logic for getting and checking question answers
-        if question_asked and answer_given and not question_asked.daily_double:
+        if question_asked and answer_given and question_asked \
+        and not question_asked.daily_double:
             if host.check_answer(slack_output, question_asked):
                 # reset the question/answer
                 question_asked = None
@@ -105,7 +119,7 @@ if __name__=='__main__':
         # timeout mechanism
         if question_asked:
             timer += 1
-        if timer >= 120:
+        if timer >= 60:
             host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
             # we want to take points away if it's a daily double
             if question_asked.is_daily_double:
@@ -129,4 +143,7 @@ if __name__=='__main__':
         # track time per loop for debugging
         print(round(time.time()-loop_start_time, 5))
         # delay so trebekbot has time to think
+        print('DAILY DOUBLE DEBUGGING')
+        print(daily_double_answerer)
+        print(wager)
         time.sleep(1)

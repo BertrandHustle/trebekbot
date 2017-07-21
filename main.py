@@ -57,15 +57,23 @@ if __name__=='__main__':
             question_asked = current_question
             # reset the timer when we ask for a new question
             timer = 0
+            # Daily Double control flow
             if current_question.daily_double:
                 host.say(channel, 'It\'s a DAILY DOUBLE!')
                 host.say(channel, 'Please enter a wager by typing ..wager <your wager>')
-                print(host.get_wager(slack_output))
-                wager, daily_double_answerer = host.get_wager(slack_output)
-                # make sure only the person who got the daily double can answer
+                daily_double_answerer = host.get_user(slack_output[0])
+                if host.hear(slack_output, 'wager'):
+                    wager = host.get_wager(slack_output)
+                '''
+                we need to check two things before someone can answer
+                a daily double:
+                1. are they the person who asked for it?
+                2. have they entered in a wager?
+                '''
                 if host.hear(slack_output, 'whatis') and \
-                host.get_user(slack_output[0]) == daily_double_answerer:
-                    host.check_answer(host.hear(slack_output, 'whatis'), question_asked)
+                host.get_user(slack_output[0]) == daily_double_answerer and \
+                wager:
+                    host.check_answer(slack_output, question_asked)
                     # reset the question/answer
                     question_asked = None
                     answer_given = None

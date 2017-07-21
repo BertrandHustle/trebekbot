@@ -115,7 +115,9 @@ class Host:
         'users.info',
         user=user_id
         )
-        return user['user']['name']
+        # in case we don't locate a user
+        if user:
+            return user['user']['name']
 
     # COMMANDS
 
@@ -126,15 +128,10 @@ class Host:
 
     # gets wager value from output for daily doubles
     def get_wager(self, slack_output):
-        pdb.set_trace()
-        if self.hear(slack_output, 'wager'):
-            with suppress(ValueError):
-                slack_output = slack_output[0]
-                # we need to know who put in the wager as well
-                user = self.get_user(slack_output)
-                print(slack_output)
-                wager = slack_output['text'].split('wager')[1]
-                return int(wager), user
+        with suppress(ValueError):
+            slack_output = slack_output[0]
+            wager = slack_output['text'].split('wager')[1]
+            return int(wager)
 
     # say hi!
     def hello(self, slack_output):

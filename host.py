@@ -1,5 +1,3 @@
-import pdb
-
 import main
 import question
 import db
@@ -188,7 +186,7 @@ class Host:
             else:
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.  The correct answer was '+correct_answer)
                 # take away points from user
-                if question.is_daily_double:
+                if question.is_daily_double and wager:
                     user_db.update_score(user_db.connection, user, -wager)
                 else:
                     user_db.update_score(user_db.connection, user, -question.value)
@@ -217,7 +215,7 @@ class Host:
 
 
     # strips answers of extraneous punctuation, whitespace, etc.
-    # TODO: impliment unidecode here to remove diacritical marks
+    # TODO: filter out apostrophe escapes
     @staticmethod
     def strip_answer(answer):
         '''
@@ -242,6 +240,7 @@ class Host:
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         # TODO: we may need a dict here so we don't get misaligned zips
+        # TODO: check numbers strictly, e.g. 41/40
         # if answers aren't strings, or we get an empty string, don't bother
         if type(given_answer) != str or type(correct_answer) != str \
         or not given_answer:

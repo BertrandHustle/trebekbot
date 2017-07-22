@@ -170,7 +170,8 @@ def test_strip_answer(test_value, expected_value):
  ('b', 'the Boston Massacre', False),
  ('The Great Star of Bethlehem', 'The Star of Bethelhem', True),
  ('lawn', 'The Great Lawn', True),
- ('bechamel', 'béchamel', True)
+ ('bechamel', 'béchamel', True),
+ ('91', '21', False)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

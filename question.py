@@ -44,12 +44,13 @@ class Question:
     question_list = json.loads(jeopardy_json_file)
 
     def __init__(self):
+        #TODO: remove "heard here/seen here" questions
         # used to test daily doubles
         question_list = self.question_list
-        question_list = self.filter_questions(question_list, daily_double=1)
+        # question_list = self.filter_questions(question_list, daily_double=1)
         # json file has 216,930 questions
-        # question = question_list[randint(0, 216930)]
-        question = question_list[randint(0, 2888)]
+        question = question_list[randint(0, 216930)]
+        # question = question_list[randint(0, 2888)]
         self.text = question['question']
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']

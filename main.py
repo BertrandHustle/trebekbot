@@ -1,6 +1,7 @@
 # Main file for trebekbot
 # loosely based on this tutorial: https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
 import os
+import sys
 import time
 import host
 import db
@@ -27,6 +28,10 @@ answer_given = None
 timer = 0
 # time limit for questions
 time_limit = 60
+# used to measure when we should do our nightly restart
+program_start_time = time.time()
+# this translates to 24 hours
+restart_offset = 86400
 # vars for daily doubles
 wager = 0
 # this is who asked the daily double
@@ -43,8 +48,6 @@ if __name__=='__main__':
     host.say(channel, host.help_text)
 
     while True:
-        # time loops for debug purposes
-        loop_start_time = time.time()
         # get rolling slack output
         slack_output = slack_client.rtm_read()
         # main functions
@@ -76,6 +79,8 @@ if __name__=='__main__':
             if host.hear(slack_output, 'wager') and \
             current_contestant == daily_double_answerer:
                 wager = host.get_wager(slack_output)
+                host.say(channel, '@'+daily_double_answerer+', you\'ve \
+                wagered '+str(wager))
             '''
             we need to check two things before someone can answer
             a daily double:
@@ -119,7 +124,9 @@ if __name__=='__main__':
         else:
             pass
 
-        if time.time() >= timer + time_limit:
+        # only check the timer if there's an active question
+        current_time = time.time()
+        if question_asked and time.time() >= timer + time_limit:
             host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
             # we want to take points away if it's a daily double
             if question_asked.is_daily_double:
@@ -127,6 +134,11 @@ if __name__=='__main__':
                 daily_double_answerer, -wager)
             question_asked = None
             answer_given = None
+
+        # check when to restart trebekbot nightly
+        if current_time >= program_start_time + restart_offset:
+            host.say(channel, 'Restarting!')
+            os.execv(sys.executable, ['python'] + sys.argv)
 
         # printing for debug purposes
         print(slack_output)
@@ -136,9 +148,7 @@ if __name__=='__main__':
         if answer_given:
             print('GIVEN ANSWER: ' + answer_given)
         print('========================================')
-        print(timer)
-        # track time per loop for debugging
-        print(round(time.time()-loop_start_time, 5))
+        print('TIMER: ' + str(timer))
         # delay so trebekbot has time to think
         print('DAILY DOUBLE DEBUGGING')
         print(daily_double_answerer)

@@ -40,7 +40,7 @@ Galileo was under house arrest for espousing this man's theory'",
 class Question:
 
     # init
-    jeopardy_json_file = open('./json_files/JEOPARDY_QUESTIONS1.json').read()
+    jeopardy_json_file = open('./support_files/JEOPARDY_QUESTIONS1.json').read()
     question_list = json.loads(jeopardy_json_file)
 
     def __init__(self):

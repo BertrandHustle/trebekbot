@@ -138,6 +138,9 @@ if __name__=='__main__':
         # check when to restart trebekbot nightly
         if current_time >= program_start_time + restart_offset:
             host.say(channel, 'Restarting!')
+            # champion
+            champion_file = open('./support_files/champion.txt', 'w')
+            champion_file.write()
             os.execv(sys.executable, ['python'] + sys.argv)
 
         # printing for debug purposes

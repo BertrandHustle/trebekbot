@@ -233,6 +233,12 @@ def test_return_top_ten(populate_db, scrub_test_users):
     ]
     assert test_db.return_top_ten(test_db.connection) == expected_list
 
+def test_get_champion(populate_db, scrub_test_users):
+    expected_champion_name = 'Morp'
+    expected_champion_score = '$501'
+    assert test_db.get_champion(test_db.connection) == \
+    (expected_champion_name, expected_champion_score)
+
 # TODO: test if user doesn't exist
 def test_return_score(db_after):
     test_db.add_user_to_db(test_db.connection, 'Lucy')

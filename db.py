@@ -37,6 +37,7 @@ class db(object):
         cursor = self.connection.cursor()
     '''
 
+    # TODO: add a champion boolean to this
     def create_table_users(self, connection):
         cursor = connection.cursor()
         # TODO: Fix this to avoid injection attacks
@@ -100,8 +101,17 @@ class db(object):
         SELECT * FROM USERS ORDER BY SCORE DESC LIMIT 10
         ''',
         ).fetchall()
-        print (top_ten)
         return top_ten
+
+    # gets champion (highest scorer) from database
+    def get_champion(self, connection):
+        cursor = connection.cursor()
+        champion_search = cursor.execute(
+        '''
+        SELECT MAX(SCORE), NAME FROM USERS
+        '''
+        ).fetchall()
+        return champion_search
 
     '''
     updates the score of a given user

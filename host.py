@@ -16,7 +16,7 @@ if path.isfile('/usr/share/dict/words'):
     words_file = open('/usr/share/dict/words', 'r')
     eng_dict = words_file.readlines()
 else:
-    eng_dict = open('./json_files/words.txt').read().splitlines()
+    eng_dict = open('./support_files/words.txt').read().splitlines()
 
 '''
  Class that acts as the "host" of Jeopardy

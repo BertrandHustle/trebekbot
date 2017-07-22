@@ -25,6 +25,8 @@ question_asked = None
 answer_given = None
 # timeout for questions
 timer = 0
+# time limit for questions
+time_limit = 60
 # vars for daily doubles
 wager = 0
 # this is who asked the daily double
@@ -57,7 +59,7 @@ if __name__=='__main__':
         if current_question:
             question_asked = current_question
             # reset the timer when we ask for a new question
-            timer = 0
+            timer = time.time()
             if current_question.daily_double:
                 daily_double_answerer = host.get_user(slack_output[0])
                 host.say(channel, 'It\'s a DAILY DOUBLE!')
@@ -87,6 +89,7 @@ if __name__=='__main__':
                 # reset the question/answer
                 question_asked = None
                 answer_given = None
+            # need to make sure we have a wager first
             elif host.hear(slack_output, 'whatis') and not wager:
                 host.say(channel, 'Please enter a wager first.')
 
@@ -116,10 +119,7 @@ if __name__=='__main__':
         else:
             pass
 
-        # timeout mechanism
-        if question_asked:
-            timer += 1
-        if timer >= 60:
+        if time.time() >= timer + time_limit:
             host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
             # we want to take points away if it's a daily double
             if question_asked.is_daily_double:
@@ -127,9 +127,6 @@ if __name__=='__main__':
                 daily_double_answerer, -wager)
             question_asked = None
             answer_given = None
-            timer = 0
-        if not question_asked and not answer_given:
-            timer = 0
 
         # printing for debug purposes
         print(slack_output)

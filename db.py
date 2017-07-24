@@ -108,10 +108,10 @@ class db(object):
         cursor = connection.cursor()
         champion_search = cursor.execute(
         '''
-        SELECT MAX(SCORE), NAME FROM USERS
+        SELECT NAME, MAX(SCORE) FROM USERS
         '''
         ).fetchall()
-        return champion_search
+        return champion_search[0][0], '$' + str(champion_search[0][1])
 
     '''
     updates the score of a given user

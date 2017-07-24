@@ -29,6 +29,12 @@ def scrub_test_users():
     '''
     )
 
+# remove test champion .txt file after test
+@pytest.fixture
+def delete_test_champion_file():
+    yield delete_test_champion_file
+    remove('./support_files/test_champion.txt')
+
 # set up fixture to populate test db with a range of scorers
 @pytest.fixture
 def populate_db():
@@ -238,6 +244,23 @@ def test_get_champion(populate_db, scrub_test_users):
     expected_champion_score = '$501'
     assert test_db.get_champion(test_db.connection) == \
     (expected_champion_name, expected_champion_score)
+
+def test_save_champion(populate_db, scrub_test_users, delete_test_champion_file):
+    champion_name, champion_score = test_db.get_champion(test_db.connection)
+    expected_champion_name = 'Morp'
+    expected_champion_score = '$501'
+
+    # before "restart"
+    champion_file = open('./support_files/test_champion.txt', 'w')
+    champion_file.write(champion_name+'\n')
+    champion_file.write(champion_score)
+    champion_file.close()
+
+    # after "restart"
+    with open('./support_files/test_champion.txt', 'r') as champion_file:
+        test_champion_name, test_champion_score = champion_file.readlines()
+        assert (expected_champion_name, expected_champion_score) == \
+        (test_champion_name[:-1], test_champion_score)
 
 # TODO: test if user doesn't exist
 def test_return_score(db_after):

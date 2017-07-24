@@ -116,6 +116,27 @@ class Host:
         # in case we don't locate a user
         if user:
             return user['user']['name']
+    '''
+    saves champion name/score persistantly through restarts
+    (yes this is a function with side effects, shame on me)
+    :param: champ_name: name of champion to save
+    :param: champ_score: score of champion to save
+    :param: filename: name of file where we save champion data
+    '''
+    def save_champion(self, champ_name, champ_score, filename):
+        # before trebekbot restarts
+        champ_file = open('./support_files/' + filename, 'w')
+        champ_file.write(champ_name+'\n')
+        champ_file.write(champ_score)
+        champ_file.close()
+
+    # recalls champion from champion.txt file
+    def recall_champion(self, filename):
+        # after trebekbot restarts
+        with open('./support_files/' + filename, 'r') as champ_file:
+            champ_name, champ_score = champ_file.readlines()
+            # slice to remove the newline char
+            return champ_name[:-1], champ_score
 
     # COMMANDS
 

@@ -245,22 +245,20 @@ def test_get_champion(populate_db, scrub_test_users):
     assert test_db.get_champion(test_db.connection) == \
     (expected_champion_name, expected_champion_score)
 
-def test_save_champion(populate_db, scrub_test_users, delete_test_champion_file):
+'''
+this serves as a test for both save_champion and recall_champion,
+since the setup/teardown for both is the same
+'''
+def test_save_and_recall_champion(populate_db, scrub_test_users, delete_test_champion_file):
     champion_name, champion_score = test_db.get_champion(test_db.connection)
     expected_champion_name = 'Morp'
     expected_champion_score = '$501'
-
-    # before "restart"
-    champion_file = open('./support_files/test_champion.txt', 'w')
-    champion_file.write(champion_name+'\n')
-    champion_file.write(champion_score)
-    champion_file.close()
-
-    # after "restart"
-    with open('./support_files/test_champion.txt', 'r') as champion_file:
-        test_champion_name, test_champion_score = champion_file.readlines()
-        assert (expected_champion_name, expected_champion_score) == \
-        (test_champion_name[:-1], test_champion_score)
+    # test save_champion
+    test_host.save_champion(champion_name, champion_score, 'test_champion.txt')
+    # test recall_champion
+    test_host.recall_champion('test_champion.txt')
+    assert (expected_champion_name, expected_champion_score) == \
+    (test_host.recall_champion('test_champion.txt'))
 
 # TODO: test if user doesn't exist
 def test_return_score(db_after):

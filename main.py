@@ -140,10 +140,7 @@ if __name__=='__main__':
             host.say(channel, 'Restarting!')
             # store the current champ so we can recall it after restart
             champion_name, champion_score = db.get_champion(user_db)
-            champion_file = open('./support_files/champion.txt', 'w')
-            champion_file.write(champion_name)
-            champion_file.write(champion_score)
-            champion_file.close()
+            host.save_champion(champion_name, champion_score, 'champion.txt')
             # restart trebekbot
             os.execv(sys.executable, ['python'] + sys.argv)
 

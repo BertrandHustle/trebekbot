@@ -3,6 +3,7 @@
 import os
 import sys
 import time
+from datetime import datetime
 import host
 import db
 import question
@@ -28,10 +29,6 @@ answer_given = None
 timer = 0
 # time limit for questions
 time_limit = 60
-# used to measure when we should do our nightly restart
-program_start_time = time.time()
-# this translates to 24 hours
-restart_offset = 86400
 # vars for daily doubles
 wager = 0
 # this is who asked the daily double
@@ -135,7 +132,6 @@ if __name__=='__main__':
             pass
 
         # only check the timer if there's an active question
-        current_time = time.time()
         if question_asked and time.time() >= timer + time_limit:
             host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
             # we want to take points away if it's a daily double
@@ -145,8 +141,10 @@ if __name__=='__main__':
             question_asked = None
             answer_given = None
 
-        # check when to restart trebekbot nightly
-        if current_time >= program_start_time + restart_offset:
+        # restart at midnight (well, just before at 23:59:59)
+        current_time = datetime.now().time()
+        if current_time.hour == 23 and current_time.minute == 59 and\
+        current_time.second == 59:
             host.say(channel, 'Restarting!')
             # store the current champ so we can recall it after restart
             champion_name, champion_score = db.get_champion(user_db)

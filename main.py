@@ -36,11 +36,21 @@ restart_offset = 86400
 wager = 0
 # this is who asked the daily double
 daily_double_answerer = None
+# tracking last night's champion
+current_champion_name = ''
+current_champion_score = ''
 
-#TODO: impliment timeout on questions
 if __name__=='__main__':
     # create host object
     host = host.Host(slack_client)
+    # establish champion
+    if os.path.isfile('./support_files/champion.txt'):
+        current_champion_name, current_champion_score = \
+        host.recall_champion('champion.txt')
+    # announce champ
+    host.say('Let\'s welcome back last night\'s returning champion, \
+    @' + current_champion_name + '!')
+    host.say('With a total cash winnings of '+ current_champion_score + '!')
     # setup database
     user_db = db.db('users.db')
     user_db.create_table_users(user_db.connection)

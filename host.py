@@ -116,6 +116,7 @@ class Host:
         # in case we don't locate a user
         if user:
             return user['user']['name']
+
     '''
     saves champion name/score persistantly through restarts
     (yes this is a function with side effects, shame on me)
@@ -186,6 +187,9 @@ class Host:
             # who asked the question
             user = self.get_user(slack_output)
             user_id = slack_output['user']
+            # if the user is the champ, give them a crown!
+            if user == main.current_champion_name:
+                user = ':crown:'+user
             correct_answer = question.answer
             answer_check = self.fuzz_answer(user_answer, correct_answer)
 
@@ -228,6 +232,9 @@ class Host:
             slack_list = 'Here\'s our top scorers: \n'
             count = 1
             for id,name,score in top_ten_list:
+                # give crown for being champ
+                if name == main.current_champion_name:
+                    name = ':crown:'+name
                 # format: 1. Morp - $501
                 slack_list += str(count) + '. ' + name + ' - ' + '$' \
                 + str(score) + '\n'

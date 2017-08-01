@@ -17,6 +17,9 @@ from math import ceil
 # duplicate code!!!) check commit 7d8e143 for most recent working
 # control flow
 
+# TODO: redo git branch naming so it makes sense and pull from latest
+# live commit!
+
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 build_version = '0.3'
@@ -151,6 +154,7 @@ if __name__=='__main__':
             answer_given = None
 
         # restart at midnight (well, just before at 23:59:59)
+        # TODO: change this to be a timer object that ticks down
         current_time = datetime.now().time()
         if current_time.hour == 23 and current_time.minute == 59 and\
         current_time.second == 59:

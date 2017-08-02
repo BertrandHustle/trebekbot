@@ -209,7 +209,7 @@ class Host:
             elif answer_check is 'close':
                 self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' Please be more specific.')
             else:
-                self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.  The correct answer was '+correct_answer)
+                self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.')
                 # take away points from user
                 if question.is_daily_double and wager:
                     user_db.update_score(user_db.connection, user, -wager)

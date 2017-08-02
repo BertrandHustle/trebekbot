@@ -3,22 +3,18 @@
 import os
 import sys
 import time
-from datetime import datetime
 import host
 import db
 import question
+from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
-from math import ceil
 
 # TODO: make a setup.py file including editdistance and slackclient
 
 # TODO: refactor so daily double control flow is isolated (even if it means
 # duplicate code!!!) check commit 7d8e143 for most recent working
 # control flow
-
-# TODO: redo git branch naming so it makes sense and pull from latest
-# live commit!
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
@@ -70,47 +66,48 @@ if __name__=='__main__':
         host.myscore(slack_output, user_db)
         host.top_ten(slack_output)
 
-        # this is how we store a persistant question/answer
         current_question = host.ask_question(slack_output)
 
         if current_question:
+            # this is how we store a persistant question/answer
             question_asked = current_question
             # reset the timer when we ask for a new question
             timer = time.time()
-            if current_question.daily_double:
+
+        # Daily Double control flow
+        # we need this to avoid a Nonetype error
+        if question_asked:
+            if question_asked.daily_double:
                 daily_double_answerer = host.get_user(slack_output[0])
                 host.say(channel, 'It\'s a DAILY DOUBLE!')
                 host.say(channel, '@'+daily_double_answerer+\
                 ' Please enter a wager by typing ..wager <your wager>')
-
                 # TODO: shorten timer for these questions
-                # Daily Double control flow
-                if question_asked and question_asked.daily_double:
-                    # try even if we don't have output
-                    with suppress(IndexError, KeyError):
-                        current_contestant = host.get_user(slack_output[0])
-                    # make sure that no one else gets to do the wagering
-                    if host.hear(slack_output, 'wager') and \
-                    current_contestant == daily_double_answerer:
-                        wager = host.get_wager(slack_output)
-                        host.say(channel, '@'+daily_double_answerer+', you\'ve \
-                        wagered '+str(wager))
-                    '''
-                    we need to check two things before someone can answer
-                    a daily double:
-                    1. are they the person who asked for it?
-                    2. have they entered in a wager?
-                    '''
-                    if host.hear(slack_output, 'whatis') and \
-                    current_contestant == daily_double_answerer and \
-                    wager:
-                        host.check_answer(slack_output, question_asked)
-                        # reset the question/answer
-                        question_asked = None
-                        answer_given = None
-                    # need to make sure we have a wager first
-                    elif host.hear(slack_output, 'whatis') and not wager:
-                        host.say(channel, 'Please enter a wager first.')
+                # try even if we don't have output
+                with suppress(IndexError, KeyError):
+                    current_contestant = host.get_user(slack_output[0])
+                # make sure that no one else gets to do the wagering
+                if host.hear(slack_output, 'wager') and \
+                current_contestant == daily_double_answerer:
+                    wager = host.get_wager(slack_output)
+                    host.say(channel, '@'+daily_double_answerer+', you\'ve \
+                    wagered '+str(wager))
+                '''
+                we need to check two things before someone can answer
+                a daily double:
+                1. are they the person who asked for it?
+                2. have they entered in a wager?
+                '''
+                if host.hear(slack_output, 'whatis') and \
+                current_contestant == daily_double_answerer and \
+                wager:
+                    host.check_answer(slack_output, question_asked)
+                    # reset the question/answer
+                    question_asked = None
+                    answer_given = None
+                # need to make sure we have a wager first
+                elif host.hear(slack_output, 'whatis') and not wager:
+                    host.say(channel, 'Please enter a wager first.')
 
         current_answer = None
         if host.hear(slack_output, 'whatis') and question_asked \

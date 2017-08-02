@@ -50,7 +50,6 @@ class Question:
         # question_list = self.filter_questions(question_list, daily_double=1)
         # json file has 216,930 questions
         question = question_list[randint(0, 216930)]
-        # question = question_list[randint(0, 2888)]
         self.text = question['question']
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']
@@ -67,9 +66,11 @@ class Question:
     (for testing purposes)
     :param banned_categories: list of categories to filter out, can be a single
     str category instead
+    :param banned_phrases: filters questions by key phrases, such as
+    "seen here" or "heard here"
     '''
     def filter_questions(self, question_list, daily_double=None,
-    banned_categories=None):
+    banned_categories=None, banned_phrases=None):
         # if we want to filter for only daily doubles
         if daily_double:
             return list(filter(lambda x: \

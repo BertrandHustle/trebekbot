@@ -8,7 +8,7 @@ $ git clone https://github.com/BertrandHustle/trebekbot.git
 
 2. Create a new bot-user for your slack channel:
 https://my.slack.com/services/new/bot
-Take note of the API token you get after configuring your new bot. 
+Take note of the API token you get after configuring your new bot.
 
 3. Set TREBEKBOT_API_TOKEN variable:
 
@@ -34,8 +34,13 @@ $ python3 print_bot_id.py
 Use the same procedure as step 3, but set TREBEKBOT_ID=<output of question 4>
 
 6. Set channel to your desired slack channel:
-In main.py, change the following line: 
+In main.py, change the following line:
 channel = '#yourchannel'
 
 7. Run trebekbot!
 $ python3 main.py
+
+NOTE: you will need a dictionary file named words.txt in /support_files if
+you're not on a UNIX system.  I used one from the following repo:
+
+https://github.com/dwyl/english-words

@@ -184,7 +184,9 @@ def test_strip_answer(test_value, expected_value):
  ('The Great Star of Bethlehem', 'The Star of Bethelhem', True),
  ('lawn', 'The Great Lawn', True),
  ('bechamel', 'béchamel', True),
- ('91', '21', False)
+ ('91', '21', False),
+ ('Red and Green', 'Green and Red', True),
+ ('Blue or green', 'Green or Blue', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

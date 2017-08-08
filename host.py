@@ -1,3 +1,5 @@
+import pdb
+
 import main
 import question
 import db
@@ -254,11 +256,16 @@ class Host:
         answer = ' ' + answer.lower()
         # remove diacritical marks
         answer = unidecode(answer)
+        # remove anything in parentheses
+        answer = sub(r'\((.*)\)', '', answer)
         # remove articles and conjunctions
         answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', answer)
         # remove anything that's not alphanumeric
-        answer = sub(r'[^A-Za-z0-9]', ' ', answer)
-        # clean up extra whitespace
+        answer = sub(r'[^A-Za-z0-9]', '', answer)
+        # remove apostrophes
+        answer = sub(r'\'', '', answer)
+        # clean up extra whitespace (change spaces w/more than one space to
+        # a single space)
         answer = sub(r'\s{2,}', ' ', answer)
         # remove extra space
         return answer[1:]
@@ -268,12 +275,16 @@ class Host:
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         # TODO: we may need a dict here so we don't get misaligned zips
-        # TODO: check numbers strictly, e.g. 41/40
+        # TODO: make conjunctions/disjunctions behave as logical operators
         # if answers aren't strings, or we get an empty string, don't bother
         if type(given_answer) != str or type(correct_answer) != str \
         or not given_answer:
             return False
-        else:
+        # we only want exact matches if the answer is a number
+        try:
+            if int(given_answer) != int(correct_answer):
+                return False
+        except (ValueError):
             # remove casing, punctuation, and articles
             given_answer = Host.strip_answer(given_answer).split(' ')
             correct_answer = Host.strip_answer(correct_answer).split(' ')

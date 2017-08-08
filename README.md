@@ -1,4 +1,17 @@
 # trebekbot
+
+Version 0.3 changelog:
+
+Features:
+- Trebekbot now restarts nightly and tracks who the winner is from the previous
+day
+- Daily doubles are now implimented
+- Category/phrase filtering for questions
+
+Bugs:
+- Apostrophes and numerical answers are now handled correctly
+- Questions with "heard here" or "seen here" no longer appear
+
 Practice project, a Python slack bot that hosts a game of Jeopardy! in your slack channel.
 
 Installation instructions:

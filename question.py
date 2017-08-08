@@ -75,7 +75,13 @@ class Question:
         if daily_double:
             return list(filter(lambda x: \
             self.is_daily_double(x['value']), question_list))
-            # if list of categories is passed in
+        if banned_phrases and type(banned_phrases) is list:
+            return_list = question_list
+            for phrase in banned_phrases:
+                return_list = list(filter(lambda x: phrase not in x['question']\
+                , return_list))
+            return return_list
+        # if list of categories is passed in
         elif banned_categories and type(banned_categories) is list:
             banned_categories = [c.upper() for c in banned_categories]
             return list(filter(lambda x: x['category'] not in\

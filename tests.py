@@ -131,13 +131,15 @@ def test_filter_questions():
     dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
-    # TODO: finish this test!
-    heard_seen_here_filter = test_question.filter_questions(test_question_list, )
+    heard_seen_here_filter = test_question.filter_questions(test_question_list, banned_phrases=['heard here', 'seen here'])
 
     # assert
     for c in dd_filter: assert test_question.is_daily_double(c['value'])
     for c in history_filter: assert c['category'] != 'HISTORY'
     assert len(science_filter) == 1 and science_filter[0]['category'] not in ['science', 'biology', 'chemistry']
+    assert len(heard_seen_here_filter) == 1
+    for x in ['heard here', 'seen here']:
+        assert x not in heard_seen_here_filter[0]['question']
 
 
 @pytest.mark.parametrize("test_value, expected_value", [
@@ -176,6 +178,7 @@ def test_strip_answer(test_value, expected_value):
  ('infiniitesimal', 'infinitesimal', True),
  ('the good Samaritan', 'The Good Samaritan', True),
  ('it’s a wonderful life', 'It\'s A Wonderful Life', True),
+ ('maam', 'ma\'am', True),
  ('Hall and Oates', 'Hall & Oates', True),
  ('b', 'the Boston Massacre', False),
  ('The Great Star of Bethlehem', 'The Star of Bethelhem', True),

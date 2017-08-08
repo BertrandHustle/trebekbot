@@ -1,6 +1,10 @@
 import json
 import re
+from contextlib import suppress
 from random import randint
+from requests import get as get_http_code
+from requests.exceptions import RequestException
+from bs4 import BeautifulSoup
 
 '''
 Holds details about questions and questions themselves
@@ -113,6 +117,51 @@ class Question:
         except (ValueError, TypeError) as error:
             return 0
 
+
+    # match href="<link>" --> href="(.*?)"
+    # https://www.mkyong.com/regular-expressions/how-to-extract-html-links-with-regular-expression/
+    # match html tags --> (?i)<[a-z]([^>]+)>(.+?)</[a-z]>
+    # TODO: this ^^ may need to be fixed since it only works for single chars
+
+    '''
+    'This patron saint of Lourdes'
+    <a href="http://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
+    target="_blank">body</a>
+    has remained unchanged in its glass display case since her death in 1879'
+    These might be challenging
+    <a href="http://www.j-archive.com/media/2010-06-15_DJ_20.jpg" target=
+    "_blank">What</a> the ant had in song'
+    '''
+
+    '''
+    separates html links from questions
+    returns a tuple of the question text and link if link is valid,
+    otherwise just returns the text
+    '''
+    # TODO: use requests.get().status_code to check code
+    @staticmethod
+    def separate_html(question):
+        with suppress(RequestException):
+            # BeautifulSoup boilerplate object
+            soup = BeautifulSoup(question, 'html.parser')
+            # check if we have any html in the question
+            if soup.find():
+                question_text = re.sub(r'<\w*.*</\w*>', '', question)
+                question_links = soup.find_all('href')
+                print(question_text)
+                print('**********************')
+                print(question_link)
+                if question_link:
+                    # remove href= tag
+                    question_link = re.sub(r'href=', '', question_link)
+                    # check if we have a valid link
+                    if get_http_code(question_link).status_code == 200:
+                        return (question_text, question_link)
+                    else:
+                        return question_text
+                else:
+                    return question_text
+
     @staticmethod
     def is_daily_double(value):
         # check if we have a value at all
@@ -120,7 +169,7 @@ class Question:
             if type(value) is str:
                 value = Question.convert_value_to_int(value)
             if value < 1:
-                return False
+                return True
             elif value > 2000 or value % 100 != 0:
                 return True
             else:

@@ -69,6 +69,33 @@ def test_get_value():
     value_no_dollar_sign = test_question.get_value()[2:]
     assert int(value_no_dollar_sign) % 100 == 0
 
+@pytest.mark.parametrize("test_text, expected_output", [
+ ('''This patron saint of Lourdes'
+ <a href="http://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
+ target="_blank">body</a>
+ has remained unchanged in its glass display case since her death in 1879')''',
+ ('This patron saint of Lourdes has remained unchanged in its glass display \
+ case since her death in 1879',
+ 'http://www.j-archive.com/media/2004-11-17_DJ_21.jpg')),
+
+ # I'm ok with ignoring the 'What', this just seems like a badly parsed question
+ ('''<a href="http://www.j-archive.com/media/2010-06-15_DJ_20.jpg" \
+ target="_blank">What</a> the ant had in song''',
+ 'the ant had in song'),
+
+ ('wrongtext  <a href="thisisntavalidlink"</a>  morewrongtext', 'wrongtext  morewrongtext'),
+
+ ('<a href="http://www.j-archive.com/media/2007-12-13_DJ_28.jpg" \
+ target="_blank">Jon of the Clue Crew holds a purple gem in a pair of tweezers.</a>) \
+  It has more iron oxide than any other variety of quartz, which is believed to \
+  account for its rich \
+  <a href="http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg" target="_blank">\
+  color</a>', ('It has more iron oxide than any other variety of quartz, which is believed to \
+  account for its rich color', "http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg"))
+])
+def test_separate_html(test_text, expected_output):
+    assert test_question.separate_html(test_text) == expected_output
+
 @pytest.mark.parametrize("test_output, expected_value", [
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
@@ -83,9 +110,6 @@ def test_get_value():
 def test_get_wager(test_output, expected_value):
     assert test_host.get_wager(test_output) == expected_value
 
-def test_get_channels_list():
-    assert test_host.get_channels_list() == ['notbeer', 'trivia']
-
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$100', False),
  ('$5578', True),
@@ -93,9 +117,9 @@ def test_get_channels_list():
  ('$201', True),
  (10239, True),
  (1, True),
- (-1, False),
- (0, False),
- ('0', False)
+ (-1, True),
+ (0, True),
+ ('0', True)
 ])
 def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
@@ -141,7 +165,6 @@ def test_filter_questions():
     for x in ['heard here', 'seen here']:
         assert x not in heard_seen_here_filter[0]['question']
 
-
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$2,500', 2500),
  ('asjdjasdj', 0),
@@ -178,15 +201,20 @@ def test_strip_answer(test_value, expected_value):
  ('infiniitesimal', 'infinitesimal', True),
  ('the good Samaritan', 'The Good Samaritan', True),
  ('it’s a wonderful life', 'It\'s A Wonderful Life', True),
- ('maam', 'ma\'am', True),
  ('Hall and Oates', 'Hall & Oates', True),
  ('b', 'the Boston Massacre', False),
- ('The Great Star of Bethlehem', 'The Star of Bethelhem', True),
- ('lawn', 'The Great Lawn', True),
+ ('omlette', 'Denver omelette', 'close'),
+ ('The Great Star of Bethlehem', 'The Star of Bethelhem', 'close'),
+ ('lawn', 'The Great Lawn', 'close'),
  ('bechamel', 'béchamel', True),
+ ('queen elizabeth ii', 'Elizabeth II', 'close'),
+ ('issac newton', 'Newton', 'close'),
+ ('dow jones', '(the) Dow (Jones)', True),
  ('91', '21', False),
  ('Red and Green', 'Green and Red', True),
- ('Blue or green', 'Green or Blue', True)
+ ('Blue or green', 'Green', True),
+ ('poker', 'a poker face', 'close'),
+ ('the gay 90\'s', 'The Gay \'90s', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

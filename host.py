@@ -30,9 +30,8 @@ class Host:
 
     # what to type before we give trebekbot a command
     command_prefix = '..'
+    intro_text = 'This iiiiiis trebekbot! Version: ' + main.build_version
     help_text = '''
-    This iiiiiis trebekbot! Version: '''+main.build_version+'''
-
     Use '''+command_prefix+''' to prefix commands.
     '''+command_prefix+'''help: bring up this help list
     '''+command_prefix+'''hello: say hello to trebekbot
@@ -182,41 +181,42 @@ class Host:
     :param wager: optional, the wager if the question is a Daily Double
     '''
     def check_answer(self, slack_output, question, wager=None):
-        if self.hear(slack_output, 'whatis') or self.hear(slack_output, 'whois'):
-            # this drills down into the slack output to get the given answer
-            slack_output = slack_output[0]
-            user_answer = slack_output['text'].split('whatis')[1]
-            # who asked the question
-            user = self.get_user(slack_output)
-            user_id = slack_output['user']
-            # if the user is the champ, give them a crown!
-            if main.current_champion_name and user == main.current_champion_name:
-                user = ':crown:'+user
-            correct_answer = question.answer
-            answer_check = self.fuzz_answer(user_answer, correct_answer)
+        # this drills down into the slack output to get the given answer
+        slack_output = slack_output[0]
+        user_answer = slack_output['text'].split('whatis')[1]
+        # who asked the question
+        user = self.get_user(slack_output)
+        user_id = slack_output['user']
+        # if the user is the champ, give them a crown!
+        if main.current_champion_name and user == main.current_champion_name:
+            user = ':crown:'+user
+        correct_answer = question.answer
+        answer_check = self.fuzz_answer(user_answer, correct_answer)
 
-            print('CORRECT ANSWER')
-            print(correct_answer)
-            print('USER ANSWER')
-            print(user_answer)
+        '''
+        print('CORRECT ANSWER')
+        print(correct_answer)
+        print('USER ANSWER')
+        print(user_answer)
+        '''
 
-            if answer_check:
-                self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
-                # award points to user
-                if question.is_daily_double:
-                    user_db.update_score(user_db.connection, user, wager)
-                else:
-                    user_db.update_score(user_db.connection, user, question.value)
-                return 1
-            elif answer_check is 'close':
-                self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' Please be more specific.')
+        if answer_check:
+            self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
+            # award points to user
+            if question.is_daily_double:
+                user_db.update_score(user_db.connection, user, wager)
             else:
-                self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.')
-                # take away points from user
-                if question.is_daily_double and wager:
-                    user_db.update_score(user_db.connection, user, -wager)
-                else:
-                    user_db.update_score(user_db.connection, user, -question.value)
+                user_db.update_score(user_db.connection, user, question.value)
+            return 1
+        elif answer_check is 'close':
+            self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' Please be more specific.')
+        else:
+            self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.')
+            # take away points from user
+            if question.is_daily_double and wager:
+                user_db.update_score(user_db.connection, user, -wager)
+            else:
+                user_db.update_score(user_db.connection, user, -question.value)
 
 
     # returns user's current score

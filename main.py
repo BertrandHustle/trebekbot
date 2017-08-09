@@ -150,7 +150,8 @@ if __name__=='__main__':
             answer_given = None
 
         # restart at midnight (well, just before at 23:59:59)
-        # TODO: change this to be a timer object that ticks down
+        # TODO: this shouldn't wipe the database, it should just set all
+        # the scores to 0
         current_time = datetime.now().time()
         if current_time.hour == 23 and current_time.minute == 59 and\
         current_time.second == 59:
@@ -158,6 +159,8 @@ if __name__=='__main__':
             # store the current champ so we can recall it after restart
             champion_name, champion_score = db.get_champion(user_db)
             host.save_champion(champion_name, champion_score, 'champion.txt')
+            # give trebekbot time to write champion file
+            time.sleep(15)
             # restart trebekbot
             os.execv(sys.executable, ['python'] + sys.argv)
 

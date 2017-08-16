@@ -255,19 +255,6 @@ def test_update_score(user, value_change, expected_result):
     test_db.update_score(test_db.connection, user, value_change)
     assert test_db.return_score(test_db.connection, user) == expected_result
 
-'''
-redundant, but making sure the test itself
-was working properly w/parametrization
-'''
-def test_test_update_score(scrub_test_users):
-    test_db.add_user_to_db(test_db.connection, 'test')
-    test_db.update_score(test_db.connection, 'test', '500')
-    assert test_db.return_score(test_db.connection, 'test') == 500
-    test_db.update_score(test_db.connection, 'test', '-5000')
-    assert test_db.return_score(test_db.connection, 'test') == -4500
-    test_db.update_score(test_db.connection, 'test', '-100000')
-    assert test_db.return_score(test_db.connection, 'test') == -4500
-
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
     (5, 'Morp', 501),
@@ -284,20 +271,14 @@ def test_get_champion(populate_db, scrub_test_users):
     assert test_db.get_champion(test_db.connection) == \
     (expected_champion_name, expected_champion_score)
 
-'''
-this serves as a test for both save_champion and recall_champion,
-since the setup/teardown for both is the same
-'''
-def test_save_and_recall_champion(populate_db, scrub_test_users, delete_test_champion_file):
-    champion_name, champion_score = test_db.get_champion(test_db.connection)
-    expected_champion_name = 'Morp'
-    expected_champion_score = '$501'
-    # test save_champion
-    test_host.save_champion(champion_name, champion_score, 'test_champion.txt')
-    # test recall_champion
-    test_host.recall_champion('test_champion.txt')
-    assert (expected_champion_name, expected_champion_score) == \
-    (test_host.recall_champion('test_champion.txt'))
+def test_set_champion(populate_db, scrub_test_users):
+    test_db.set_champion(test_db.connection, 'Morp')
+    test_result = test_db.connection.execute(
+    '''
+    SELECT * FROM USERS WHERE CHAMPION = 1
+    '''
+    ).fetchone()
+    assert test_result[1] == 'Morp'
 
 # TODO: test if user doesn't exist
 def test_return_score(db_after):

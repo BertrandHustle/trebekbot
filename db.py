@@ -46,7 +46,8 @@ class db(object):
         CREATE TABLE IF NOT EXISTS users (
         id integer PRIMARY KEY,
         name text NOT NULL UNIQUE,
-        score integer NOT NULL DEFAULT 0 CHECK (score >= -10000)
+        score integer NOT NULL DEFAULT 0 CHECK (score >= -10000),
+        champion boolean DEFAULT 0
         );
         '''
         )
@@ -112,6 +113,18 @@ class db(object):
         '''
         ).fetchall()
         return champion_search[0][0], '$' + str(champion_search[0][1])
+
+    # sets champion before nightly reset
+    def set_champion(self, connection, user):
+        cursor = connection.cursor()
+        cursor.execute(
+        '''
+        UPDATE USERS SET CHAMPION = 1 WHERE NAME = ?
+        ''',
+        (user,)
+        )
+        self.connection.commit()
+
 
     '''
     updates the score of a given user

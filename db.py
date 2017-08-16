@@ -117,6 +117,12 @@ class db(object):
     # sets champion before nightly reset
     def set_champion(self, connection, user):
         cursor = connection.cursor()
+        # set all champions to 0 first to ensure we don't have multiple champs
+        cursor.execute(
+        '''
+        UPDATE USERS SET CHAMPION = 0
+        '''
+        )
         cursor.execute(
         '''
         UPDATE USERS SET CHAMPION = 1 WHERE NAME = ?

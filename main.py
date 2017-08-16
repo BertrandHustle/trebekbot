@@ -43,19 +43,20 @@ current_champion_score = ''
 if __name__=='__main__':
     # create host object
     host = host.Host(slack_client)
-    # establish champion
-    if os.path.isfile('./support_files/champion.txt'):
-        current_champion_name, current_champion_score = \
-        host.recall_champion('champion.txt')
-        # announce champ
-        host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
-        @' + current_champion_name + '!')
-        host.say(channel, 'With a total cash winnings of '+ current_champion_score + '!')
     # setup database
     user_db = db.db('users.db')
     user_db.create_table_users(user_db.connection)
     # host introduces itself to channel
     host.say(channel, host.help_text)
+    # establish champion
+    # TODO: add in logic for when there isn't a champion
+    current_champion_name, current_champion_score = \
+    user_db.get_champion(user_db.connection)
+    # announce champ
+    host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
+    @' + current_champion_name + '!')
+    host.say(channel, 'With a total cash winnings of '+ \
+    current_champion_score + '!')
 
     while True:
         # get rolling slack output
@@ -156,11 +157,9 @@ if __name__=='__main__':
         if current_time.hour == 23 and current_time.minute == 59 and\
         current_time.second == 59:
             host.say(channel, 'Restarting!')
-            # store the current champ so we can recall it after restart
-            champion_name, champion_score = db.get_champion(user_db)
-            host.save_champion(champion_name, champion_score, 'champion.txt')
-            # give trebekbot time to write champion file
-            time.sleep(15)
+            # set the current champion in our database
+            champion_name = db.get_champion(user_db)[0]
+            db.set_champion(champion_name)
             # restart trebekbot
             os.execv(sys.executable, ['python'] + sys.argv)
 

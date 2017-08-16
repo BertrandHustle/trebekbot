@@ -131,3 +131,13 @@ class db(object):
         ''', (score_change, score_change, user)
         )
         self.connection.commit()
+
+    # resets scores to 0 for all users, used for nightly resets
+    def wipe_scores(self, connection):
+        cursor = connection.cursor()
+        cursor.execute(
+        '''
+        UPDATE USERS SET SCORE = 0
+        '''
+        )
+        self.connection.commit()

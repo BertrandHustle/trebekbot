@@ -4,7 +4,7 @@ from contextlib import suppress
 from random import randint
 from requests import get as get_http_code
 from requests.exceptions import RequestException
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 
 '''
 Holds details about questions and questions themselves

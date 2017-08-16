@@ -214,7 +214,8 @@ def test_strip_answer(test_value, expected_value):
  ('Red and Green', 'Green and Red', True),
  ('Blue or green', 'Green', True),
  ('poker', 'a poker face', 'close'),
- ('the gay 90\'s', 'The Gay \'90s', True)
+ ('the gay 90\'s', 'The Gay \'90s', True),
+ ('REM', 'R.E.M.', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
@@ -253,6 +254,7 @@ def test_update_score(user, value_change, expected_result):
     test_db.add_user_to_db(test_db.connection, user)
     test_db.update_score(test_db.connection, user, value_change)
     assert test_db.return_score(test_db.connection, user) == expected_result
+
 '''
 redundant, but making sure the test itself
 was working properly w/parametrization
@@ -308,3 +310,15 @@ def test_return_score(db_after):
     (100, 'Lucy')
     )
     assert test_db.return_score(test_db.connection, 'Lucy') == 100
+
+def test_wipe_scores(populate_db, db_after):
+    test_db.wipe_scores(test_db.connection)
+    # get scores
+    test_scores = test_db.connection.execute(
+    '''
+    SELECT * FROM USERS ORDER BY SCORE DESC
+    ''',
+    ).fetchall()
+    test_scores = [x[2] for x in test_scores]
+    # this works because every score should be 0
+    assert not any(test_scores)

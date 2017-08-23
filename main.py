@@ -1,5 +1,7 @@
 # Main file for trebekbot
 # loosely based on this tutorial: https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
+import pdb
+
 import os
 import sys
 import time
@@ -54,7 +56,7 @@ if __name__=='__main__':
     user_db.get_champion(user_db.connection)
     # announce champ
     host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
-    @' + current_champion_name + '!')
+    :crown: @' + current_champion_name + '!')
     host.say(channel, 'With a total cash winnings of '+ \
     current_champion_score + '!')
 
@@ -74,6 +76,7 @@ if __name__=='__main__':
             question_asked = current_question
             # reset the timer when we ask for a new question
             timer = time.time()
+
             # check for daily double
             if question_asked.daily_double:
                 daily_double_answerer = host.get_user(slack_output[0])
@@ -110,17 +113,20 @@ if __name__=='__main__':
                     elif host.hear(slack_output, 'whatis') and not wager:
                         host.say(channel, 'Please enter a wager first.')
 
-        current_answer = None
+        current_answer = host.hear(slack_output, 'whatis')
+        '''
         # TODO: fix this so it uses 'whois' too
         if host.hear(slack_output, 'whatis') and question_asked \
         and not question_asked.daily_double:
+            pdb.set_trace()
             current_answer = host.hear(slack_output, 'whatis')
+        '''
         if current_answer:
             answer_given = current_answer
 
         # logic for getting and checking question answers
         if question_asked and answer_given and not question_asked.daily_double:
-              # the results of checking whether the answer is right
+            # the results of checking whether the answer is right
             answer_check_result = host.check_answer(slack_output, question_asked)
             # if answer is right
             if answer_check_result == 1:

@@ -73,6 +73,7 @@ class Host:
             if text.startswith(self.command_prefix) \
             and prefix == listen_for:
                 answer = text.split(prefix)[1]
+                # add user to db if theyre not in there already
                 user_db.add_user_to_db(user_db.connection, user)
                 if answer:
                     # return the answer without the prefix if we 'hear' the command prefix
@@ -170,18 +171,10 @@ class Host:
             user = ':crown:'+user
         correct_answer = question.answer
         answer_check = self.fuzz_answer(user_answer, correct_answer)
-
-        '''
-        print('CORRECT ANSWER')
-        print(correct_answer)
-        print('USER ANSWER')
-        print(user_answer)
-        '''
-
         if answer_check:
             self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
             # award points to user
-            if question.is_daily_double:
+            if question.daily_double:
                 user_db.update_score(user_db.connection, user, wager)
             else:
                 user_db.update_score(user_db.connection, user, question.value)
@@ -191,7 +184,7 @@ class Host:
         else:
             self.say(main.channel, '<@'+user_id+'|'+user+'>'+ ' :x: Sorry, that is incorrect.')
             # take away points from user
-            if question.is_daily_double and wager:
+            if question.daily_double and wager:
                 user_db.update_score(user_db.connection, user, -wager)
             else:
                 user_db.update_score(user_db.connection, user, -question.value)

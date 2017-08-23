@@ -215,7 +215,8 @@ def test_strip_answer(test_value, expected_value):
  ('Blue or green', 'Green', True),
  ('poker', 'a poker face', 'close'),
  ('the gay 90\'s', 'The Gay \'90s', True),
- ('REM', 'R.E.M.', True)
+ ('REM', 'R.E.M.', True),
+ ('hard days night', '"A Hard Day\'s Night"', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
@@ -244,11 +245,12 @@ def test_add_user_to_db():
  ('LaVar', '0', 0),
  ('LaVar', '-200', -200),
  ('LaVar', '-200', -400),
+ ('LaVar', '500', 100),
  ('Stemp', 'Invalid Value', 0),
  ('boop', '-9000', -9000),
- ('boop', '-500', -9500)
- # TODO: add more exceptions here
- # ('LaVar', 'ants', False)
+ ('boop', '-500', -9500),
+ # this makes sense, if we get a non-int it should do nothing
+ ('LaVar', 'ants', 100)
 ])
 def test_update_score(user, value_change, expected_result):
     test_db.add_user_to_db(test_db.connection, user)

@@ -180,5 +180,6 @@ if __name__=='__main__':
         print('TIMENOW: ' + str(round(time.time()%60)))
         print ('>=')
         print('TIMER + TIME LIMIT: ' + str(round(timer%60) + 60))
+        print(current_champion_name)
         # delay so trebekbot has time to think
         time.sleep(1)

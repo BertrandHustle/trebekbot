@@ -229,14 +229,21 @@ class Host:
         catch articles that start the string (otherwise we'd need a
         '^' in addition to a '\s')
         '''
+        if 'Dow' in answer:
+            pdb.set_trace()
         answer = ' ' + answer.lower()
         # remove diacritical marks
         answer = unidecode(answer)
         # remove anything in parentheses
         answer = sub(r'\((.*)\)', '', answer)
-        # remove articles and conjunctions
-        answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', answer)
-        # remove anything that's not alphanumeric or a space
+        '''
+        remove articles and conjunctions that are alone or at the start of
+        quotations
+        '''
+        answer = \
+        sub(r'\sand\s|\sthe\s|\san\s|\sa\s|\"and\s|\"the\s|\"an\s|\"a|\s', ' ',
+        answer)
+        # remove anything that's not alphanumeric
         answer = sub(r'[^A-Za-z0-9\s]', '', answer)
         # remove apostrophes
         answer = sub(r'\'', '', answer)
@@ -264,6 +271,9 @@ class Host:
             # remove casing, punctuation, and articles
             given_answer = Host.strip_answer(given_answer).split(' ')
             correct_answer = Host.strip_answer(correct_answer).split(' ')
+            # PRINT TEST
+            print(given_answer)
+            print(correct_answer)
             zipped_words = list(zip(given_answer, correct_answer))
             for given_word, correct_word in zipped_words:
                 # use lambda to pare down dict

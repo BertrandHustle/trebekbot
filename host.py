@@ -173,8 +173,9 @@ class Host:
         if main.current_champion_name and user == main.current_champion_name:
             user_address = ':crown: <@'+user_id+'|'+user+'>'
         correct_answer = question.answer
+        # check if answer is correct
         answer_check = self.fuzz_answer(user_answer, correct_answer)
-
+        # respond to user
         if answer_check:
             self.say(main.channel, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
             # award points to user
@@ -235,14 +236,14 @@ class Host:
         answer = sub(r'\((.*)\)', '', answer)
         # remove articles and conjunctions
         answer = sub(r'\sand\s|\sthe\s|\san\s|\sa\s', ' ', answer)
-        # remove anything that's not alphanumeric
-        answer = sub(r'[^A-Za-z0-9]', '', answer)
+        # remove anything that's not alphanumeric or a space
+        answer = sub(r'[^A-Za-z0-9\s]', '', answer)
         # remove apostrophes
         answer = sub(r'\'', '', answer)
         # clean up extra whitespace (change spaces w/more than one space to
         # a single space)
         answer = sub(r'\s{2,}', ' ', answer)
-        # remove extra space
+        # remove leading space
         return answer[1:]
 
     # checks if given answer is close enough to correct answer

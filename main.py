@@ -112,7 +112,7 @@ if __name__=='__main__':
         # parse blank answers
         current_answer = None
         # TODO: fix this so it uses 'whois' too
-        if host.hear(slack_output, 'whatis') \
+        if host.hear(slack_output, 'whatis') and question_asked \
         and not question_asked.daily_double:
             current_answer = host.hear(slack_output, 'whatis')
         if current_answer:

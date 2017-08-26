@@ -51,7 +51,7 @@ class Question:
         # used to test daily doubles
         question_list = self.question_list
         question_list = self.filter_questions(question_list, banned_categories=\
-        'missing this category')
+        'missing this category', banned_phrases=['seen here', 'heard here'])
         # question_list = self.filter_questions(question_list, daily_double=1)
         # json file has 216,930 questions
         question = question_list[randint(0, 216930)]
@@ -78,24 +78,28 @@ class Question:
     banned_categories=None, banned_phrases=None):
         # if we want to filter for only daily doubles
         if daily_double:
-            return list(filter(lambda x: \
+            question_list = list(filter(lambda x: \
             self.is_daily_double(x['value']), question_list))
+        # if list of phrases is passed in as arg
         if banned_phrases and type(banned_phrases) is list:
-            return_list = question_list
             for phrase in banned_phrases:
-                return_list = list(filter(lambda x: phrase not in x['question']\
-                , return_list))
-            return return_list
-        # if list of categories is passed in
-        elif banned_categories and type(banned_categories) is list:
+                question_list = list(filter(lambda x: phrase.lower() not in \
+                x['question'].lower(), question_list))
+        # if single phrase is passed in as a string
+        elif banned_phrases and type(banned_phrases) is str:
+            question_list = list(filter(lambda x: phrase.lower() not in \
+            x['question'].lower(), return_list))
+        # if list of categories is passed in, these are in upper case in json
+        if banned_categories and type(banned_categories) is list:
             banned_categories = [c.upper() for c in banned_categories]
-            return list(filter(lambda x: x['category'] not in\
+            question_list = list(filter(lambda x: x['category'] not in\
             banned_categories, question_list))
         # if single category is passed in as a string
         elif banned_categories and type(banned_categories) is str:
             banned_categories = banned_categories.upper()
-            return list(filter(lambda x: x['category'] !=\
+            question_list = list(filter(lambda x: x['category'] !=\
             banned_categories, question_list))
+        return question_list
 
     # to remove $ and commas from question values, e.g. '$2,500'
     @staticmethod

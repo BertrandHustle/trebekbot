@@ -149,6 +149,14 @@ def test_filter_questions():
     "value": "$0",
     "answer": "Copernicus",
     "round": "Jeopardy!",
+    "show_number": 4680},
+    {"category": "BIOLOGY",
+    "air_date": "2004-12-31",
+    "question": "'Heard here, for the last 8 years of his life, Galileo was \
+    under house arrest for espousing this man's theory'",
+    "value": "$0",
+    "answer": "Copernicus",
+    "round": "Jeopardy!",
     "show_number": 4680}]
 
     # act

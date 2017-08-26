@@ -64,13 +64,14 @@ class Host:
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
             text = slack_output['text']
+            channel = self.get_channel(slack_output)
             user = self.get_user(slack_output)
             # prefix without the ';;'
             prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
             # and the rest of the text minus the prefix matches what we're listening for
             # and we're in the right channel
-            if text.startswith(self.command_prefix) \
+            if text.startswith(self.command_prefix) and channel == main.channel\
             and prefix == listen_for:
                 answer = text.split(prefix)[1]
                 # add user to db if theyre not in there already
@@ -103,7 +104,8 @@ class Host:
     def get_channel(self, slack_output):
         channel_id = slack_output['channel']
         channel = self.slack_client.api_call(
-        'channels.info'
+        'channels.info',
+        channel = channel_id
         )
         # add the hash to make it match the main.channel value
         return '#'+channel['channel']['name']

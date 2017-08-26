@@ -34,8 +34,8 @@ wager = 0
 # this is who asked the daily double
 daily_double_answerer = None
 # tracking last night's champion
-current_champion_name = ''
-current_champion_score = ''
+current_champion_name = None
+current_champion_score = None
 
 if __name__=='__main__':
     # create host object
@@ -44,16 +44,18 @@ if __name__=='__main__':
     user_db = db.db('users.db')
     user_db.create_table_users(user_db.connection)
     # host introduces itself to channel
+    host.say(channel, host.intro_text)
     host.say(channel, host.help_text)
     # establish champion
     # TODO: add in logic for when there isn't a champion
     current_champion_name, current_champion_score = \
     user_db.get_champion(user_db.connection)
     # announce champ
-    host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
-    :crown: @' + current_champion_name + '!')
-    host.say(channel, 'With a total cash winnings of '+ \
-    current_champion_score + '!')
+    if current_champion_name:
+        host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
+        :crown: @' + current_champion_name + '!')
+        host.say(channel, 'With a total cash winnings of '+ \
+        current_champion_score + '!')
 
     while True:
         # get rolling slack output

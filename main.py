@@ -7,16 +7,11 @@ import sys
 import time
 import host
 import db
-import question
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
 
 # TODO: make a setup.py file including editdistance and slackclient
-
-# TODO: refactor so daily double control flow is isolated (even if it means
-# duplicate code!!!) check commit 7d8e143 for most recent working
-# control flow
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
@@ -113,14 +108,13 @@ if __name__=='__main__':
                     elif host.hear(slack_output, 'whatis') and not wager:
                         host.say(channel, 'Please enter a wager first.')
 
-        current_answer = host.hear(slack_output, 'whatis')
-        '''
+        # this needs to only be set if we hear 'whatis' so we don't attempt to
+        # parse blank answers
+        current_answer = None
         # TODO: fix this so it uses 'whois' too
-        if host.hear(slack_output, 'whatis') and question_asked \
+        if host.hear(slack_output, 'whatis') \
         and not question_asked.daily_double:
-            pdb.set_trace()
             current_answer = host.hear(slack_output, 'whatis')
-        '''
         if current_answer:
             answer_given = current_answer
 
@@ -132,7 +126,8 @@ if __name__=='__main__':
             if answer_check_result == 1:
                 answer_given = None
                 question_asked = None
-            # we want to only wipe the answer so other people can guess if answer is close or wrong
+            # we want to only wipe the answer so other people can guess if
+            # answer is close or wrong
             # TODO: make this so an individual can only answer once
             elif answer_check_result:
                 answer_given = None
@@ -166,6 +161,8 @@ if __name__=='__main__':
             # set the current champion in our database
             champion_name = db.get_champion(user_db)[0]
             db.set_champion(champion_name)
+            # make sure scores are reset when bot resets
+            user_db.wipe_scores(user_db.connection)
             # restart trebekbot
             os.execv(sys.executable, ['python'] + sys.argv)
 

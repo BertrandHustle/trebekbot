@@ -160,39 +160,41 @@ class Host:
     :param wager: optional, the wager if the question is a Daily Double
     '''
     def check_answer(self, slack_output, question, wager=None):
-        # init
-        # this drills down into the slack output to get the given answer
-        slack_output = slack_output[0]
-        user_answer = slack_output['text'].split('whatis')[1]
-        # who asked the question
-        user = self.get_user(slack_output)
-        user_id = slack_output['user']
-        # what we use to address the user when they answer
-        user_address = '<@'+user_id+'|'+user+'>'
-        # if the user is the champ, give them a crown!
-        if main.current_champion_name and user == main.current_champion_name:
-            user_address = ':crown: <@'+user_id+'|'+user+'>'
-        correct_answer = question.answer
-        # check if answer is correct
-        answer_check = self.fuzz_answer(user_answer, correct_answer)
-        # respond to user
-        if answer_check:
-            self.say(main.channel, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
-            # award points to user
-            if question.daily_double:
-                user_db.update_score(user_db.connection, user, wager)
+        # we need this to prevent parsing a blank answer
+        if self.hear(slack_output, 'whatis'):
+            # init
+            # this drills down into the slack output to get the given answer
+            slack_output = slack_output[0]
+            user_answer = slack_output['text'].split('whatis')[1]
+            # who asked the question
+            user = self.get_user(slack_output)
+            user_id = slack_output['user']
+            # what we use to address the user when they answer
+            user_address = '<@'+user_id+'|'+user+'>'
+            # if the user is the champ, give them a crown!
+            if main.current_champion_name and user == main.current_champion_name:
+                user_address = ':crown: <@'+user_id+'|'+user+'>'
+            correct_answer = question.answer
+            # check if answer is correct
+            answer_check = self.fuzz_answer(user_answer, correct_answer)
+            # respond to user
+            if answer_check:
+                self.say(main.channel, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
+                # award points to user
+                if question.daily_double:
+                    user_db.update_score(user_db.connection, user, wager)
+                else:
+                    user_db.update_score(user_db.connection, user, question.value)
+                return 1
+            elif answer_check is 'close':
+                self.say(main.channel, user_address+ ' Please be more specific.')
             else:
-                user_db.update_score(user_db.connection, user, question.value)
-            return 1
-        elif answer_check is 'close':
-            self.say(main.channel, user_address+ ' Please be more specific.')
-        else:
-            self.say(main.channel, user_address+ ' :x: Sorry, that is incorrect.')
-            # take away points from user
-            if question.daily_double and wager:
-                user_db.update_score(user_db.connection, user, -wager)
-            else:
-                user_db.update_score(user_db.connection, user, -question.value)
+                self.say(main.channel, user_address+ ' :x: Sorry, that is incorrect.')
+                # take away points from user
+                if question.daily_double and wager:
+                    user_db.update_score(user_db.connection, user, -wager)
+                else:
+                    user_db.update_score(user_db.connection, user, -question.value)
 
 
     # returns user's current score

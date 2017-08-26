@@ -6,16 +6,6 @@ from requests import get as get_http_code
 from requests.exceptions import RequestException
 # from bs4 import BeautifulSoup
 
-'''
-Holds details about questions and questions themselves
-:str text: The actual text of the question
-:str answer: The answer to the question
-:int value: The dollar value of the question
-:str category: The category of the question
-:boolean daily_double: True if question is a daily double
-:str asker: User who asked the question
-'''
-
 # TODO: strip out hyperlinks e.g.
 
 '''
@@ -41,6 +31,15 @@ Galileo was under house arrest for espousing this man's theory'",
 "show_number": 4680}
 '''
 
+'''
+Holds details about questions and questions themselves
+:str text: The actual text of the question
+:str answer: The answer to the question
+:int value: The dollar value of the question
+:str category: The category of the question
+:boolean daily_double: True if question is a daily double
+:str asker: User who asked the question
+'''
 class Question:
 
     # init
@@ -51,6 +50,8 @@ class Question:
         #TODO: remove "heard here/seen here" questions
         # used to test daily doubles
         question_list = self.question_list
+        question_list = self.filter_questions(question_list, banned_categories=\
+        'missing this category')
         # question_list = self.filter_questions(question_list, daily_double=1)
         # json file has 216,930 questions
         question = question_list[randint(0, 216930)]

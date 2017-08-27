@@ -19,6 +19,7 @@ if path.isfile('/usr/share/dict/words'):
     eng_dict = words_file.readlines()
 else:
     eng_dict = open('./support_files/words.txt').read().splitlines()
+current_champion_name, current_champion_score = user_db.get_champion(user_db.connection)
 
 '''
  Class that acts as the "host" of Jeopardy
@@ -174,7 +175,8 @@ class Host:
             # what we use to address the user when they answer
             user_address = '<@'+user_id+'|'+user+'>'
             # if the user is the champ, give them a crown!
-            if main.current_champion_name and user == main.current_champion_name:
+            # pdb.set_trace()
+            if current_champion_name and user == current_champion_name:
                 user_address = ':crown: <@'+user_id+'|'+user+'>'
             correct_answer = question.answer
             # check if answer is correct

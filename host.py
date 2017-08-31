@@ -1,5 +1,3 @@
-import pdb
-
 import main
 import question
 import db
@@ -37,7 +35,7 @@ class Host:
     '''+command_prefix+'''help: bring up this help list
     '''+command_prefix+'''hello: say hello to trebekbot
     '''+command_prefix+'''ask: trebekbot will ask you a question
-    '''+command_prefix+'''whatis or whois: use this to provide an answer to the question
+    '''+command_prefix+'''whatis: use this to provide an answer to the question
     '''+command_prefix+'''myscore: find out what your current score is
     '''+command_prefix+'''topten: find out who the top ten scorers are
     '''+command_prefix+'''wager: put in your wager for daily doubles
@@ -130,18 +128,27 @@ class Host:
             self.say(main.channel, self.help_text)
 
     # gets wager value from output for daily doubles
+    # TODO: limit wagers to max player score
     def get_wager(self, slack_output):
         with suppress(ValueError):
+            user = self.get_user(slack_output)
+            user_score = db.return_score(db.connection, user))
             slack_output = slack_output[0]
             wager = slack_output['text'].split('wager')[1]
-            return int(wager)
+            # we don't want to let users bet more than they have
+            if wager > user_score:
+                return user_score
+            else:
+                return int(wager)
 
     # say hi!
     def hello(self, slack_output):
         if self.hear(slack_output, 'hello'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            self.say(main.channel, 'Hello @'+user)
+            if current_champion_name and user == current_champion_name:
+                user = ':crown:' + user
+            self.say(main.channel, 'Hello ' + user)
 
     # gets a random question from the jeopardy_json_file
     # TODO: make this scrub out html links
@@ -206,7 +213,12 @@ class Host:
         if self.hear(slack_output, 'myscore'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            self.say(main.channel, 'Your score is: '+ ' $' + str(db.return_score(db.connection, user)))
+            # needed to avoid querying db for name with crown in it
+            user_address = user
+            if current_champion_name and user == current_champion_name:
+                user_address = ':crown:' + user
+            self.say(main.channel, user_address + ', your score is: '+ ' $' + \
+            str(db.return_score(db.connection, user)))
 
 
     # returns top ten scorers
@@ -217,8 +229,8 @@ class Host:
             count = 1
             for id,name,score in top_ten_list:
                 # give crown for being champ
-                if main.current_champion_name and name == main.current_champion_name:
-                    name = ':crown:'+name
+                if current_champion_name and name == current_champion_name:
+                    name = ':crown:' + name
                 # format: 1. Morp - $501
                 slack_list += str(count) + '. ' + name + ' - ' + '$' \
                 + str(score) + '\n'

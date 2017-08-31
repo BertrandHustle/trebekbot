@@ -1,7 +1,6 @@
 # Main file for trebekbot
-# loosely based on this tutorial: https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
+# used this to start: https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
 import pdb
-
 import os
 import sys
 import time
@@ -36,6 +35,7 @@ daily_double_answerer = None
 # tracking last night's champion
 current_champion_name = None
 current_champion_score = None
+
 
 if __name__=='__main__':
     # create host object
@@ -83,7 +83,7 @@ if __name__=='__main__':
 
                 # TODO: shorten timer for these questions
                 # Daily Double control flow
-                if question_asked and question_asked.daily_double:
+                while question_asked and question_asked.daily_double:
                     # try even if we don't have output
                     with suppress(IndexError, KeyError):
                         current_contestant = host.get_user(slack_output[0])
@@ -169,6 +169,7 @@ if __name__=='__main__':
             os.execv(sys.executable, ['python'] + sys.argv)
 
         # printing for debug purposes
+        '''
         print(slack_output)
         if question_asked:
             print('QUESTION: '+question_asked.text)
@@ -180,5 +181,6 @@ if __name__=='__main__':
         print ('>=')
         print('TIMER + TIME LIMIT: ' + str(round(timer%60) + 60))
         print(current_champion_name)
+        '''
         # delay so trebekbot has time to think
         time.sleep(1)

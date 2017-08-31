@@ -52,9 +52,8 @@ class Question:
         question_list = self.question_list
         question_list = self.filter_questions(question_list, banned_categories=\
         'missing this category', banned_phrases=['seen here', 'heard here'])
-        # question_list = self.filter_questions(question_list, daily_double=1)
-        # json file has 216,930 questions
-        question = question_list[randint(0, 216930)]
+        question_list = self.filter_questions(question_list, daily_double=1)
+        question = question_list[randint(0, len(question_list))]
         self.text = question['question']
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']

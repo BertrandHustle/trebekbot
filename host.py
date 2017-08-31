@@ -1,3 +1,4 @@
+import pdb
 import main
 import question
 import db
@@ -128,18 +129,17 @@ class Host:
             self.say(main.channel, self.help_text)
 
     # gets wager value from output for daily doubles
-    # TODO: limit wagers to max player score
     def get_wager(self, slack_output):
         with suppress(ValueError):
-            user = self.get_user(slack_output)
-            user_score = db.return_score(db.connection, user))
             slack_output = slack_output[0]
-            wager = slack_output['text'].split('wager')[1]
+            user = self.get_user(slack_output)
+            user_score = user_db.return_score(user_db.connection, user)
+            wager = int(slack_output['text'].split('wager')[1])
             # we don't want to let users bet more than they have
             if wager > user_score:
                 return user_score
             else:
-                return int(wager)
+                return wager
 
     # say hi!
     def hello(self, slack_output):

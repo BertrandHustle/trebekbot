@@ -84,6 +84,8 @@ if __name__=='__main__':
                 # TODO: shorten timer for these questions
                 # Daily Double control flow
                 while question_asked and question_asked.daily_double:
+                    # get rolling slack output
+                    slack_output = slack_client.rtm_read()
                     # try even if we don't have output
                     with suppress(IndexError, KeyError):
                         current_contestant = host.get_user(slack_output[0])
@@ -91,8 +93,8 @@ if __name__=='__main__':
                     if host.hear(slack_output, 'wager') and \
                     current_contestant == daily_double_answerer:
                         wager = host.get_wager(slack_output)
-                        host.say(channel, '@'+daily_double_answerer+', you\'ve \
-                        wagered '+str(wager))
+                        host.say(channel, '@'+daily_double_answerer + \
+                        ', you\'ve wagered '+str(wager))
                     '''
                     we need to check two things before someone can answer
                     a daily double:

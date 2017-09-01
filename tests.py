@@ -265,7 +265,7 @@ def test_add_user_to_db():
 def test_update_score(user, value_change, expected_result):
     test_db.add_user_to_db(test_db.connection, user)
     test_db.update_score(test_db.connection, user, value_change)
-    assert test_db.return_score(test_db.connection, user) == expected_result
+    assert test_db.get_score(test_db.connection, user) == expected_result
 
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
@@ -293,16 +293,16 @@ def test_set_champion(populate_db, scrub_test_users):
     assert test_result[1] == 'Morp'
 
 # TODO: test if user doesn't exist
-def test_return_score(db_after):
+def test_get_score(db_after):
     test_db.add_user_to_db(test_db.connection, 'Lucy')
-    assert test_db.return_score(test_db.connection, 'Lucy') == 0
+    assert test_db.get_score(test_db.connection, 'Lucy') == 0
     test_db.connection.execute(
     '''
     UPDATE USERS SET SCORE = ? WHERE NAME = ?
     ''',
     (100, 'Lucy')
     )
-    assert test_db.return_score(test_db.connection, 'Lucy') == 100
+    assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
 def test_wipe_scores(populate_db, db_after):
     test_db.wipe_scores(test_db.connection)

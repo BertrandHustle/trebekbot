@@ -78,7 +78,7 @@ class db(object):
         self.connection.commit()
 
     # tells us what the given user's score is
-    def return_score(self, connection, user):
+    def get_score(self, connection, user):
         cursor = connection.cursor()
         select_score_results = cursor.execute(
         '''

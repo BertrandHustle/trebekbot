@@ -129,12 +129,14 @@ class Host:
             self.say(main.channel, self.help_text)
 
     # gets wager value from output for daily doubles
-    def get_wager(self, slack_output):
+    def get_wager(self, slack_output, user_score):
         with suppress(ValueError):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            user_score = user_db.return_score(user_db.connection, user)
             wager = int(slack_output['text'].split('wager')[1])
+            # jeopardy rules: users below $1000 get up to $1000 to bet
+            if user_score < 1000:
+                user_score = 1000
             # we don't want to let users bet more than they have
             if wager > user_score:
                 return user_score
@@ -196,9 +198,10 @@ class Host:
                     user_db.update_score(user_db.connection, user, wager)
                 else:
                     user_db.update_score(user_db.connection, user, question.value)
-                return 1
+                return 'right'
             elif answer_check is 'close':
                 self.say(main.channel, user_address+ ' Please be more specific.')
+                return 'close'
             else:
                 self.say(main.channel, user_address+ ' :x: Sorry, that is incorrect.')
                 # take away points from user
@@ -218,7 +221,7 @@ class Host:
             if current_champion_name and user == current_champion_name:
                 user_address = ':crown:' + user
             self.say(main.channel, user_address + ', your score is: '+ ' $' + \
-            str(db.return_score(db.connection, user)))
+            str(db.get_score(db.connection, user)))
 
 
     # returns top ten scorers

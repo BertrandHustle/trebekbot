@@ -128,8 +128,6 @@ if __name__=='__main__':
                         question_asked = None
                         answer_given = None
 
-
-        print('MAIN LOOP')
         # this needs to only be set if we hear 'whatis' so we don't attempt to
         # parse blank answers
         current_answer = None
@@ -141,11 +139,12 @@ if __name__=='__main__':
             answer_given = current_answer
 
         # logic for getting and checking question answers
-        if question_asked and answer_given and not question_asked.daily_double:
+        if question_asked and answer_given:
             # the results of checking whether the answer is right
             answer_check_result = host.check_answer(slack_output, question_asked)
+            print(answer_check_result)
             # if answer is right
-            if answer_check_result == 1:
+            if answer_check_result == 'right':
                 answer_given = None
                 question_asked = None
             # we want to only wipe the answer so other people can guess if
@@ -189,7 +188,6 @@ if __name__=='__main__':
             os.execv(sys.executable, ['python'] + sys.argv)
 
         # printing for debug purposes
-        '''
         print(slack_output)
         if question_asked:
             print('QUESTION: '+question_asked.text)
@@ -198,9 +196,7 @@ if __name__=='__main__':
             print('GIVEN ANSWER: ' + answer_given)
         print('========================================')
         print('TIMENOW: ' + str(round(time.time()%60)))
-        print ('>=')
         print('TIMER + TIME LIMIT: ' + str(round(timer%60) + 60))
         print(current_champion_name)
-        '''
         # delay so trebekbot has time to think
         time.sleep(1)

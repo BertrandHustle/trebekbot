@@ -226,7 +226,8 @@ def test_strip_answer(test_value, expected_value):
  ('poker', 'a poker face', 'close'),
  ('the gay 90\'s', 'The Gay \'90s', True),
  ('REM', 'R.E.M.', True),
- ('hard days night', '"A Hard Day\'s Night"', True)
+ ('hard days night', '"A Hard Day\'s Night"', True),
+ ('HG Wells', '(H.G.) Wells', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

@@ -219,7 +219,7 @@ class Host:
             # needed to avoid querying db for name with crown in it
             user_address = user
             if current_champion_name and user == current_champion_name:
-                user_address = ':crown:' + user
+                user_address = ':crown: ' + user
             self.say(main.channel, user_address + ', your score is: '+ ' $' + \
             str(db.get_score(db.connection, user)))
 

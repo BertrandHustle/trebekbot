@@ -230,7 +230,8 @@ class Host:
             top_ten_list = user_db.return_top_ten(user_db.connection)
             slack_list = 'Here\'s our top scorers: \n'
             count = 1
-            for id,name,score in top_ten_list:
+            print(top_ten_list)
+            for champ,name,score,id in top_ten_list:
                 # give crown for being champ
                 if current_champion_name and name == current_champion_name:
                     name = ':crown:' + name

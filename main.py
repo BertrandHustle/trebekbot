@@ -180,7 +180,7 @@ if __name__=='__main__':
         current_time.second == 59:
             host.say(channel, 'Restarting!')
             # set the current champion in our database
-            champion_name = user_db.get_champion(user_db)[0]
+            champion_name = user_db.get_champion(user_db.connection)[0]
             user_db.set_champion(champion_name)
             # make sure scores are reset when bot resets
             user_db.wipe_scores(user_db.connection)

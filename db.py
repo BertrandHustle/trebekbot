@@ -46,7 +46,7 @@ class db(object):
         CREATE TABLE IF NOT EXISTS users (
         id integer PRIMARY KEY,
         name text NOT NULL UNIQUE,
-        score integer NOT NULL DEFAULT 0 CHECK (score >= -10000),
+        score integer NOT NULL DEFAULT 0,
         champion boolean DEFAULT 0
         );
         '''
@@ -137,14 +137,13 @@ class db(object):
     :param score_change: the amount by which we will change the user's score
     '''
     def update_score(self, connection, user, score_change):
-        # UPDATE USERS SET SCORE = SCORE + ? WHERE NAME = ?
         cursor = connection.cursor()
         cursor.execute(
         '''
         UPDATE USERS
         SET SCORE = CASE
-        WHEN (SCORE + ?) >= -10000 THEN (SCORE + ?)
-        ELSE SCORE
+        WHEN (SCORE + ?) <= -10000 THEN (SCORE = -10000)
+        ELSE SCORE + ?
         END
         WHERE NAME = ?
         ''', (score_change, score_change, user)

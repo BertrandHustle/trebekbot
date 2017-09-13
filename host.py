@@ -251,7 +251,7 @@ class Host:
         catch articles that start the string (otherwise we'd need a
         '^' in addition to a '\s')
         '''
-        if 'Dow' in answer:
+        if 'cradle' in answer:
             pdb.set_trace()
         answer = ' ' + answer.lower()
         # remove diacritical marks

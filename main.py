@@ -176,8 +176,8 @@ if __name__=='__main__':
         # TODO: this shouldn't wipe the database, it should just set all
         # the scores to 0
         current_time = datetime.now().time()
-        if current_time.hour == 23 and current_time.minute == 59 and\
-        current_time.second == 59:
+        # if current_time.hour == 23 and current_time.minute == 59 and current_time.second == 59:
+        if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
             host.say(channel, 'Restarting!')
             # set the current champion in our database
             champion_name = user_db.get_champion(user_db.connection)[0]

@@ -29,12 +29,6 @@ def scrub_test_users():
     '''
     )
 
-# remove test champion .txt file after test
-@pytest.fixture
-def delete_test_champion_file():
-    yield delete_test_champion_file
-    remove('./support_files/test_champion.txt')
-
 # set up fixture to populate test db with a range of scorers
 @pytest.fixture
 def populate_db():

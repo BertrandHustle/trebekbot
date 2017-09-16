@@ -182,7 +182,7 @@ if __name__=='__main__':
             # set the current champion in our database
             champion_name = user_db.get_champion(user_db.connection)[0]
             if champion_name:
-                user_db.set_champion(champion_name)
+                user_db.set_champion(user_db.connection, champion_name)
             # make sure scores are reset when bot resets
             user_db.wipe_scores(user_db.connection)
             # restart trebekbot

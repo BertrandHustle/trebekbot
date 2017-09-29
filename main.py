@@ -20,7 +20,7 @@ build_version = '0.3'
 bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
-channel = '#trebektest'
+channel = '#trivia'
 # this needs to be outside the loop so it stays persistant
 question_asked = None
 answer_given = None
@@ -189,6 +189,7 @@ if __name__=='__main__':
             os.execv(sys.executable, ['python'] + sys.argv)
 
         # printing for debug purposes
+        '''
         print(slack_output)
         if question_asked:
             print('QUESTION: '+question_asked.text)
@@ -199,5 +200,6 @@ if __name__=='__main__':
         print('TIMENOW: ' + str(round(time.time()%60)))
         print('TIMER + TIME LIMIT: ' + str(round(timer%60) + 60))
         print(current_champion_name)
+        '''
         # delay so trebekbot has time to think
         time.sleep(1)

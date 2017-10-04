@@ -1,4 +1,5 @@
 import sqlite3
+from subprocess import call
 
 '''
 Class for database setup/functions
@@ -115,6 +116,7 @@ class db(object):
         return champion_search[0][0], '$' + str(champion_search[0][1])
 
     # sets champion before nightly reset
+    # TODO: this needs to store score as well as username
     def set_champion(self, connection, user):
         cursor = connection.cursor()
         # set all champions to 0 first to ensure we don't have multiple champs
@@ -159,3 +161,8 @@ class db(object):
         '''
         )
         self.connection.commit()
+
+    # creates backup of db for logging purposes
+    def log_db(self, db_name):
+        # open db in sqlite3 CLI and make backup
+        call(['sqlite3.exe', db_name, '".backup ' + db_name + '.bak"'])

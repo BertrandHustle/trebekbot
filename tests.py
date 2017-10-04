@@ -311,3 +311,8 @@ def test_wipe_scores(populate_db, db_after):
     test_scores = [x[2] for x in test_scores]
     # this works because every score should be 0
     assert not any(test_scores)
+
+def test_log_db(populate_db, db_after):
+    test_db.log_db(test_db.db_file)
+    test_backup_db = db.db('test_db.bak')
+    assert test_db.get_champion(test_backup_db.connection) == ('Morp', '$501')

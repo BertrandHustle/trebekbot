@@ -108,15 +108,14 @@ if __name__=='__main__':
                     current_contestant == daily_double_answerer and \
                     wager:
                         daily_double_answer = host.check_answer(slack_output, question_asked, wager)
+                        # wrong answer
                         if not daily_double_answer:
                             # reset the question/answer and break out of loop
-                            # if answer is wrong
                             host.say(channel, "Sorry, the correct answer is: " + question_asked.answer)
-                            question_asked = None
-                            answer_given = None
+                            question_asked, answer_given, wager = None, None, None
+                        # right answer
                         elif daily_double_answer is 'right':
-                            question_asked = None
-                            answer_given = None
+                            question_asked, answer_given, wager = None, None, None
                     # need to make sure we have a wager first
                     elif host.hear(slack_output, 'whatis') and not wager:
                         host.say(channel, 'Please enter a wager first.')
@@ -125,8 +124,7 @@ if __name__=='__main__':
                         host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
                         user_db.update_score(user_db.connection, \
                         daily_double_answerer, -wager)
-                        question_asked = None
-                        answer_given = None
+                        question_asked, answer_given, wager = None, None, None
 
         # this needs to only be set if we hear 'whatis' so we don't attempt to
         # parse blank answers

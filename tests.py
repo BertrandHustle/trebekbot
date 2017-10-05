@@ -46,6 +46,12 @@ def populate_db():
     ''',
     (-156, 'Eve')
     )
+    test_db.connection.execute(
+    '''
+    UPDATE USERS SET CHAMPION_SCORE = ? WHERE NAME = ?
+    ''',
+    (5000, 'Morp')
+    )
 
 # tests question constructor
 def test_question_constructor():
@@ -275,8 +281,14 @@ def test_return_top_ten(populate_db, scrub_test_users):
 
 def test_get_champion(populate_db, scrub_test_users):
     expected_champion_name = 'Morp'
-    expected_champion_score = '$501'
+    expected_champion_score = 501
     assert test_db.get_champion(test_db.connection) == \
+    (expected_champion_name, expected_champion_score)
+
+def test_get_last_nights_champion(populate_db, scrub_test_users):
+    expected_champion_name = 'Morp'
+    expected_champion_score = 5000
+    assert test_db.get_last_nights_champion(test_db.connection) == \
     (expected_champion_name, expected_champion_score)
 
 def test_set_champion(populate_db, scrub_test_users):

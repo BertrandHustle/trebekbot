@@ -49,13 +49,13 @@ if __name__=='__main__':
     # establish champion
     # TODO: add in logic for when there isn't a champion
     current_champion_name, current_champion_score = \
-    user_db.get_champion(user_db.connection)
+    user_db.get_last_nights_champion(user_db.connection)
     # announce champ
     if current_champion_name:
         host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
         :crown: @' + current_champion_name + '!')
         host.say(channel, 'With a total cash winnings of '+ \
-        current_champion_score + '!')
+        '$' + str(current_champion_score) + '!')
 
     while True:
         # get rolling slack output
@@ -178,9 +178,10 @@ if __name__=='__main__':
         if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
             host.say(channel, 'Restarting!')
             # set the current champion in our database
-            champion_name = user_db.get_champion(user_db.connection)[0]
+            champion_name, champion_score = \
+            user_db.get_champion(user_db.connection)
             if champion_name:
-                user_db.set_champion(user_db.connection, champion_name)
+                user_db.set_champion(user_db.connection, champion_name, champion_score)
             # make sure scores are reset when bot resets
             user_db.wipe_scores(user_db.connection)
             # restart trebekbot

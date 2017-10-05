@@ -107,7 +107,18 @@ class db(object):
         SELECT NAME, MAX(SCORE) FROM USERS
         '''
         ).fetchall()
-        return champion_search[0][0], '$' + str(champion_search[0][1])
+        return champion_search[0][0], champion_search[0][1]
+
+    # same as above, but gets champion_score (last night's score)
+    # instead of current score
+    def get_last_nights_champion(self, connection):
+        cursor = connection.cursor()
+        champion_search = cursor.execute(
+        '''
+        SELECT NAME, MAX(CHAMPION_SCORE) FROM USERS
+        '''
+        ).fetchall()
+        return champion_search[0][0], champion_search[0][1]
 
     # sets champion before nightly reset
     # TODO: this needs to store score as well as username
@@ -126,7 +137,6 @@ class db(object):
         (score, user)
         )
         self.connection.commit()
-
 
     '''
     updates the score of a given user

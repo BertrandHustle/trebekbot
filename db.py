@@ -1,18 +1,22 @@
 import sqlite3
 from subprocess import call
+from platform import system
 
 '''
 Class for database setup/functions
 This will primarily serve to store users and track their scores/money totals
 '''
 
-# TODO: make sure users get initialized when they do anything w/trebekbot,
-# not just answer a question
+# we need this to check what slashes to use, but no need to call it every
+os = system()
 
 class db(object):
 
     def __init__(self, db_file):
-        self.db_file = "database_files/" + db_file
+        if os == 'Windows':
+            self.db_file = "database_files\\" + db_file
+        else:
+            self.db_file = "database_files/" + db_file
         self.connection = self.create_connection(self.db_file)
         self.create_table_users(self.connection)
         self.connection.commit()
@@ -24,21 +28,10 @@ class db(object):
     :param connection: connection to the sql database
     :sql_param name: name of user
     :sql_param score: current money value of user
+    :sql_param champion_score: leader's score (for persistence between resets)
+    :sql_param champion: flag if user was the champion before reboot
     '''
 
-    # TODO: refactor from this:
-    '''
-    def create_table_users(self, connection):
-        cursor = connection.cursor()
-    '''
-    # to this:
-    '''
-    @staticmethod
-    def create_table_users():
-        cursor = self.connection.cursor()
-    '''
-
-    # TODO: add a champion boolean to this
     def create_table_users(self, connection):
         cursor = connection.cursor()
         # TODO: Fix this to avoid injection attacks
@@ -48,6 +41,7 @@ class db(object):
         id integer PRIMARY KEY,
         name text NOT NULL UNIQUE,
         score integer NOT NULL DEFAULT 0,
+        champion_score integer NOT NULL DEFAULT 0,
         champion boolean DEFAULT 0
         );
         '''
@@ -117,7 +111,7 @@ class db(object):
 
     # sets champion before nightly reset
     # TODO: this needs to store score as well as username
-    def set_champion(self, connection, user):
+    def set_champion(self, connection, user, score):
         cursor = connection.cursor()
         # set all champions to 0 first to ensure we don't have multiple champs
         cursor.execute(
@@ -127,9 +121,9 @@ class db(object):
         )
         cursor.execute(
         '''
-        UPDATE USERS SET CHAMPION = 1 WHERE NAME = ?
+        UPDATE USERS SET CHAMPION = 1, CHAMPION_SCORE = ? WHERE NAME = ?
         ''',
-        (user,)
+        (score, user)
         )
         self.connection.commit()
 

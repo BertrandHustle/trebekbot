@@ -1,5 +1,11 @@
 # trebekbot
 
+Version 0.3.5 changelog:
+
+Bugs:
+- Daily double bug fixed where wager gets applied to every question
+- Champion tracking fixed
+
 Version 0.3 changelog:
 
 Features:

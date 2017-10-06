@@ -141,7 +141,8 @@ class Host:
             if wager > user_score:
                 return user_score
             else:
-                return wager
+                # prevent negative bets
+                return abs(wager)
 
     # say hi!
     def hello(self, slack_output):

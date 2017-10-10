@@ -119,7 +119,8 @@ def test_get_wager(test_output, expected_value):
  (1, True),
  (-1, True),
  (0, True),
- ('0', True)
+ ('0', True),
+ ('$0', True)
 ])
 def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value

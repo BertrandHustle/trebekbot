@@ -1,5 +1,6 @@
 import json
 import re
+import pdb
 from contextlib import suppress
 from random import randint
 from requests import get as get_http_code
@@ -167,6 +168,10 @@ class Question:
 
     @staticmethod
     def is_daily_double(value):
+        # pdb.set_trace()
+        # we need this edge case in case the value passed in is 0
+        if value is 0:
+            return True
         # check if we have a value at all
         if value:
             if type(value) is str:

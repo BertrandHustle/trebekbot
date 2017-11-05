@@ -229,10 +229,17 @@ def test_strip_answer(test_value, expected_value):
  ('REM', 'R.E.M.', True),
  ('hard days night', '"A Hard Day\'s Night"', True),
  ('HG Wells', '(H.G.) Wells', True),
- ('cat\'s in the cradle', 'Cats In The Cradle', True)
+ ('cat\'s in the cradle', 'Cats In The Cradle', True),
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
+
+@pytest.mark.parametrize("given_string, expected_list", [
+#('Zermelo-Frankel set theory', 'Zermelo Frankel set theory', True),
+('Zermelo-Frankel set theory', ['Zermelo Frankel'])
+])
+def test_find_hyphen(given_string, expected_list):
+    assert test_host.find_hyphen(given_string) == expected_list
 
 # DATABASE TESTS
 

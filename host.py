@@ -2,7 +2,7 @@ import pdb
 import main
 import question
 import db
-from re import sub
+from re import sub, compile
 from os import path
 from contextlib import suppress
 from unidecode import unidecode
@@ -242,9 +242,17 @@ class Host:
                 count += 1
             self.say(main.channel, slack_list)
 
+    '''
+    finds hyphenated words in a string and returns them
+    along with their location in the string
+    '''
+    @staticmethod
+    def find_hyphen(string):
+        hyphen_pairs = compile(r'\b\w*-\w*\b', string)
+        for m in hyphen_pairs.match(r'\b\w*-\w*\b'):
+            print (m.start())
 
     # strips answers of extraneous punctuation, whitespace, etc.
-    # TODO: filter out apostrophe escapes
     @staticmethod
     def strip_answer(answer):
         '''
@@ -273,8 +281,8 @@ class Host:
         # clean up extra whitespace (change spaces w/more than one space to
         # a single space)
         answer = sub(r'\s{2,}', ' ', answer)
-        # remove leading space
-        return answer[1:]
+        # remove leading space and split into array
+        return answer[1:].split(' ')
 
     # checks if given answer is close enough to correct answer
     # TODO: rename this
@@ -282,9 +290,8 @@ class Host:
     def fuzz_answer(given_answer, correct_answer):
         # TODO: we may need a dict here so we don't get misaligned zips
         # TODO: make conjunctions/disjunctions behave as logical operators
-        # if answers aren't strings, or we get an empty string, don't bother
-        if type(given_answer) != str or type(correct_answer) != str \
-        or not given_answer:
+        # if we get an empty string, don't bother
+        if not given_answer:
             return False
         # we only want exact matches if the answer is a number
         try:
@@ -292,11 +299,8 @@ class Host:
                 return False
         except (ValueError):
             # remove casing, punctuation, and articles
-            given_answer = Host.strip_answer(given_answer).split(' ')
-            correct_answer = Host.strip_answer(correct_answer).split(' ')
-            # PRINT TEST
-            print(given_answer)
-            print(correct_answer)
+            given_answer = Host.strip_answer(given_answer)
+            correct_answer = Host.strip_answer(correct_answer)
             zipped_words = list(zip(given_answer, correct_answer))
             for given_word, correct_word in zipped_words:
                 # use lambda to pare down dict

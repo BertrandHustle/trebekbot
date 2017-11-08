@@ -105,7 +105,10 @@ def test_separate_html(test_text, expected_output):
  'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], (500, 'bertrand_hustle')),
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  '..wager bees', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None)
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+  '..wager 0', 'type': 'message', 'ts': '1497097067.238474',
+  'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None)
 ])
 def test_get_wager(test_output, expected_value):
     assert test_host.get_wager(test_output) == expected_value
@@ -230,6 +233,7 @@ def test_strip_answer(test_value, expected_value):
  ('hard days night', '"A Hard Day\'s Night"', True),
  ('HG Wells', '(H.G.) Wells', True),
  ('cat\'s in the cradle', 'Cats In The Cradle', True),
+ ('Zermelo Frankel set theory', 'Zermelo-Frankel Set Theory', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

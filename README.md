@@ -1,5 +1,13 @@
 # trebekbot
 
+version 0.3.6 changelog:
+
+Features:
+- Updated daily double text to indicate that wagers of 0 do NOT count as
+valid wagers.
+Bugs:
+- Hyphens are now properly parsed as whitespace
+
 Version 0.3.5 changelog:
 
 Bugs:

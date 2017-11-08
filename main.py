@@ -1,6 +1,5 @@
 # Main file for trebekbot
 # used this to start: https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
-import pdb
 import os
 import sys
 import time
@@ -118,7 +117,7 @@ if __name__=='__main__':
                             question_asked, answer_given, wager = None, None, None
                     # need to make sure we have a wager first
                     elif host.hear(slack_output, 'whatis') and not wager:
-                        host.say(channel, 'Please enter a wager first.')
+                        host.say(channel, 'Please wager something first (not zero!).')
                     # keep track of time
                     if time.time() >= daily_double_timer + time_limit:
                         host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)

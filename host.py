@@ -1,4 +1,3 @@
-import pdb
 import main
 import question
 import db
@@ -140,9 +139,11 @@ class Host:
             # we don't want to let users bet more than they have
             if wager > user_score:
                 return user_score
+            # prevent negative bets
+            if wager < 0:
+                return 0
             else:
-                # prevent negative bets
-                return abs(wager)
+                return wager
 
     # say hi!
     def hello(self, slack_output):
@@ -185,7 +186,6 @@ class Host:
             # what we use to address the user when they answer
             user_address = '<@'+user_id+'|'+user+'>'
             # if the user is the champ, give them a crown!
-            # pdb.set_trace()
             if current_champion_name and user == current_champion_name:
                 user_address = ':crown: <@'+user_id+'|'+user+'>'
             correct_answer = question.answer
@@ -242,16 +242,6 @@ class Host:
                 count += 1
             self.say(main.channel, slack_list)
 
-    '''
-    finds hyphenated words in a string and returns them
-    along with their location in the string
-    '''
-    @staticmethod
-    def find_hyphen(string):
-        hyphen_pairs = compile(r'\b\w*-\w*\b', string)
-        for m in hyphen_pairs.match(r'\b\w*-\w*\b'):
-            print (m.start())
-
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod
     def strip_answer(answer):
@@ -260,8 +250,6 @@ class Host:
         catch articles that start the string (otherwise we'd need a
         '^' in addition to a '\s')
         '''
-        if 'cradle' in answer:
-            pdb.set_trace()
         answer = ' ' + answer.lower()
         # remove diacritical marks
         answer = unidecode(answer)
@@ -274,6 +262,8 @@ class Host:
         answer = \
         sub(r'\sand\s|\sthe\s|\san\s|\sa\s|\"and\s|\"the\s|\"an\s|\"a|\s', ' ',
         answer)
+        # replace hyphens with whitespace
+        answer = sub(r'-', ' ', answer)
         # remove anything that's not alphanumeric
         answer = sub(r'[^A-Za-z0-9\s]', '', answer)
         # remove apostrophes

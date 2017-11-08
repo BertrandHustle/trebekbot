@@ -17,7 +17,7 @@ if path.isfile('/usr/share/dict/words'):
     eng_dict = words_file.readlines()
 else:
     eng_dict = open('./support_files/words.txt').read().splitlines()
-current_champion_name, current_champion_score = user_db.get_champion(user_db.connection)
+current_champion_name, current_champion_score = user_db.get_last_nights_champion(user_db.connection)
 
 '''
  Class that acts as the "host" of Jeopardy

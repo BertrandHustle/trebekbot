@@ -1,3 +1,4 @@
+import pdb
 import main
 import question
 import db
@@ -278,6 +279,8 @@ class Host:
     # TODO: rename this
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
+        if given_answer == 'poker':
+            pdb.set_trace()
         # TODO: we may need a dict here so we don't get misaligned zips
         # TODO: make conjunctions/disjunctions behave as logical operators
         # if we get an empty string, don't bother
@@ -303,8 +306,6 @@ class Host:
                 # remove newline chars from spell check lists
                 check_given_word_closeness = sub(r'\n', ' ', ''.join(check_given_word_closeness)).split(' ')
                 check_correct_word_closeness = sub(r'\n', ' ', ''.join(check_correct_word_closeness)).split(' ')
-                stripped_given_word = Host.strip_answer(given_word)
-                stripped_correct_word = Host.strip_answer(correct_word)
                 # get levenshtein distance
                 lev_dist = editdistance.eval(given_word, correct_word)
 
@@ -323,6 +324,11 @@ class Host:
 
                 # TODO: add a substring check where we treat answers as single strings without whitespace
                 # via Phebus: check for substring but add word boundaries (e.g. /\s+word\s+/)
+
+                '''
+                if given_word in correct_answer and len(given_word) < len(''.join(correct_answer)):
+                    return 'close'
+                '''
 
                 if len(given_word) >= len(correct_word)*0.8 \
                 and given_word in check_given_word_closeness \

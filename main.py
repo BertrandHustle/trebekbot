@@ -163,7 +163,7 @@ if __name__=='__main__':
         if question_asked and time.time() >= timer + time_limit:
             host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
             # we want to take points away if it's a daily double
-            if question_asked.is_daily_double:
+            if question_asked.is_daily_double and wager:
                 user_db.update_score(user_db.connection, \
                 daily_double_answerer, -wager)
             question_asked = None

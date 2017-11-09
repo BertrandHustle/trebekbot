@@ -13,7 +13,7 @@ from contextlib import suppress
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
-build_version = '0.3.6'
+build_version = '0.3.7'
 
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')

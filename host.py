@@ -162,9 +162,14 @@ class Host:
             asked_question = question.Question()
             # parse this so it's pretty in slack
             if asked_question.daily_double:
-                question_text = '[*'+asked_question.category+'*] ' + '_'+asked_question.text+'_'
+                question_text = '[*'+asked_question.category+'*] ' + \
+                '['+asked_question.date+']' + \
+                '_'+asked_question.text+'_'
             else:
-                question_text = '[*'+asked_question.category+'*] ' + '['+asked_question.get_value()+'] ' + '_'+asked_question.text+'_'
+                question_text = '[*'+asked_question.category+'*] ' + \
+                '['+asked_question.get_value()+'] ' + \
+                '['+asked_question.date+']' + \
+                '_'+asked_question.text+'_'
             self.say(main.channel, question_text)
             return asked_question
 
@@ -279,8 +284,8 @@ class Host:
     # TODO: rename this
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
-        if given_answer == '00':
-            pdb.set_trace()
+        # if given_answer == '00':
+            # pdb.set_trace()
         # TODO: we may need a dict here so we don't get misaligned zips
         # TODO: make conjunctions/disjunctions behave as logical operators
         # if we get an empty string, don't bother

@@ -60,6 +60,7 @@ def test_question_constructor():
     assert type(test_question.daily_double) == bool
     assert type(test_question.text) == str
     assert type(test_question.value) == int
+    assert type(test_question.date) == str
 
 def test_get_value():
     '''
@@ -239,13 +240,6 @@ def test_strip_answer(test_value, expected_value):
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
 
-@pytest.mark.parametrize("given_string, expected_list", [
-#('Zermelo-Frankel set theory', 'Zermelo Frankel set theory', True),
-('Zermelo-Frankel set theory', ['Zermelo Frankel'])
-])
-def test_find_hyphen(given_string, expected_list):
-    assert test_host.find_hyphen(given_string) == expected_list
-
 # DATABASE TESTS
 
 # TODO: rewrite database tests using Mock
@@ -284,11 +278,14 @@ def test_update_score(user, value_change, expected_result):
 
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
-    (5, 'Morp', 501),
-    (3, 'Carol', 301),
-    (2, 'Jim', 201),
-    (1, 'Bob', 101),
-    (4, 'Eve', -156)
+    (8, 'Morp', 501, 5000, 0),
+    (6, 'Carol', 301, 0, 0),
+    (5, 'Jim', 201, 0, 0),
+    (1, 'Bob', 101, 0, 0),
+    (2, 'LaVar', 100, 0, 0),
+    (3, 'Stemp', 0, 0, 0),
+    (7, 'Eve', -156, 0, 0),
+    (4, 'boop', -9500, 0, 0)
     ]
     assert test_db.return_top_ten(test_db.connection) == expected_list
 

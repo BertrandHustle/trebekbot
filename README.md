@@ -1,5 +1,12 @@
 # trebekbot
 
+version 0.3.7 changelog:
+
+Features:
+- dates have been added to questions
+Bugs:
+- '00' bug has been fixed
+
 version 0.3.6 changelog:
 
 Features:
@@ -7,6 +14,7 @@ Features:
 valid wagers.
 Bugs:
 - Hyphens are now properly parsed as whitespace
+- 0 value daily doubles are handled properly
 
 Version 0.3.5 changelog:
 

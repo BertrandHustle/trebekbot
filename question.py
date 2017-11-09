@@ -1,6 +1,5 @@
 import json
 import re
-import pdb
 from contextlib import suppress
 from random import randint
 from requests import get as get_http_code
@@ -59,6 +58,7 @@ class Question:
         self.category = question['category']
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question['answer']
+        self.date = question['air_date']
 
     def get_value(self):
         return ('$' + str(self.value))

@@ -233,7 +233,8 @@ def test_strip_answer(test_value, expected_value):
  ('hard days night', '"A Hard Day\'s Night"', True),
  ('HG Wells', '(H.G.) Wells', True),
  ('cat\'s in the cradle', 'Cats In The Cradle', True),
- ('Zermelo Frankel set theory', 'Zermelo-Frankel Set Theory', True)
+ ('Zermelo Frankel set theory', 'Zermelo-Frankel Set Theory', True),
+ ('00', '00', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

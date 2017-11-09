@@ -279,7 +279,7 @@ class Host:
     # TODO: rename this
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
-        if given_answer == 'poker':
+        if given_answer == '00':
             pdb.set_trace()
         # TODO: we may need a dict here so we don't get misaligned zips
         # TODO: make conjunctions/disjunctions behave as logical operators
@@ -288,7 +288,10 @@ class Host:
             return False
         # we only want exact matches if the answer is a number
         try:
-            if int(given_answer) != int(correct_answer):
+            # prevents cases like '0' or '00'
+            if given_answer.startswith('0'):
+                raise ValueError
+            elif int(given_answer) != int(correct_answer):
                 return False
         except (ValueError):
             # remove casing, punctuation, and articles

@@ -6,6 +6,7 @@ Features:
 - dates have been added to questions
 Bugs:
 - '00' bug has been fixed
+- -0 wager bug should be fixed
 
 version 0.3.6 changelog:
 

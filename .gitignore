@@ -1,5 +1,0 @@
-# ignore support files
-support_files/database_files/
-*.
-# ignore virtualenv
-trebekbot/

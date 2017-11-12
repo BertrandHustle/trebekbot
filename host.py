@@ -163,12 +163,12 @@ class Host:
             # parse this so it's pretty in slack
             if asked_question.daily_double:
                 question_text = '[*'+asked_question.category+'*] ' + \
-                '['+asked_question.date+']' + \
+                '['+asked_question.date+'] ' + \
                 '_'+asked_question.text+'_'
             else:
                 question_text = '[*'+asked_question.category+'*] ' + \
                 '['+asked_question.get_value()+'] ' + \
-                '['+asked_question.date+']' + \
+                '['+asked_question.date+'] ' + \
                 '_'+asked_question.text+'_'
             self.say(main.channel, question_text)
             return asked_question

@@ -1,1 +1,5 @@
-*.db*.pycstaticfiles.env# ignore support filessupport_files/database_files/# ignore virtualenvtrebekbot/
+# ignore support files
+support_files/database_files/
+*.
+# ignore virtualenv
+trebekbot/

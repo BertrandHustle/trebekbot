@@ -13,7 +13,7 @@ from contextlib import suppress
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
-build_version = '0.3.7'
+build_version = '0.3.8'
 
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')
@@ -139,7 +139,6 @@ if __name__=='__main__':
         if question_asked and answer_given:
             # the results of checking whether the answer is right
             answer_check_result = host.check_answer(slack_output, question_asked)
-            print(answer_check_result)
             # if answer is right
             if answer_check_result == 'right':
                 answer_given = None
@@ -175,6 +174,7 @@ if __name__=='__main__':
         current_time = datetime.now().time()
         # if current_time.hour == 23 and current_time.minute == 59 and current_time.second == 59:
         if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
+            host.topten(slack_output, force=1)
             host.say(channel, 'Restarting!')
             # set the current champion in our database
             champion_name, champion_score = \

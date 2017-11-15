@@ -1,5 +1,11 @@
 # trebekbot
 
+version 0.3.8 changelog:
+Features:
+- trebekbot now gives a top ten list of scorers before nightly restarts
+Bugs:
+- fixed syntax issues in questions
+
 version 0.3.7 changelog:
 
 Features:

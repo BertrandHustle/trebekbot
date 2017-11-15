@@ -232,8 +232,9 @@ class Host:
 
 
     # returns top ten scorers
-    def top_ten(self, slack_output):
-        if self.hear(slack_output, 'topten'):
+    # if force flag is active, ignore slack and say the top ten regardless
+    def top_ten(self, slack_output, force=None):
+        if self.hear(slack_output, 'topten') or force:
             top_ten_list = user_db.return_top_ten(user_db.connection)
             slack_list = 'Here\'s our top scorers: \n'
             count = 1

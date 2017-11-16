@@ -153,7 +153,7 @@ class Question:
             # a single space)
             question_text = re.sub(r'\s{2,}', ' ', question_text)
             # remove extra space from start of answer if there is one
-            if question_text[0] is ' ':
+            if question_text and question_text[0] is ' ':
                 question_text = question_text[1:]
             # only return links if they're valid, otherwise we just want the
             # scrubbed text

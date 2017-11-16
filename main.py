@@ -78,7 +78,8 @@ if __name__=='__main__':
                 daily_double_answerer = host.get_user(slack_output[0])
                 daily_double_answerer_score = \
                 user_db.get_score(user_db.connection, daily_double_answerer)
-                daily_double_timer = time.time()
+                # we need a little extra time to put in a wager and answer
+                daily_double_timer = time.time() + 30
                 host.say(channel, 'It\'s a DAILY DOUBLE!')
                 host.say(channel, '@'+daily_double_answerer+' [$'+str(daily_double_answerer_score)+'] ' \
                 + ' Please enter a wager by typing ..wager <your wager>')

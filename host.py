@@ -242,7 +242,7 @@ class Host:
             for champ,name,score,champ_score,id in top_ten_list:
                 # give crown for being champ
                 if current_champion_name and name == current_champion_name:
-                    name = ':crown:' + name
+                    name = ':crown: ' + name
                 # format: 1. Morp - $501
                 slack_list += str(count) + '. ' + name + ' - ' + '$' \
                 + str(score) + '\n'

@@ -3,8 +3,9 @@
 version 0.3.8 changelog:
 Features:
 - trebekbot now gives a top ten list of scorers before nightly restarts
+- increased daily double timer to 90 seconds
 Bugs:
-- fixed syntax issues in questions
+- fixed syntax issues in questions and topten()
 
 version 0.3.7 changelog:
 

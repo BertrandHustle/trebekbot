@@ -46,7 +46,6 @@ if __name__=='__main__':
     host.say(channel, host.intro_text)
     host.say(channel, host.help_text)
     # establish champion
-    # TODO: add in logic for when there isn't a champion
     current_champion_name, current_champion_score = \
     user_db.get_last_nights_champion(user_db.connection)
     # announce champ
@@ -55,6 +54,8 @@ if __name__=='__main__':
         :crown: @' + current_champion_name + '!')
         host.say(channel, 'With a total cash winnings of '+ \
         '$' + str(current_champion_score) + '!')
+    # reset champion_scores here
+    user_db.wipe_champion_scores(user_db.connection)
 
     while True:
         # get rolling slack output

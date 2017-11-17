@@ -166,6 +166,16 @@ class db(object):
         )
         self.connection.commit()
 
+    # resets champion_scores to 0 for all users, used for nightly resets
+    def wipe_champion_scores(self, connection):
+        cursor = connection.cursor()
+        cursor.execute(
+        '''
+        UPDATE USERS SET CHAMPION_SCORE = 0
+        '''
+        )
+        self.connection.commit()
+
     # creates backup of db for logging purposes
     def log_db(self, db_name):
         # open db in sqlite3 CLI and make backup

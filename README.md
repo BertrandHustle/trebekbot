@@ -6,6 +6,7 @@ Features:
 - increased daily double timer to 90 seconds
 Bugs:
 - fixed syntax issues in questions and topten()
+- fixed last night champion reporting wrong score
 
 version 0.3.7 changelog:
 

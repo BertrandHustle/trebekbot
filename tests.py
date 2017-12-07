@@ -314,7 +314,7 @@ def test_set_champion(populate_db, scrub_test_users):
     test_db.set_champion(test_db.connection, 'Morp', 501)
     test_result = test_db.connection.execute(
     '''
-    SELECT * FROM USERS WHERE CHAMPION = 1
+    SELECT * FROM USERS WHERE CHAMPION = 1 AND CHAMPION_SCORE = 501
     '''
     ).fetchone()
     assert (test_result[1], test_result[3]) == ('Morp', 501)

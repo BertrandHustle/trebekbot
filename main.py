@@ -48,6 +48,7 @@ if __name__=='__main__':
     # establish champion
     current_champion_name, current_champion_score = \
     user_db.get_last_nights_champion(user_db.connection)
+    print(user_db.get_last_nights_champion(user_db.connection))
     # announce champ
     if current_champion_name:
         host.say(channel, 'Let\'s welcome back last night\'s returning champion, \

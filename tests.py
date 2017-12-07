@@ -261,7 +261,6 @@ def test_add_user_to_db():
     ('Bob',)
     )
     query_results = test_query.fetchall()
-    print(query_results)
     check_results = findall(r'Bob', str(query_results))
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1
@@ -282,6 +281,10 @@ def test_update_score(user, value_change, expected_result):
     test_db.update_score(test_db.connection, user, value_change)
     assert test_db.get_score(test_db.connection, user) == expected_result
 
+# we can't do this above because it scrubs the db after EVERY parametrized test
+scrub_test_users()
+
+# TODO: test force flag
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
     (8, 'Morp', 501, 5000, 0),

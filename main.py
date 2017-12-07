@@ -177,7 +177,7 @@ if __name__=='__main__':
         # if current_time.hour == 23 and current_time.minute == 59 and current_time.second == 59:
         if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
             host.say(channel, 'Tonight\'s Top Scorers:')
-            host.topten(slack_output, force=1)
+            host.top_ten(slack_output, force=1)
             host.say(channel, 'Restarting!')
             # set the current champion in our database
             champion_name, champion_score = \

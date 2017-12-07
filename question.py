@@ -50,7 +50,7 @@ class Question:
     def __init__(self):
         question_list = self.question_list
         question_list = self.filter_questions(question_list, banned_categories=\
-        'missing this category', banned_phrases=['seen here', 'heard here'])
+        'missing this category', banned_phrases=['seen here', 'heard here', 'audio clue'])
         # used to test daily doubles
         # question_list = self.filter_questions(question_list, daily_double=1)
         question = question_list[randint(0, len(question_list))]

@@ -1,11 +1,15 @@
 # trebekbot
 
+version 0.3.9 changelog:
+Bugs:
+- fixed Tonight's Top Scorer's returning nothing
+
 version 0.3.8 changelog:
 Features:
 - trebekbot now gives a top ten list of scorers before nightly restarts
 - increased daily double timer to 90 seconds
 Bugs:
-- fixed syntax issues in questions and topten()
+- fixed syntax issues in questions and top_ten()
 - fixed last night champion reporting wrong score
 
 version 0.3.7 changelog:

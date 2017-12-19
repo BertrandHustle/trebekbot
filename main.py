@@ -13,7 +13,7 @@ from contextlib import suppress
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
-build_version = '0.3.8'
+build_version = '0.3.9'
 
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')
@@ -124,8 +124,9 @@ if __name__=='__main__':
                     # keep track of time
                     if time.time() >= daily_double_timer + time_limit:
                         host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
-                        user_db.update_score(user_db.connection, \
-                        daily_double_answerer, -wager)
+                        if wager:
+                            user_db.update_score(user_db.connection, \
+                            daily_double_answerer, -wager)
                         question_asked, answer_given, wager = None, None, None
 
         # this needs to only be set if we hear 'whatis' so we don't attempt to

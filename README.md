@@ -1,5 +1,9 @@
 # trebekbot
 
+version 0.4.0 changelog:
+Bugs:
+- fixed numerical answers not counting as correct
+
 version 0.3.9 changelog:
 Bugs:
 - fixed Tonight's Top Scorer's returning nothing

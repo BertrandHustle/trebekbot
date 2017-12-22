@@ -231,7 +231,6 @@ def test_strip_answer(test_value, expected_value):
  ('queen elizabeth ii', 'Elizabeth II', 'close'),
  ('issac newton', 'Newton', 'close'),
  ('dow jones', '(the) Dow (Jones)', True),
- ('91', '21', False),
  ('Red and Green', 'Green and Red', True),
  ('Blue or green', 'Green', True),
  ('poker', 'a poker face', 'close'),
@@ -241,7 +240,9 @@ def test_strip_answer(test_value, expected_value):
  ('HG Wells', '(H.G.) Wells', True),
  ('cat\'s in the cradle', 'Cats In The Cradle', True),
  ('Zermelo Frankel set theory', 'Zermelo-Frankel Set Theory', True),
- ('00', '00', True)
+ ('00', '00', True),
+ ('91', '21', False),
+ ('32', '32', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

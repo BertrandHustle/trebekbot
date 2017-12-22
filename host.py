@@ -285,7 +285,7 @@ class Host:
     # TODO: rename this
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
-        # if given_answer == '00':
+        # if given_answer == '32':
             # pdb.set_trace()
         # TODO: we may need a dict here so we don't get misaligned zips
         # TODO: make conjunctions/disjunctions behave as logical operators
@@ -299,13 +299,15 @@ class Host:
                 raise ValueError
             elif int(given_answer) != int(correct_answer):
                 return False
+            elif int(given_answer) == int(correct_answer):
+                return True
         except (ValueError):
             # remove casing, punctuation, and articles
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
             zipped_words = list(zip(given_answer, correct_answer))
             for given_word, correct_word in zipped_words:
-                # use lambda to pare down dict
+                # use lambda to pare down comparison dictionary
                 first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
                 # get lists of close words (spell check)
                 check_given_word_closeness = difflib.get_close_matches \
@@ -345,6 +347,7 @@ class Host:
                 or given_word == correct_word \
                 or lev_dist <= 1:
                     continue
+
                 elif given_word in correct_word \
                 and len(given_word) >= len(correct_word)*0.8 \
                 or correct_word in given_word \

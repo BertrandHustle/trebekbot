@@ -208,10 +208,17 @@ def test_convert_value_to_int(test_value, expected_value):
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value
 
+@pytest.mark.parametrize("given_word, expected_word, expected_value", [
+  ('Test', 'Toast', False),
+  ('Test', 'Tost', True),
+  ('Test', 'te', 'close')
+])
+def test_fuzz_word(given_word, expected_word, expected_value):
+    assert test_host.fuzz_word(given_word, expected_word) == expected_value
+
 @pytest.mark.parametrize("given_answer, expected_answer, expected_value", [
  ('Bath', 'Borth', False),
  ('Bath', 'beth', False),
- (600, 'Borth', False),
  (None, 'Borth', False),
  ('mary queen of scotts','Mary, Queen of Scots', True),
  ('','Mary, Queen of Scots', False),

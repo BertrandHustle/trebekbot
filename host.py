@@ -283,16 +283,72 @@ class Host:
         # remove leading space and split into array
         return answer[1:].split(' ')
 
+
+    '''
+    if the word is:
+    - long enough
+    - in the spell check results for both itself and correct word
+    - identical to the correct word
+    - one levenshtein distance off from correct word
+    then keep looping through the words
+    elif word is:
+    - in the correct word and long enough or in the correct answer
+    - or vice versa (but we dont check if correct word is in given answer)
+    then it's close enough
+    '''
+
+    @staticmethod
+    def fuzz_word(given_word, correct_word):
+        # remove casing, punctuation, and articles
+        given_word = Host.strip_answer(given_word)[0]
+        correct_word = Host.strip_answer(correct_word)[0]
+        if given_word == correct_word:
+            return True
+        else:
+            # use lambda to pare down comparison dictionary
+            first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
+
+            # get lists of close words (spell check)
+            check_given_word_closeness = difflib.get_close_matches \
+            (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
+
+            check_correct_word_closeness = difflib.get_close_matches \
+            (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
+
+            # remove newline chars from spell check lists
+            check_given_word_closeness = sub(r'\n', ' ', ''.join(check_given_word_closeness)).split(' ')
+            check_correct_word_closeness = sub(r'\n', ' ', ''.join(check_correct_word_closeness)).split(' ')
+
+            # get levenshtein distance
+            lev_dist = editdistance.eval(given_word, correct_word)
+
+            # TODO: add a substring check where we treat answers as single strings without whitespace
+            # via Phebus: check for substring but add word boundaries (e.g. /\s+word\s+/)
+
+            # pdb.set_trace()
+            # is the length of the guessed word close enough to the correct word?
+            is_long_enough = abs(len(given_word) - len(correct_word)) >= \
+            max(len(given_word), len(correct_word)) * 0.8
+
+            if is_long_enough \
+            and (given_word in check_given_word_closeness \
+            and given_word in check_correct_word_closeness) \
+            or lev_dist <= 1:
+                return True
+            elif not is_long_enough \
+            and (given_word in correct_word \
+            or correct_word in given_word):
+                return 'close'
+            else:
+                return False
+
     # checks if given answer is close enough to correct answer
     # TODO: rename this
     # TODO: parentheses should be optional to the answer, not excluded
-    # TODO: refactor this into fuzz_word() and fuzz_answer()
+    # TODO: make conjunctions/disjunctions behave as logical operators
+
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
-        # if given_answer == '32':
-            # pdb.set_trace()
-        # TODO: we may need a dict here so we don't get misaligned zips
-        # TODO: make conjunctions/disjunctions behave as logical operators
         # if we get an empty string, don't bother
         if not given_answer:
             return False
@@ -313,53 +369,11 @@ class Host:
                 return True
             zipped_words = list(zip(given_answer, correct_answer))
             for given_word, correct_word in zipped_words:
-                # use lambda to pare down comparison dictionary
-                first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
-                # get lists of close words (spell check)
-                check_given_word_closeness = difflib.get_close_matches \
-                (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
-                check_correct_word_closeness = difflib.get_close_matches \
-                (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
-                # remove newline chars from spell check lists
-                check_given_word_closeness = sub(r'\n', ' ', ''.join(check_given_word_closeness)).split(' ')
-                check_correct_word_closeness = sub(r'\n', ' ', ''.join(check_correct_word_closeness)).split(' ')
-                # get levenshtein distance
-                lev_dist = editdistance.eval(given_word, correct_word)
-
-                '''
-                if the word is:
-                - long enough
-                - in the spell check results for both itself and correct word
-                - identical to the correct word
-                - one levenshtein distance off from correct word
-                then keep looping through the words
-                elif word is:
-                - in the correct word and long enough or in the correct answer
-                - or vice versa (but we dont check if correct word is in given answer)
-                then it's close enough
-                '''
-
-                # TODO: add a substring check where we treat answers as single strings without whitespace
-                # via Phebus: check for substring but add word boundaries (e.g. /\s+word\s+/)
-
-                '''
-                if given_word in correct_answer and len(given_word) < len(''.join(correct_answer)):
-                    return 'close'
-                '''
-
-                if len(given_word) >= len(correct_word)*0.8 \
-                and (given_word in check_given_word_closeness \
-                and given_word in check_correct_word_closeness) \
-                or given_word == correct_word \
-                or lev_dist <= 1:
+                result = Host.fuzz_word(given_word, correct_word)
+                if result == 'close':
+                    return result
+                elif result == True:
                     continue
-
-                elif given_word in correct_word \
-                and len(given_word) >= len(correct_word)*0.8 \
-                or correct_word in given_word \
-                and len(correct_word) >= len(given_word)*0.8 \
-                or given_word in correct_answer:
-                    return 'close'
-                else:
-                    return False
+                elif result == False:
+                    return result
             return True

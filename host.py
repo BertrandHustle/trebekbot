@@ -2,7 +2,7 @@ import pdb
 import main
 import question
 import db
-from re import sub, compile
+from re import sub, findall
 from os import path
 from contextlib import suppress
 from unidecode import unidecode
@@ -115,7 +115,7 @@ class Host:
         user_id = slack_output['user']
         user = self.slack_client.api_call(
         'users.info',
-        user=user_id
+        user = user_id
         )
         # in case we don't locate a user
         if user:
@@ -261,6 +261,7 @@ class Host:
         # remove diacritical marks
         answer = unidecode(answer)
         # remove anything in parentheses
+        # parentheses = findall(r'\((.*)\)', answer)
         answer = sub(r'\((.*)\)', '', answer)
         '''
         remove articles and conjunctions that are alone or at the start of
@@ -278,11 +279,14 @@ class Host:
         # clean up extra whitespace (change spaces w/more than one space to
         # a single space)
         answer = sub(r'\s{2,}', ' ', answer)
+        print(answer)
         # remove leading space and split into array
         return answer[1:].split(' ')
 
     # checks if given answer is close enough to correct answer
     # TODO: rename this
+    # TODO: parentheses should be optional to the answer, not excluded
+    # TODO: refactor this into fuzz_word() and fuzz_answer()
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         # if given_answer == '32':
@@ -305,6 +309,8 @@ class Host:
             # remove casing, punctuation, and articles
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
+            if given_answer == correct_answer:
+                return True
             zipped_words = list(zip(given_answer, correct_answer))
             for given_word, correct_word in zipped_words:
                 # use lambda to pare down comparison dictionary
@@ -342,8 +348,8 @@ class Host:
                 '''
 
                 if len(given_word) >= len(correct_word)*0.8 \
-                and given_word in check_given_word_closeness \
-                and given_word in check_correct_word_closeness \
+                and (given_word in check_given_word_closeness \
+                and given_word in check_correct_word_closeness) \
                 or given_word == correct_word \
                 or lev_dist <= 1:
                     continue

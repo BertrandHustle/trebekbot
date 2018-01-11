@@ -198,11 +198,12 @@ def test_convert_value_to_int(test_value, expected_value):
 
 @pytest.mark.parametrize("test_value, expected_value", [
  # we add an extra space because this is how we get the answers from slack
- (' Hall & Oates', 'hall oates'),
- (' Hall and Oates', 'hall oates'),
- (' Androgynous', 'androgynous'),
- (' Hall & Oates\' Oats and Halls', 'hall oates oats halls'),
- (' "The Little Rascals"', 'the little rascals')
+ (' Hall & Oates', ['hall', 'oates']),
+ (' Hall and Oates', ['hall', 'oates']),
+ (' Androgynous', ['androgynous']),
+ (' Hall & Oates\' Oats and Halls', ['hall', 'oates', 'oats', 'halls']),
+ (' "The Little Rascals"', 'the little rascals'),
+ (' (H.G.) Wells', ('(H.G.)', 'Wells'))
 ])
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value

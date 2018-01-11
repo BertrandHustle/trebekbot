@@ -3,6 +3,7 @@
 version 0.4.0 changelog:
 Bugs:
 - fixed numerical answers not counting as correct
+- updated slackclient to 1.1.0 (hoping this will fix the restart issue)
 
 version 0.3.9 changelog:
 Bugs:

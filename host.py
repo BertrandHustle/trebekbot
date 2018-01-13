@@ -268,7 +268,7 @@ class Host:
         quotations
         '''
         answer = \
-        sub(r'\sand\s|\sthe\s|\san\s|\sa\s|\"and\s|\"the\s|\"an\s|\"a|\s', ' ',
+        sub(r'\sand\s|\sthe\s|\san\s|\sa\s|\sof\s|\"and\s|\"the\s|\"an\s|\"a|\s|\"of\s', ' ',
         answer)
         # replace hyphens with whitespace
         answer = sub(r'-', ' ', answer)
@@ -283,6 +283,16 @@ class Host:
         # remove leading space and split into array
         return answer[1:].split(' ')
 
+    # makes matrix (sort of) of word-pairs out of given/correct answer arrays
+    # (arrays of words)
+    @staticmethod
+    def matricize_answers(given_answer, correct_answer):
+        matrix = []
+        for word in given_answer:
+            for comp_word in correct_answer:
+                if word != comp_word and not set([word, comp_word]) in [set(m) for m in matrix]:
+                    matrix.append((word, comp_word))
+        return matrix
 
     '''
     if the word is:
@@ -367,6 +377,7 @@ class Host:
             correct_answer = Host.strip_answer(correct_answer)
             if given_answer == correct_answer:
                 return True
+
             zipped_words = list(zip(given_answer, correct_answer))
             for given_word, correct_word in zipped_words:
                 result = Host.fuzz_word(given_word, correct_word)

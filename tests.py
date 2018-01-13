@@ -208,6 +208,22 @@ def test_convert_value_to_int(test_value, expected_value):
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value
 
+@pytest.mark.parametrize("given_answer, expected_answer, expected_matrix", [
+ ('Bath', 'Borth', [('bath', 'borth')]),
+ ('the dover cliffs', 'the white cliffs of dover', \
+ [('dover', 'white'), ('dover', 'cliffs'), ('cliffs', 'white')]),
+ ('the dover cliffs', 'the cover dliffs', \
+ [('dover', 'cover'), ('dover', 'dliffs'), ('cliffs', 'dliffs'), ('cliffs', 'cover')])
+])
+def test_matricize_answers(given_answer, expected_answer, expected_matrix):
+  # it's assumed that we'll be doing this first in our regular answer checking
+  given_answer = test_host.strip_answer(given_answer)
+  expected_answer = test_host.strip_answer(expected_answer)
+  # convert to set so we don't need to worry about ordering 
+  test_matrix = set(test_host.matricize_answers(given_answer, expected_answer))
+  expected_matrix = set(expected_matrix)
+  assert test_matrix == expected_matrix
+
 @pytest.mark.parametrize("given_word, expected_word, expected_value", [
   ('Test', 'Toast', False),
   ('Test', 'Tost', True),

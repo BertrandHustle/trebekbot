@@ -208,21 +208,28 @@ def test_convert_value_to_int(test_value, expected_value):
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value
 
-@pytest.mark.parametrize("given_answer, expected_answer, expected_matrix", [
- ('Bath', 'Borth', [('bath', 'borth')]),
- ('the dover cliffs', 'the white cliffs of dover', \
- [('dover', 'white'), ('dover', 'cliffs'), ('cliffs', 'white')]),
+@pytest.mark.parametrize("given_answer, expected_answer, expected_list", [
+ ('Bath' , 'Borth', [('bath', 'borth')]),
+ ('the dover cliffs', 'The White Cliffs of Dover', \
+ [('dover', 'white'), ('dover', 'cliffs'), ('cliffs', 'white'), \
+ ('dover', 'dover'), ('cliffs', 'cliffs')]),
  ('the dover cliffs', 'the cover dliffs', \
- [('dover', 'cover'), ('dover', 'dliffs'), ('cliffs', 'dliffs'), ('cliffs', 'cover')])
+ [('dover', 'cover'), ('dover', 'dliffs'), ('cliffs', 'dliffs'), ('cliffs', 'cover')]),
+ ('mary queen of scotts', 'Mary, Queen of Scots', \
+ [('mary', 'mary'), ('mary', 'queen'), ('mary', 'scots'), \
+ ('queen', 'queen'), ('queen', 'scots'), \
+ ('scotts', 'mary'), ('scotts', 'queen'), ('scotts', 'scots')])
 ])
-def test_matricize_answers(given_answer, expected_answer, expected_matrix):
+def test_pair_off_answers(given_answer, expected_answer, expected_list):
   # it's assumed that we'll be doing this first in our regular answer checking
   given_answer = test_host.strip_answer(given_answer)
   expected_answer = test_host.strip_answer(expected_answer)
-  # convert to set so we don't need to worry about ordering 
-  test_matrix = set(test_host.matricize_answers(given_answer, expected_answer))
-  expected_matrix = set(expected_matrix)
-  assert test_matrix == expected_matrix
+  # convert to set so we don't need to worry about ordering
+  test_list = set(test_host.pair_off_answers(given_answer, expected_answer))
+  expected_list = set(expected_list)
+  print(test_list)
+  print(expected_list)
+  assert test_list == expected_list
 
 @pytest.mark.parametrize("given_word, expected_word, expected_value", [
   ('Test', 'Toast', False),
@@ -234,7 +241,7 @@ def test_fuzz_word(given_word, expected_word, expected_value):
 
 @pytest.mark.parametrize("given_answer, expected_answer, expected_value", [
  ('Bath', 'Borth', False),
- ('Bath', 'beth', False),
+ ('Bath', 'beth', True),
  (None, 'Borth', False),
  ('mary queen of scotts','Mary, Queen of Scots', True),
  ('','Mary, Queen of Scots', False),
@@ -254,6 +261,7 @@ def test_fuzz_word(given_word, expected_word, expected_value):
  ('bechamel', 'béchamel', True),
  ('queen elizabeth ii', 'Elizabeth II', 'close'),
  ('issac newton', 'Newton', 'close'),
+ # test optional parentheses
  ('dow jones', '(the) Dow (Jones)', True),
  ('Red and Green', 'Green and Red', True),
  ('Blue or green', 'Green', True),
@@ -266,7 +274,8 @@ def test_fuzz_word(given_word, expected_word, expected_value):
  ('Zermelo Frankel set theory', 'Zermelo-Frankel Set Theory', True),
  ('00', '00', True),
  ('91', '21', False),
- ('32', '32', True)
+ ('32', '32', True),
+ ('the absolute density of a dying star', 'star', False)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

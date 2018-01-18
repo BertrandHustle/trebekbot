@@ -279,18 +279,18 @@ class Host:
         # clean up extra whitespace (change spaces w/more than one space to
         # a single space)
         answer = sub(r'\s{2,}', ' ', answer)
-        print(answer)
         # remove leading space and split into array
         return answer[1:].split(' ')
 
-    # makes matrix (sort of) of word-pairs out of given/correct answer arrays
-    # (arrays of words)
+    # makes list of word-pairs out of given/correct answer arrays (arrays of words)
+    # these arrays will always be filtered through strip_answer() first
     @staticmethod
-    def matricize_answers(given_answer, correct_answer):
+    def pair_off_answers(answer1, answer2):
         matrix = []
-        for word in given_answer:
-            for comp_word in correct_answer:
-                if word != comp_word and not set([word, comp_word]) in [set(m) for m in matrix]:
+        for word in answer1:
+            for comp_word in answer2:
+                # convert to set so order doesn't matter in pairs
+                if not set([word, comp_word]) in [set(m) for m in matrix]:
                     matrix.append((word, comp_word))
         return matrix
 
@@ -309,9 +309,6 @@ class Host:
 
     @staticmethod
     def fuzz_word(given_word, correct_word):
-        # remove casing, punctuation, and articles
-        given_word = Host.strip_answer(given_word)[0]
-        correct_word = Host.strip_answer(correct_word)[0]
         if given_word == correct_word:
             return True
         else:
@@ -372,19 +369,30 @@ class Host:
             elif int(given_answer) == int(correct_answer):
                 return True
         except (ValueError):
+            if 'Green' == correct_answer:
+                pdb.set_trace()
+            # total up how many word pair comparisons are right, wrong, etc.
+            # that is: is the word close enough to the word we're comparing it to?
+            right = 0
+            close = 0
             # remove casing, punctuation, and articles
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
+            pair_list = Host.pair_off_answers(given_answer, correct_answer)
             if given_answer == correct_answer:
                 return True
-
-            zipped_words = list(zip(given_answer, correct_answer))
-            for given_word, correct_word in zipped_words:
-                result = Host.fuzz_word(given_word, correct_word)
+            # compare pairs and adjust totals accordingly
+            for pair in pair_list:
+                result = Host.fuzz_word(pair[0], pair[1])
                 if result == 'close':
-                    return result
+                    close += 1
                 elif result == True:
-                    continue
-                elif result == False:
-                    return result
-            return True
+                    right += 1
+            # check if the answer is close enough
+            if right >= round(0.75 * len(correct_answer)):
+                return True
+            # prevents rounding down to 0
+            elif right + close >= max(round(0.5 * len(correct_answer)), 1):
+                return 'close'
+            else:
+                return False

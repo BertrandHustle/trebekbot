@@ -252,8 +252,6 @@ class Host:
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod
     def strip_answer(answer):
-        if 'Dow' in answer:
-            pdb.set_trace()
         # ok, not technically ALL articles
         articles = ['and', 'the', 'an', 'a', 'of']
         '''
@@ -280,10 +278,10 @@ class Host:
         # remove apostrophes
         answer = sub(r'\'', '', answer)
         # clean up extra whitespace (change spaces w/more than one space to
-        # a single space)
+        # a single space, and removes leading and trailing spaces)
         answer = sub(r'\s{2,}', ' ', answer)
-        # remove leading space and split into array
-        return answer[1:].split(' ')
+        answer = sub(r'^\s*|\s*$', '', answer)
+        return answer.split(' ')
 
     # makes list of word-pairs out of given/correct answer arrays (arrays of words)
     # these arrays will always be filtered through strip_answer() first

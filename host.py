@@ -252,6 +252,8 @@ class Host:
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod
     def strip_answer(answer):
+        # ok, not technically ALL articles
+        articles = ['and', 'the', 'an', 'a', 'of']
         '''
         remove casing, we also prefix a space so the next regex will
         catch articles that start the string (otherwise we'd need a
@@ -267,9 +269,8 @@ class Host:
         remove articles and conjunctions that are alone or at the start of
         quotations
         '''
-        answer = \
-        sub(r'\sand\s|\sthe\s|\san\s|\sa\s|\sof\s|\"and\s|\"the\s|\"an\s|\"a|\s|\"of\s', ' ',
-        answer)
+        for a in articles:
+            answer = sub(r'\s{}\s|\"{}\s|^{}\s'.format(a, a, a), ' ', answer)
         # replace hyphens with whitespace
         answer = sub(r'-', ' ', answer)
         # remove anything that's not alphanumeric
@@ -369,7 +370,7 @@ class Host:
             elif int(given_answer) == int(correct_answer):
                 return True
         except (ValueError):
-            if 'Green' == correct_answer:
+            if 'dying star' in given_answer:
                 pdb.set_trace()
             # total up how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?

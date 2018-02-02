@@ -252,6 +252,8 @@ class Host:
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod
     def strip_answer(answer):
+        if 'Dow' in answer:
+            pdb.set_trace()
         # ok, not technically ALL articles
         articles = ['and', 'the', 'an', 'a', 'of']
         '''
@@ -263,11 +265,11 @@ class Host:
         # remove diacritical marks
         answer = unidecode(answer)
         # remove anything in parentheses
-        # parentheses = findall(r'\((.*)\)', answer)
-        answer = sub(r'\((.*)\)', '', answer)
+        # https://stackoverflow.com/questions/17779744/regular-expression-to-get-a-string-between-parentheses-in-javascript
+        answer = sub(r'\(([^)]+)\)', '', answer)
         '''
-        remove articles and conjunctions that are alone or at the start of
-        quotations
+        remove articles and conjunctions that are alone, at the start of
+        quotations, or at the beginning of the string
         '''
         for a in articles:
             answer = sub(r'\s{}\s|\"{}\s|^{}\s'.format(a, a, a), ' ', answer)
@@ -370,8 +372,6 @@ class Host:
             elif int(given_answer) == int(correct_answer):
                 return True
         except (ValueError):
-            if 'dying star' in given_answer:
-                pdb.set_trace()
             # total up how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
             right = 0
@@ -380,6 +380,8 @@ class Host:
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
             pair_list = Host.pair_off_answers(given_answer, correct_answer)
+            if 'dow' in given_answer:
+                pdb.set_trace()
             if given_answer == correct_answer:
                 return True
             # compare pairs and adjust totals accordingly
@@ -390,10 +392,10 @@ class Host:
                 elif result == True:
                     right += 1
             # check if the answer is close enough
-            if right >= round(0.75 * len(correct_answer)):
+            if right >= round(0.75 * max(len(correct_answer), len(given_answer))):
                 return True
             # prevents rounding down to 0
-            elif right + close >= max(round(0.5 * len(correct_answer)), 1):
+            elif right + close >= max(round(0.5 * max(len(correct_answer), len(given_answer))), 1):
                 return 'close'
             else:
                 return False

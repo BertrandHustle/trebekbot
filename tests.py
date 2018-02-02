@@ -202,8 +202,12 @@ def test_convert_value_to_int(test_value, expected_value):
  (' Hall and Oates', ['hall', 'oates']),
  (' Androgynous', ['androgynous']),
  (' Hall & Oates\' Oats and Halls', ['hall', 'oates', 'oats', 'halls']),
- (' "The Little Rascals"', 'the little rascals'),
- (' (H.G.) Wells', ('(H.G.)', 'Wells'))
+ ('the absolute density of a dying star', \
+ ['absolute', 'density', 'dying', 'star']),
+ (' "The Little Rascals"', ['little', 'rascals']),
+ ('(the) Dow (Jones)', ['dow'])
+ # use for optional parentheses feature in fuzz_answer
+ # (' (H.G.) Wells', ('(H.G.)', 'Wells'))
 ])
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value
@@ -227,8 +231,6 @@ def test_pair_off_answers(given_answer, expected_answer, expected_list):
   # convert to set so we don't need to worry about ordering
   test_list = set(test_host.pair_off_answers(given_answer, expected_answer))
   expected_list = set(expected_list)
-  print(test_list)
-  print(expected_list)
   assert test_list == expected_list
 
 @pytest.mark.parametrize("given_word, expected_word, expected_value", [
@@ -259,23 +261,25 @@ def test_fuzz_word(given_word, expected_word, expected_value):
  ('The Great Star of Bethlehem', 'The Star of Bethelhem', 'close'),
  ('lawn', 'The Great Lawn', 'close'),
  ('bechamel', 'béchamel', True),
- ('queen elizabeth ii', 'Elizabeth II', 'close'),
+ ('queen elizabeth ii', 'Elizabeth II', True),
  ('issac newton', 'Newton', 'close'),
  # test optional parentheses
- ('dow jones', '(the) Dow (Jones)', True),
+ ('dow jones', '(the) Dow (Jones)', 'close'),
  ('Red and Green', 'Green and Red', True),
  ('Blue or green', 'Green', True),
  ('poker', 'a poker face', 'close'),
  ('the gay 90\'s', 'The Gay \'90s', True),
  ('REM', 'R.E.M.', True),
  ('hard days night', '"A Hard Day\'s Night"', True),
- ('HG Wells', '(H.G.) Wells', True),
+ ('HG Wells', '(H.G.) Wells', 'close'),
  ('cat\'s in the cradle', 'Cats In The Cradle', True),
  ('Zermelo Frankel set theory', 'Zermelo-Frankel Set Theory', True),
  ('00', '00', True),
  ('91', '21', False),
  ('32', '32', True),
- ('the absolute density of a dying star', 'star', False)
+ # this is the test case we need to focus on
+ ('the absolute density of a dying star', 'star', False),
+ ('star', 'the absolute density of a dying star', False)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

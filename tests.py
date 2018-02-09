@@ -103,22 +103,31 @@ def test_get_value():
 def test_separate_html(test_text, expected_output):
     assert test_question.separate_html(test_text) == expected_output
 
-@pytest.mark.parametrize("test_output, expected_value", [
+@pytest.mark.parametrize("test_output, user_score, expected_value", [
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None),
+ 'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 1500, None),
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  '..wager 500', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], (500, 'bertrand_hustle')),
+ 'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 500, (500, 'bertrand_hustle')),
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  '..wager bees', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None),
+ 'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 1500, None),
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
   '..wager 0', 'type': 'message', 'ts': '1497097067.238474',
-  'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], None)
+  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 0, None),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+  '..wager -500', 'type': 'message', 'ts': '1497097067.238474',
+  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 2500, (0, 'bertrand_hustle')),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+  '..wager 1000', 'type': 'message', 'ts': '1497097067.238474',
+  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 100, (1000, 'bertrand_hustle')),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+  '..wager 10000', 'type': 'message', 'ts': '1497097067.238474',
+  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 100, (100, 'bertrand_hustle'))
 ])
-def test_get_wager(test_output, expected_value):
-    assert test_host.get_wager(test_output) == expected_value
+def test_get_wager(test_output, user_score, expected_value):
+    assert test_host.get_wager(test_output, user_score) == expected_value
 
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$100', False),

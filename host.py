@@ -117,6 +117,7 @@ class Host:
         'users.info',
         user = user_id
         )
+        print(user)
         # in case we don't locate a user
         if user:
             return user['user']['name']
@@ -378,8 +379,8 @@ class Host:
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
             pair_list = Host.pair_off_answers(given_answer, correct_answer)
-            if 'dow' in given_answer:
-                pdb.set_trace()
+            # if 'dow' in given_answer:
+                # pdb.set_trace()
             if given_answer == correct_answer:
                 return True
             # compare pairs and adjust totals accordingly

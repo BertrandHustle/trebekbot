@@ -8,7 +8,7 @@ from os import remove
 from main import slack_token
 
 # set up test objects
-sc = slackclient.SlackClient(slack_token)
+sc = slackclient.SlackClient('slack_token')
 test_question = question.Question()
 test_host = host.Host(sc)
 test_db = db.db('test.db')
@@ -103,31 +103,19 @@ def test_get_value():
 def test_separate_html(test_text, expected_output):
     assert test_question.separate_html(test_text) == expected_output
 
-@pytest.mark.parametrize("test_output, user_score, expected_value", [
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
- 'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 1500, None),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
- '..wager 500', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 500, (500, 'bertrand_hustle')),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
- '..wager bees', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 1500, None),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
-  '..wager 0', 'type': 'message', 'ts': '1497097067.238474',
-  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 0, None),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
-  '..wager -500', 'type': 'message', 'ts': '1497097067.238474',
-  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 2500, (0, 'bertrand_hustle')),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
-  '..wager 1000', 'type': 'message', 'ts': '1497097067.238474',
-  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 100, (1000, 'bertrand_hustle')),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
-  '..wager 10000', 'type': 'message', 'ts': '1497097067.238474',
-  'user': 'U5ZVBSBE2', 'channel': 'C5LMQHV5W'}], 100, (100, 'bertrand_hustle'))
+@pytest.mark.parametrize("wager, user_score, expected_value", [
+ ('aw, he restarted', 1500, None),
+ (500, 500, 500),
+ ('bees', 1500, None),
+ # this will prompt trebekbot to re-ask for a wager
+ (0, 0, None),
+ (-500, 2500, 0),
+ # test jeopardy minimum of 1000 rule
+ (1000, 100, 1000),
+ (10000, 100, 1000)
 ])
-def test_get_wager(test_output, user_score, expected_value):
-    assert test_host.get_wager(test_output, user_score) == expected_value
+def test_calc_wager(wager, user_score, expected_value):
+    assert test_host.calc_wager(wager, user_score) == expected_value
 
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$100', False),

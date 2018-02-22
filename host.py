@@ -110,14 +110,16 @@ class Host:
         # add the hash to make it match the main.channel value
         return '#'+channel['channel']['name']
 
-    # get user by checking user id
+    '''
+    get user by checking user id
+    :param: slack_output: json of user message from slack
+    '''
     def get_user(self, slack_output):
         user_id = slack_output['user']
         user = self.slack_client.api_call(
         'users.info',
         user = user_id
         )
-        print(user)
         # in case we don't locate a user
         if user:
             return user['user']['name']
@@ -129,18 +131,36 @@ class Host:
         if self.hear(slack_output, 'help'):
             self.say(main.channel, self.help_text)
 
-    # gets wager value from output for daily doubles
+    '''
+    gets wager value from output for daily doubles
+    :param: slack_output: json of user message from slack
+    :param: user_score: the current score of the user making the wager
+    '''
     def get_wager(self, slack_output, user_score):
         with suppress(ValueError):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
             wager = int(slack_output['text'].split('wager')[1])
+            return calc_wager(wager, user_score)
+
+    '''
+    adjusts wager according to jeopardy rules, this is separate from get_wager
+    to bypass slack api for unit testing
+    '''
+    @staticmethod
+    def calc_wager(wager, user_score):
+        # we want this to return a None if we get a TypeError, that way
+        # trebekbot will re-prompt for a wager
+        with suppress(TypeError):
             # jeopardy rules: users below $1000 get up to $1000 to bet
             if user_score < 1000:
                 user_score = 1000
             # we don't want to let users bet more than they have
             if wager > user_score:
                 return user_score
+            # a 0 wager is not a wager
+            if not wager:
+                return None
             # prevent negative bets
             if wager < 0:
                 return 0

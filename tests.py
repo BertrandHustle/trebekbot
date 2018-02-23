@@ -233,7 +233,9 @@ def test_pair_off_answers(given_answer, expected_answer, expected_list):
 @pytest.mark.parametrize("given_word, expected_word, expected_value", [
   ('Test', 'Toast', False),
   ('Test', 'Tost', True),
-  ('Test', 'te', 'close')
+  ('Test', 'te', 'close'),
+  ('bethlehem', 'bethelhem', 'close'),
+  ('t', 'testaholic', False)
 ])
 def test_fuzz_word(given_word, expected_word, expected_value):
     assert test_host.fuzz_word(given_word, expected_word) == expected_value

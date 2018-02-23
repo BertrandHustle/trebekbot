@@ -350,14 +350,27 @@ class Host:
 
             # get levenshtein distance
             lev_dist = editdistance.eval(given_word, correct_word)
+            print(lev_dist)
 
             # TODO: add a substring check where we treat answers as single strings without whitespace
             # via Phebus: check for substring but add word boundaries (e.g. /\s+word\s+/)
 
-            # pdb.set_trace()
+            '''
+            'toast'
+            'test'
+            l_diff = 1
+            max = 5
+            5 * 0.8 == 4
+            1 >= 4
+            '''
+
+            if given_word == 'bethlehem' and  correct_word == 'bethelhem':
+                pdb.set_trace()
+            # difference between the lengths of the two words
+            length_diff = abs(len(given_word) - len(correct_word))
             # is the length of the guessed word close enough to the correct word?
-            is_long_enough = abs(len(given_word) - len(correct_word)) >= \
-            max(len(given_word), len(correct_word)) * 0.8
+            is_long_enough = length_diff <= \
+            max(len(given_word), len(correct_word)) * 0.2
 
             if is_long_enough \
             and (given_word in check_given_word_closeness \
@@ -366,7 +379,8 @@ class Host:
                 return True
             elif not is_long_enough \
             and (given_word in correct_word \
-            or correct_word in given_word):
+            or correct_word in given_word) \
+            or lev_dist <= 2:
                 return 'close'
             else:
                 return False
@@ -399,13 +413,14 @@ class Host:
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
             pair_list = Host.pair_off_answers(given_answer, correct_answer)
-            # if 'dow' in given_answer:
-                # pdb.set_trace()
+            # if 'bethlehem' in given_answer:
+            #     pdb.set_trace()
             if given_answer == correct_answer:
                 return True
             # compare pairs and adjust totals accordingly
             for pair in pair_list:
-                result = Host.fuzz_word(pair[0], pair[1])
+                # check equality first for performance boost
+                result = pair[0] == pair[1] or Host.fuzz_word(pair[0], pair[1])
                 if result == 'close':
                     close += 1
                 elif result == True:

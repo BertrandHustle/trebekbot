@@ -331,6 +331,7 @@ class Host:
 
     @staticmethod
     def fuzz_word(given_word, correct_word):
+        given_word, correct_word = given_word.lower(), correct_word.lower()
         if given_word == correct_word:
             return True
         else:
@@ -341,46 +342,38 @@ class Host:
             check_given_word_closeness = difflib.get_close_matches \
             (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
 
+            # reinitialize filter object because it's an iterator
+            first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
+
             check_correct_word_closeness = difflib.get_close_matches \
             (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
 
             # remove newline chars from spell check lists
-            check_given_word_closeness = sub(r'\n', ' ', ''.join(check_given_word_closeness)).split(' ')
-            check_correct_word_closeness = sub(r'\n', ' ', ''.join(check_correct_word_closeness)).split(' ')
+            check_given_word_closeness = sub(r'\n', ' ', ' '.join(check_given_word_closeness)).split(' ')
+            check_correct_word_closeness = sub(r'\n', ' ', ' '.join(check_correct_word_closeness)).split(' ')
 
             # get levenshtein distance
             lev_dist = editdistance.eval(given_word, correct_word)
-            print(lev_dist)
-
-            # TODO: add a substring check where we treat answers as single strings without whitespace
-            # via Phebus: check for substring but add word boundaries (e.g. /\s+word\s+/)
-
-            '''
-            'toast'
-            'test'
-            l_diff = 1
-            max = 5
-            5 * 0.8 == 4
-            1 >= 4
-            '''
-
-            if given_word == 'bethlehem' and  correct_word == 'bethelhem':
-                pdb.set_trace()
+            # check to see if word is in spell check list for both words
+            is_in_both_dicts = given_word in check_given_word_closeness \
+            and given_word in check_correct_word_closeness
+            # check for proper nouns (in other words: is the word
+            # in a standard dictionary?)
+            not_in_dict = not given_word in check_given_word_closeness \
+            and not given_word in check_correct_word_closeness
             # difference between the lengths of the two words
             length_diff = abs(len(given_word) - len(correct_word))
             # is the length of the guessed word close enough to the correct word?
             is_long_enough = length_diff <= \
-            max(len(given_word), len(correct_word)) * 0.2
+            max(len(given_word), len(correct_word)) * 0.3
 
-            if is_long_enough \
-            and (given_word in check_given_word_closeness \
-            and given_word in check_correct_word_closeness) \
-            or lev_dist <= 1:
+            if is_long_enough and is_in_both_dicts or lev_dist <= 1:
                 return True
-            elif not is_long_enough \
-            and (given_word in correct_word \
-            or correct_word in given_word) \
-            or lev_dist <= 2:
+            elif is_in_both_dicts and \
+            (given_word in correct_word or correct_word in given_word) \
+            and lev_dist <= 2:
+                return 'close'
+            elif not_in_dict and lev_dist <=2 and len(given_word) == len(correct_word):
                 return 'close'
             else:
                 return False
@@ -413,8 +406,8 @@ class Host:
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
             pair_list = Host.pair_off_answers(given_answer, correct_answer)
-            # if 'bethlehem' in given_answer:
-            #     pdb.set_trace()
+            if 'boston' in correct_answer:
+                pdb.set_trace()
             if given_answer == correct_answer:
                 return True
             # compare pairs and adjust totals accordingly

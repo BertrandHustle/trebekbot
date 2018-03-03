@@ -2,6 +2,8 @@
 
 version 0.4.0 changelog:
 
+Features:
+- improved answer checking
 Bugs:
 - fixed numerical answers not counting as correct
 - updated slackclient to 1.1.0 (hoping this will fix the restart issue)

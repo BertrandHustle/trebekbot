@@ -233,9 +233,12 @@ def test_pair_off_answers(given_answer, expected_answer, expected_list):
 @pytest.mark.parametrize("given_word, expected_word, expected_value", [
   ('Test', 'Toast', False),
   ('Test', 'Tost', True),
-  ('Test', 'te', 'close'),
+  ('Test', 'te', False),
   ('bethlehem', 'bethelhem', 'close'),
-  ('t', 'testaholic', False)
+  ('t', 'testaholic', False),
+  ('Mr. Rodney', 'Mr. Rogers', False),
+  ('Mr. Rodgers', 'Mr. Rogers', True),
+  ('Mr. Roerss', 'Mr. Rogers', 'close')
 ])
 def test_fuzz_word(given_word, expected_word, expected_value):
     assert test_host.fuzz_word(given_word, expected_word) == expected_value
@@ -263,7 +266,7 @@ def test_fuzz_word(given_word, expected_word, expected_value):
  ('queen elizabeth ii', 'Elizabeth II', True),
  ('issac newton', 'Newton', 'close'),
  # test optional parentheses
- ('dow jones', '(the) Dow (Jones)', 'close'),
+ ('dow jones', '(the) Dow (Jones)', True),
  ('Red and Green', 'Green and Red', True),
  ('Blue or green', 'Green', True),
  ('poker', 'a poker face', 'close'),

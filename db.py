@@ -11,7 +11,7 @@ This will primarily serve to store users and track their scores/money totals
 os = system()
 
 class db(object):
-
+    #TODO: use os.path here
     def __init__(self, db_file):
         if os == 'Windows':
             self.db_file = "database_files\\" + db_file

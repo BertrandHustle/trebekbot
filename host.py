@@ -336,14 +336,11 @@ class Host:
             return True
         else:
             # use lambda to pare down comparison dictionary
-            first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
+            first_letter_eng_dict = list(filter(lambda x: x[:1] == given_word[:1], eng_dict))
 
             # get lists of close words (spell check)
             check_given_word_closeness = difflib.get_close_matches \
             (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
-
-            # reinitialize filter object because it's an iterator
-            first_letter_eng_dict = filter(lambda x: x[:1] == given_word[:1], eng_dict)
 
             check_correct_word_closeness = difflib.get_close_matches \
             (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
@@ -406,8 +403,8 @@ class Host:
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
             pair_list = Host.pair_off_answers(given_answer, correct_answer)
-            if 'boston' in correct_answer:
-                pdb.set_trace()
+            # if 'boston' in correct_answer:
+            #     pdb.set_trace()
             if given_answer == correct_answer:
                 return True
             # compare pairs and adjust totals accordingly

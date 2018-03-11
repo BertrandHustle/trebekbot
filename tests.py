@@ -6,6 +6,7 @@ import slackclient
 from re import findall
 from os import remove
 from main import slack_token
+from pdb import set_trace
 
 # set up test objects
 sc = slackclient.SlackClient('slack_token')
@@ -360,7 +361,7 @@ def test_set_champion(populate_db, scrub_test_users):
     assert (test_result[1], test_result[3]) == ('Morp', 501)
 
 # TODO: test if user doesn't exist
-def test_get_score(db_after):
+def test_get_score(scrub_test_users):
     test_db.add_user_to_db(test_db.connection, 'Lucy')
     assert test_db.get_score(test_db.connection, 'Lucy') == 0
     test_db.connection.execute(
@@ -371,7 +372,7 @@ def test_get_score(db_after):
     )
     assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
-def test_wipe_scores(populate_db, db_after):
+def test_wipe_scores(populate_db, scrub_test_users):
     test_db.wipe_scores(test_db.connection)
     # get scores
     test_scores = test_db.connection.execute(

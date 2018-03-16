@@ -140,21 +140,21 @@ class Question:
             # soup = BeautifulSoup(question)
             # soup_links = soup.find_all('a', href=True)
             # use regex to check in case link syntax got mangled
-            regex_links = re.findall(r'\"http://.*?\"', question)
+            regex_links = re.findall(r'http://.*?\"', question)
+            # remove trailing quotes
+            regex_links = [link[:-1] for link in regex_links]
             # scrub out html from question
             question_text = re.sub(r'<\w*.*</\w*>', '', question_text)
-            print(regex_links)
             if regex_links:
                 for link in regex_links:
                     # slice up the link to remove extra quotes
-                    if get_http_code(link[1:-1]).status_code in [200, 301, 302]:
+                    if get_http_code(link).status_code in [200, 301, 302]:
                         valid_links.append(link)
             # clean up extra whitespace (change spaces w/more than one space to
             # a single space)
             question_text = re.sub(r'\s{2,}', ' ', question_text)
-            # remove extra space from start of answer if there is one
-            if question_text and question_text[0] is ' ':
-                question_text = question_text[1:]
+            # remove leading and trailing spaces
+            question_text = question_text.strip()
             # only return links if they're valid, otherwise we just want the
             # scrubbed text
             if valid_links:

@@ -4,7 +4,7 @@ import question
 import db
 import slackclient
 from re import findall
-from os import remove
+from os import path
 from main import slack_token
 from pdb import set_trace
 
@@ -76,21 +76,21 @@ def test_get_value():
  This patron saint of Lourdes'
  <a href="http://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
  target="_blank">body</a>
- has remained unchanged in its glass display case since her death in 1879'
+ has remained unchanged in its glass display case since her death in 1879
  ''',
  ('This patron saint of Lourdes\' has remained unchanged in its glass display \
  case since her death in 1879',
- 'http://www.j-archive.com/media/2004-11-17_DJ_21.jpg')),
+ ['http://www.j-archive.com/media/2004-11-17_DJ_21.jpg'])),
 
  # I'm ok with ignoring the 'What', this just seems like a badly parsed question
  ('''
  <a href="http://www.j-archive.com/media/2010-06-15_DJ_20.jpg" \
  target="_blank">What</a> the ant had in song
  ''',
- 'the ant had in song '),
+ 'the ant had in song'),
 
  ('wrongtext  <a href="thisisntavalidlink"</a>  morewrongtext', 'wrongtext morewrongtext'),
-
+ (None, None),
  ('This is the first king of Poland', 'This is the first king of Poland'),
 
  ('<a href="http://www.j-archive.com/media/2007-12-13_DJ_28.jpg" \
@@ -99,7 +99,9 @@ def test_get_value():
   account for its rich \
   <a href="http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg" target="_blank">\
   color</a>', ('It has more iron oxide than any other variety of quartz, which is believed to \
-  account for its rich color', "http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg"))
+  account for its rich color', \
+  ["http://www.j-archive.com/media/2007-12-13_DJ_28.jpg", \
+  "http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg"]))
 ])
 def test_separate_html(test_text, expected_output):
     assert test_question.separate_html(test_text) == expected_output
@@ -372,7 +374,7 @@ def test_get_score(scrub_test_users):
     )
     assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
-def test_wipe_scores(populate_db, scrub_test_users):
+def test_wipe_scores(populate_db, db_after):
     test_db.wipe_scores(test_db.connection)
     # get scores
     test_scores = test_db.connection.execute(
@@ -384,7 +386,6 @@ def test_wipe_scores(populate_db, scrub_test_users):
     # this works because every score should be 0
     assert not any(test_scores)
 
-def test_log_db(populate_db, db_after):
-    test_db.log_db(test_db.db_file)
-    test_backup_db = db.db('test_db.bak')
-    assert test_db.get_champion(test_backup_db.connection) == ('Morp', '$501')
+def test_get_latest_changelog():
+    changelog = host.get_latest_changelog()
+    assert changelog == 'test'

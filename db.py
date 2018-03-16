@@ -1,6 +1,7 @@
 import sqlite3
 from subprocess import call
 from platform import system
+from os import path
 
 '''
 Class for database setup/functions
@@ -11,13 +12,10 @@ This will primarily serve to store users and track their scores/money totals
 os = system()
 
 class db(object):
-    #TODO: use os.path here
     def __init__(self, db_file):
-        if os == 'Windows':
-            self.db_file = "database_files\\" + db_file
-        else:
-            self.db_file = "database_files/" + db_file
-        self.connection = self.create_connection(self.db_file)
+        self.filename = db_file
+        self.filepath = path.join('database_files', db_file)
+        self.connection = self.create_connection(self.filepath)
         self.create_table_users(self.connection)
         self.connection.commit()
 
@@ -175,8 +173,3 @@ class db(object):
         '''
         )
         self.connection.commit()
-
-    # creates backup of db for logging purposes
-    def log_db(self, db_name):
-        # open db in sqlite3 CLI and make backup
-        call(['sqlite3.exe', db_name, '".backup ' + db_name + '.bak"'])

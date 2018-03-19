@@ -219,7 +219,11 @@ class Host:
             # check if answer is correct
             answer_check = self.fuzz_answer(user_answer, correct_answer)
             # respond to user
-            if answer_check:
+            if answer_check is 'close':
+                self.say(main.channel, user_address+ ' Please be more specific.')
+                return 'close'
+            # right answer
+            elif answer_check:
                 self.say(main.channel, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
                 # award points to user
                 if question.daily_double:
@@ -227,9 +231,7 @@ class Host:
                 else:
                     user_db.update_score(user_db.connection, user, question.value)
                 return 'right'
-            elif answer_check is 'close':
-                self.say(main.channel, user_address+ ' Please be more specific.')
-                return 'close'
+            # wrong answer
             else:
                 self.say(main.channel, user_address+ ' :x: Sorry, that is incorrect.')
                 # take away points from user

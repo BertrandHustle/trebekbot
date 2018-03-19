@@ -128,10 +128,12 @@ class Question:
     returns a tuple of the question text and link if link is valid,
     otherwise just returns the text
     '''
+
     @staticmethod
     def separate_html(question):
         with suppress(RequestException):
-            # pdb.set_trace()
+            if 'iron oxide' in question:
+                pdb.set_trace()
             # scrub newline chars from question text
             question_text = re.sub(r'\n', '', question)
             # valid links to return
@@ -164,7 +166,6 @@ class Question:
 
     @staticmethod
     def is_daily_double(value):
-        # pdb.set_trace()
         # we need this edge case in case the value passed in is 0
         if value is 0:
             return True

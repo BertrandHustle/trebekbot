@@ -284,7 +284,10 @@ def test_fuzz_word(given_word, expected_word, expected_value):
  ('32', '32', True),
  # this is the test case we need to focus on
  ('the absolute density of a dying star', 'star', False),
- ('star', 'the absolute density of a dying star', False)
+ ('star', 'the absolute density of a dying star', False),
+ ('world war 2', 'World War II', True),
+ # special case for spelling bee questions, may need to filter those out
+ ('Rorschach', 'R-O-R-S-C-H-A-C-H', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

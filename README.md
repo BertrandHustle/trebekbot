@@ -1,6 +1,10 @@
 # trebekbot
 
-version 0.4.0 changelog:
+version 0.5.1 changelog (3-19-18):
+Bugs:
+- fixed answer control flow so we get true 'close' answer responses
+
+version 0.5.0 changelog:
 
 Features:
 - improved answer checking

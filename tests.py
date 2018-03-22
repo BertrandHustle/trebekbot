@@ -4,7 +4,7 @@ import question
 import db
 import slackclient
 from re import findall
-from os import path
+from os import path, remove
 from main import slack_token
 from pdb import set_trace
 
@@ -19,6 +19,14 @@ test_db = db.db('test.db')
 def db_after():
     yield db_after
     test_db.drop_table_users(test_db.connection)
+
+# used to clean up backup db after backup test
+@pytest.fixture
+def backup_after():
+    yield backup_after
+    test_backup_path = path.join('database_files', 'test.db.bak')
+    backup_db_connection = test_db.create_connection(test_backup_path)
+    test_db.drop_table_users(backup_db_connection)
 
 # fixture for cleaning out test users from database (but leaving table present)
 @pytest.fixture
@@ -292,6 +300,24 @@ def test_fuzz_word(given_word, expected_word, expected_value):
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
 
+@pytest.mark.parametrize("slack_output, user_score, expected_value", [
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+ '..wager 20000', 'type': 'message', 'ts': '1497097067.238474',
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], -5000, 1000),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+ '..wager 10000', 'type': 'message', 'ts': '1497097067.238474',
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], 10000, 10000),
+ ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
+ '..wager 0', 'type': 'message', 'ts': '1497097067.238474',
+ 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], 10000, None)
+])
+def test_get_wager(slack_output, user_score, expected_value):
+    assert test_host.get_wager(slack_output, user_score) == expected_value
+
+def test_get_latest_changelog():
+    changelog = host.get_latest_changelog()
+    assert changelog == 'test'
+
 # DATABASE TESTS
 
 # TODO: rewrite database tests using Mock
@@ -377,6 +403,16 @@ def test_get_score(scrub_test_users):
     )
     assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
+def test_backup_db(populate_db, db_after, backup_after):
+    test_backup_path = path.join('database_files', 'test.db.bak')
+    test_db.backup_db(test_db.connection)
+    assert path.isfile(test_db.filepath + '.bak')
+    # test that we can overwrite backup
+    test_db.backup_db(test_db.connection)
+    # recover data from backup
+    backup_db_connection = test_db.create_connection(test_backup_path)
+    assert test_db.get_score(backup_db_connection, 'Carol') == 301
+
 def test_wipe_scores(populate_db, db_after):
     test_db.wipe_scores(test_db.connection)
     # get scores
@@ -388,7 +424,3 @@ def test_wipe_scores(populate_db, db_after):
     test_scores = [x[2] for x in test_scores]
     # this works because every score should be 0
     assert not any(test_scores)
-
-def test_get_latest_changelog():
-    changelog = host.get_latest_changelog()
-    assert changelog == 'test'

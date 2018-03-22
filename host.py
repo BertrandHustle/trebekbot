@@ -139,9 +139,8 @@ class Host:
     def get_wager(self, slack_output, user_score):
         with suppress(ValueError):
             slack_output = slack_output[0]
-            user = self.get_user(slack_output)
             wager = int(slack_output['text'].split('wager')[1])
-            return calc_wager(wager, user_score)
+            return self.calc_wager(wager, user_score)
 
     '''
     adjusts wager according to jeopardy rules, this is separate from get_wager

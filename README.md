@@ -1,5 +1,9 @@
 # trebekbot
 
+version 0.5.2 changelog (3-22-18):
+Bugs:
+  - fixed wager crash bug
+
 version 0.5.1 changelog (3-19-18):
 Bugs:
 - fixed answer control flow so we get true 'close' answer responses

@@ -1,15 +1,11 @@
 import sqlite3
-from subprocess import call
-from platform import system
 from os import path
+from shutil import copyfile
 
 '''
 Class for database setup/functions
 This will primarily serve to store users and track their scores/money totals
 '''
-
-# we need this to check what slashes to use, but no need to call it every
-os = system()
 
 class db(object):
     def __init__(self, db_file):
@@ -173,3 +169,10 @@ class db(object):
         '''
         )
         self.connection.commit()
+
+    # backs up db so we can keep scores persistant through crashes
+    def backup_db(self, connection):
+        cursor = connection.cursor()
+        backup_file = self.filepath + '.bak'
+        # create backup
+        copyfile(self.filepath, backup_file)

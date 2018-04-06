@@ -8,18 +8,18 @@ import db
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
-
-# TODO: make a setup.py file including editdistance and slackclient
+from atexit import register
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
-build_version = '0.5.2'
+build_version = '0.5.3'
 
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 channel = '#trivia'
+channel_id = None
 # this needs to be outside the loop so it stays persistant
 question_asked = None
 answer_given = None
@@ -41,6 +41,10 @@ if __name__=='__main__':
     host = host.Host(slack_client)
     # setup database
     user_db = db.db('users.db')
+    channel_id = (host.get_channel_id(channel))
+    # ensure that we backup scores if trebekbot crashes
+    # TODO: impliment this
+    register(user_db.backup_db, user_db)
     user_db.create_table_users(user_db.connection)
     # host introduces itself to channel
     host.say(channel, host.intro_text)

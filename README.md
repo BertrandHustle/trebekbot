@@ -1,5 +1,9 @@
 # trebekbot
 
+version 0.5.3 changelog (4-5-18):
+Bugs:
+  - fixed crash from querying slack api for channel
+
 version 0.5.2 changelog (3-22-18):
 Bugs:
   - fixed wager crash bug

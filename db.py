@@ -170,9 +170,39 @@ class db(object):
         )
         self.connection.commit()
 
+    # TODO: fix db class so we can make this a db object
     # backs up db so we can keep scores persistant through crashes
     def backup_db(self, connection):
         cursor = connection.cursor()
         backup_file = self.filepath + '.bak'
         # create backup
         copyfile(self.filepath, backup_file)
+
+    '''
+    recover from backed up database in the event of a crash
+    :param backup_db: the backup database from which we pull data
+    :param new_db: the new db where we are pushing our backed up data
+    '''
+    @staticmethod
+    def recover_from_backup(backup_db_filepath, new_db):
+        cursor = new_db.connection.cursor()
+        # wipe info from old users table, then copy over users table from backup
+        cursor.execute(
+        '''
+        DELETE FROM USERS
+        '''
+        )
+        new_db.connection.commit()
+        cursor.execute(
+        '''
+        ATTACH DATABASE ? AS backup
+        ''', (backup_db_filepath,)
+        )
+        new_db.connection.commit()
+        cursor.execute(
+        '''
+        INSERT INTO ?.USERS SELECT * FROM ?.USERS
+        ''',
+        (new_db.filepath, backup_db_filepath,)
+        )
+        new_db.connection.commit()

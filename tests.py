@@ -3,6 +3,7 @@ import host
 import question
 import db
 import slackclient
+import json
 from re import findall
 from os import path, remove
 from main import slack_token
@@ -113,6 +114,15 @@ def test_get_value():
 ])
 def test_separate_html(test_text, expected_output):
     assert test_question.separate_html(test_text) == expected_output
+
+def test_get_channel_id():
+    fail_test_json = {"ok": False, "error": "invalid_auth"}
+    test_json = json.load(open(path.join('.', 'support_files', 'json', 'test_get_channel_id.json')))
+    expected_id = 'C600FK4T1'
+    assert test_host.get_channel_id_from_json('trivia', test_json) == expected_id
+    assert test_host.get_channel_id_from_json('trivia', fail_test_json) == None
+    assert test_host.get_channel_id_from_json('trivia', None) == None
+
 
 @pytest.mark.parametrize("wager, user_score, expected_value", [
  ('aw, he restarted', 1500, None),
@@ -412,6 +422,14 @@ def test_backup_db(populate_db, db_after, backup_after):
     # recover data from backup
     backup_db_connection = test_db.create_connection(test_backup_path)
     assert test_db.get_score(backup_db_connection, 'Carol') == 301
+
+def test_recover_from_backup(populate_db, db_after, backup_after):
+    test_backup_path = path.join('database_files', 'test.db.bak')
+    print(len(test_backup_path))
+    test_db.backup_db(test_db.connection)
+    new_test_db = db.db('new_db')
+    test_db.recover_from_backup(test_backup_path, new_test_db)
+    assert new_test_db.get_score(new_test_db.connection, 'Carol') == 301
 
 def test_wipe_scores(populate_db, db_after):
     test_db.wipe_scores(test_db.connection)

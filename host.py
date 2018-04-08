@@ -2,7 +2,7 @@ import pdb
 import main
 import question
 import db
-from re import sub, findall
+from re import sub, findall, match
 from os import path
 from contextlib import suppress
 from unidecode import unidecode
@@ -307,8 +307,14 @@ class Host:
         '''
         for a in articles:
             answer = sub(r'\s{}\s|\"{}\s|^{}\s'.format(a, a, a), ' ', answer)
-        # replace hyphens with whitespace
-        answer = sub(r'-', ' ', answer)
+        # exception for "spelling bee" answers e.g. S-P-E-L-L
+        # if ' s-p-e-l-l' in answer:
+             #pdb.set_trace()
+        if not match(r'\s|\w-\w-.+', answer):
+            # replace hyphens with whitespace
+            answer = sub(r'-', ' ', answer)
+        else:
+            answer = sub(r'-', '', answer)
         # remove anything that's not alphanumeric
         answer = sub(r'[^A-Za-z0-9\s]', '', answer)
         # remove apostrophes
@@ -392,7 +398,7 @@ class Host:
 
     # checks if given answer is close enough to correct answer
     # TODO: rename this
-    # TODO: parentheses should be optional to the answer, not excluded
+    # OPTIMIZE: parentheses control flow
     # TODO: make conjunctions/disjunctions behave as logical operators
 
     @staticmethod

@@ -223,9 +223,10 @@ def test_convert_value_to_int(test_value, expected_value):
  ('the absolute density of a dying star', \
  ['absolute', 'density', 'dying', 'star']),
  (' "The Little Rascals"', ['little', 'rascals']),
- ('(the) Dow (Jones)', ['dow'])
- # use for optional parentheses feature in fuzz_answer
- # (' (H.G.) Wells', ('(H.G.)', 'Wells'))
+ ('(the) Dow (Jones)', ['dow']),
+ ('S-P-E-L-L-I-N-G', ['spelling']),
+ # test extra whitespace
+ (' S-P-E-L-L-I-N-G', ['spelling'])
 ])
 def test_strip_answer(test_value, expected_value):
     assert test_host.strip_answer(test_value) == expected_value

@@ -397,6 +397,10 @@ class Host:
 
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
+        # we need a copy of the answer with the parenthesized words left in if the correct answer contains parentheses
+        paren_answer = None
+        paren_close = 0
+        paren_right = 0
         # if we get an empty string, don't bother
         if not given_answer:
             return False
@@ -410,17 +414,34 @@ class Host:
             elif int(given_answer) == int(correct_answer):
                 return True
         except (ValueError):
+            # flag if the answer contains parentheses
+            parentheses = '(' and ')' in correct_answer
             # total up how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
             right = 0
             close = 0
+            '''
+            this gives us two copies of the right answer: one with parentheses and one without
+            we check both and use the copy with the higher score
+            '''
+            if parentheses:
+                paren_answer = ''.join(list(filter(lambda x: x not in ['(', ')'], correct_answer)))
+                paren_answer = Host.strip_answer(paren_answer)
+                paren_pair_list = Host.pair_off_answers(Host.strip_answer(given_answer), paren_answer)
+                for pair in paren_pair_list:
+                    # check equality first for performance boost
+                    result = pair[0] == pair[1] or Host.fuzz_word(pair[0], pair[1])
+                    if result == 'close':
+                        paren_close += 1
+                    elif result == True:
+                        paren_right += 1
             # remove casing, punctuation, and articles
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
             pair_list = Host.pair_off_answers(given_answer, correct_answer)
-            # if 'boston' in correct_answer:
-            #     pdb.set_trace()
-            if given_answer == correct_answer:
+            # if 'wells' in given_answer:
+                # pdb.set_trace()
+            if given_answer == correct_answer or given_answer == paren_answer:
                 return True
             # compare pairs and adjust totals accordingly
             for pair in pair_list:
@@ -430,6 +451,10 @@ class Host:
                     close += 1
                 elif result == True:
                     right += 1
+            # use whichever answer copy has the higher score
+            if parentheses:
+                close = max(paren_close, close)
+                right = max(paren_right, right)
             # check if the answer is close enough
             if right >= round(0.75 * max(len(correct_answer), len(given_answer))):
                 return True

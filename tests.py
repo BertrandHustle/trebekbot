@@ -240,7 +240,8 @@ def test_strip_answer(test_value, expected_value):
  ('mary queen of scotts', 'Mary, Queen of Scots', \
  [('mary', 'mary'), ('mary', 'queen'), ('mary', 'scots'), \
  ('queen', 'queen'), ('queen', 'scots'), \
- ('scotts', 'mary'), ('scotts', 'queen'), ('scotts', 'scots')])
+ ('scotts', 'mary'), ('scotts', 'queen'), ('scotts', 'scots')],
+ )
 ])
 def test_pair_off_answers(given_answer, expected_answer, expected_list):
   # it's assumed that we'll be doing this first in our regular answer checking
@@ -287,20 +288,20 @@ def test_fuzz_word(given_word, expected_word, expected_value):
  ('queen elizabeth ii', 'Elizabeth II', True),
  ('issac newton', 'Newton', 'close'),
  # test optional parentheses
- ('dow jones', '(the) Dow (Jones)', True),
+ ('the dow jones', '(the) Dow (Jones)', True),
+ ('dow', '(the) Dow (Jones)', True),
  ('Red and Green', 'Green and Red', True),
  ('Blue or green', 'Green', True),
  ('poker', 'a poker face', 'close'),
  ('the gay 90\'s', 'The Gay \'90s', True),
  ('REM', 'R.E.M.', True),
  ('hard days night', '"A Hard Day\'s Night"', True),
- ('HG Wells', '(H.G.) Wells', 'close'),
+ ('HG Wells', '(H.G.) Wells', True),
  ('cat\'s in the cradle', 'Cats In The Cradle', True),
  ('Zermelo Frankel set theory', 'Zermelo-Frankel Set Theory', True),
  ('00', '00', True),
  ('91', '21', False),
  ('32', '32', True),
- # this is the test case we need to focus on
  ('the absolute density of a dying star', 'star', False),
  ('star', 'the absolute density of a dying star', False),
  ('world war 2', 'World War II', True),

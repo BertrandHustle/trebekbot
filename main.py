@@ -42,6 +42,7 @@ if __name__=='__main__':
     # setup database
     user_db = db.db('users.db')
     channel_id = (host.get_channel_id(channel))
+    print(channel_id)
     # ensure that we backup scores if trebekbot crashes
     # TODO: impliment this
     register(user_db.backup_db, user_db)

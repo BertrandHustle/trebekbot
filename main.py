@@ -41,6 +41,7 @@ if __name__=='__main__':
     host = host.Host(slack_client)
     # setup database
     user_db = db.db('users.db')
+    # TODO: fix this so it doesn't return an empty id
     channel_id = (host.get_channel_id(channel))
     print(channel_id)
     # ensure that we backup scores if trebekbot crashes

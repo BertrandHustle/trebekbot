@@ -122,6 +122,7 @@ class Host:
         channel_list = self.slack_client.api_call(
         'channels.list',
         )
+        print(channel_list)
         return self.get_channel_id_from_json(channel_name, channel_list)
 
     '''

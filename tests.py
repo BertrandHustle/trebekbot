@@ -44,6 +44,7 @@ def scrub_test_users():
 def populate_db():
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
     test_score = 101
+    #set_trace()
     # ensure that we have a varied list of scorers
     for user in test_users:
         test_db.add_user_to_db(test_db.connection, user)
@@ -415,7 +416,7 @@ def test_get_score(scrub_test_users):
     )
     assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
-def test_backup_db(populate_db, db_after, backup_after):
+def test_backup_db(populate_db, backup_after):
     test_backup_path = path.join('database_files', 'test.db.bak')
     test_db.backup_db(test_db.connection)
     assert path.isfile(test_db.filepath + '.bak')
@@ -425,7 +426,7 @@ def test_backup_db(populate_db, db_after, backup_after):
     backup_db_connection = test_db.create_connection(test_backup_path)
     assert test_db.get_score(backup_db_connection, 'Carol') == 301
 
-def test_recover_from_backup(populate_db, db_after, backup_after):
+def test_recover_from_backup(populate_db, backup_after):
     test_backup_path = path.join('database_files', 'test.db.bak')
     print(len(test_backup_path))
     test_db.backup_db(test_db.connection)

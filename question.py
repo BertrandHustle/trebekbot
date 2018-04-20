@@ -132,8 +132,8 @@ class Question:
     @staticmethod
     def separate_html(question):
         with suppress(RequestException):
-            if 'iron oxide' in question:
-                pdb.set_trace()
+            # if 'iron oxide' in question:
+                # pdb.set_trace()
             # scrub newline chars from question text
             question_text = re.sub(r'\n', '', question)
             # valid links to return

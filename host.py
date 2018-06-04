@@ -63,9 +63,16 @@ class Host:
         with suppress(IndexError, KeyError):
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
+            print(main.channel_id)
             text = slack_output['text']
+            '''
+            with suppress(KeyError):
+                if text == '..hello':
+                    pdb.set_trace()
+            '''
             channel = slack_output['channel']
             user = self.get_user(slack_output)
+            #TODO: change this var name, it's misleading
             # prefix without the ';;'
             prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
@@ -122,7 +129,6 @@ class Host:
         channel_list = self.slack_client.api_call(
         'channels.list',
         )
-        print(channel_list)
         return self.get_channel_id_from_json(channel_name, channel_list)
 
     '''
@@ -191,7 +197,6 @@ class Host:
             self.say(main.channel, 'Hello ' + user)
 
     # gets a random question from the jeopardy_json_file
-    # TODO: make this scrub out html links
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             asked_question = question.Question()

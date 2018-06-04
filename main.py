@@ -5,6 +5,7 @@ import sys
 import time
 import host
 import db
+import pdb
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -14,11 +15,15 @@ author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 build_version = '0.5.3'
 
+pdb.set_trace()
+# set to 1 for debug mode
+debug = 1
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
-channel = '#trivia'
+# NOTE: do not use # in the name, slack's api returns the channel name only
+channel = 'trivia'
 channel_id = None
 # this needs to be outside the loop so it stays persistant
 question_asked = None
@@ -35,15 +40,14 @@ daily_double_answerer = None
 current_champion_name = None
 current_champion_score = None
 
-
+#TODO: add try/catch for websocket errors
 if __name__=='__main__':
     # create host object
     host = host.Host(slack_client)
     # setup database
     user_db = db.db('users.db')
     # TODO: fix this so it doesn't return an empty id
-    channel_id = (host.get_channel_id(channel))
-    print(channel_id)
+    channel_id = host.get_channel_id(channel)
     # ensure that we backup scores if trebekbot crashes
     # TODO: impliment this
     register(user_db.backup_db, user_db)
@@ -198,17 +202,18 @@ if __name__=='__main__':
             os.execv(sys.executable, ['python'] + sys.argv)
 
         # printing for debug purposes
-        '''
-        print(slack_output)
-        if question_asked:
-            print('QUESTION: '+question_asked.text)
-            print('ANSWER: '+question_asked.answer)
-        if answer_given:
-            print('GIVEN ANSWER: ' + answer_given)
-        print('========================================')
-        print('TIMENOW: ' + str(round(time.time()%60)))
-        print('TIMER + TIME LIMIT: ' + str(round(timer%60) + 60))
-        print(current_champion_name)
-        '''
+        if debug:
+            test_slack_output = [{'text': '..ask', 'ts': '1528073804.000085', 'channel': 'C600FK4T1', 'user': 'U5ZVBSBE2', 'type': 'message', 'team': 'T5YF6LB9N', 'source_team': 'T5YF6LB9N'}]
+            print(slack_output)
+            print(channel_id)
+            if question_asked:
+                print('QUESTION: '+question_asked.text)
+                print('ANSWER: '+question_asked.answer)
+            if answer_given:
+                print('GIVEN ANSWER: ' + answer_given)
+            print('========================================')
+            print('TIMENOW: ' + str(round(time.time()%60)))
+            print('TIMER + TIME LIMIT: ' + str(round(timer%60) + 60))
+            print(current_champion_name)
         # delay so trebekbot has time to think
         time.sleep(1)

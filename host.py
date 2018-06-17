@@ -46,6 +46,8 @@ class Host:
         self.slack_client = slack_client
         # connect to slack upon init
         slack_client.rtm_connect()
+        # channel id of channel where host currently is
+        self.channel_id = self.get_channel_id(main.channel)
 
     # listens for output in slack channel
     '''
@@ -63,7 +65,6 @@ class Host:
         with suppress(IndexError, KeyError):
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
-            print(main.channel_id)
             text = slack_output['text']
             '''
             with suppress(KeyError):
@@ -78,7 +79,7 @@ class Host:
             # if the text starts with the command_prefix
             # and the rest of the text minus the prefix matches what we're listening for
             # and we're in the right channel
-            if text.startswith(self.command_prefix) and channel == main.channel_id\
+            if text.startswith(self.command_prefix) and channel == self.channel_id\
             and prefix == listen_for:
                 answer = text.split(prefix)[1]
                 # add user to db if theyre not in there already

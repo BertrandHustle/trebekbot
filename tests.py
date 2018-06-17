@@ -124,7 +124,6 @@ def test_get_channel_id():
     assert test_host.get_channel_id_from_json('trivia', fail_test_json) == None
     assert test_host.get_channel_id_from_json('trivia', None) == None
 
-
 @pytest.mark.parametrize("wager, user_score, expected_value", [
  ('aw, he restarted', 1500, None),
  (500, 500, 500),
@@ -328,12 +327,19 @@ def test_get_wager(slack_output, user_score, expected_value):
     assert test_host.get_wager(slack_output, user_score) == expected_value
 
 def test_get_latest_changelog():
-    changelog = host.get_latest_changelog()
-    assert changelog == 'test'
+    changelog = 'support_files/test_README.md'
+    test_latest_changelog = [
+    'version 0.5.3 changelog (4-5-18):',
+    'Bugs:',
+    '  - fixed crash from querying slack api for channel',
+    '  - fixed issue with \'spelling bee\' questions',
+    '  - parentheses in answers now treated as optional to the answer'
+    ]
+    print(test_host.get_latest_changelog(changelog).split('\n'))
+    assert test_host.get_latest_changelog(changelog).split('\n')[:-1] \
+    == test_latest_changelog
 
 # DATABASE TESTS
-
-# TODO: rewrite database tests using Mock
 # TODO: add bad values in here e.g. ' ', 0
 def test_add_user_to_db():
     # do this twice to ensure that we're adhering to the UNIQUE constraint

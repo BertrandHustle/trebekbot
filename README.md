@@ -5,6 +5,8 @@ Bugs:
   - fixed crash from querying slack api for channel
   - fixed issue with 'spelling bee' questions
   - parentheses in answers now treated as optional to the answer
+Features:
+  - trebekbot now announces latest changes on startup
 
 version 0.5.2 changelog (3-22-18):
 Bugs:

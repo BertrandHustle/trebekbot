@@ -51,6 +51,7 @@ if __name__=='__main__':
     user_db.create_table_users(user_db.connection)
     # host introduces itself to channel
     host.say(channel, host.intro_text)
+    host.say(channel, host.get_latest_changelog('README.md'))
     host.say(channel, host.help_text)
     # establish champion
     current_champion_name, current_champion_score = \
@@ -69,13 +70,6 @@ if __name__=='__main__':
         # get rolling slack output
         slack_output = slack_client.rtm_read()
         # main functions
-        '''
-        try:
-            if slack_output[0]['text'] == '..hello':
-                pdb.set_trace()
-        except (KeyError, IndexError):
-            pass
-        '''
         host.hello(slack_output)
         host.help(slack_output)
         host.myscore(slack_output, user_db)

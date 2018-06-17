@@ -2,7 +2,7 @@ import pdb
 import main
 import question
 import db
-from re import sub, findall, match
+from re import sub, findall, match, IGNORECASE
 from os import path
 from contextlib import suppress
 from unidecode import unidecode
@@ -145,6 +145,26 @@ class Host:
         # in case we don't locate a user
         if user:
             return user['user']['name']
+
+    # returns bugfix/feature notes for latest version of trebekbot
+    def get_latest_changelog(self, changelog_path):
+        # the text from the latest changelog only, this is what we will return
+        latest_changelog = ''
+        '''
+        flag that trips when the latest changelog has been found,
+        because we'll be returning a paragraph this stays tripped until we hit
+        a blank line
+        '''
+        found_latest = False
+        # pdb.set_trace()
+        with open(changelog_path, 'r', encoding='utf8') as changelog:
+            for line in changelog.readlines():
+                # this is so we don't trip the first blank line after the title
+                if line == '\n' and found_latest:
+                    return latest_changelog
+                elif found_latest or match(r'version\s\d.\d.\d', line, IGNORECASE):
+                    found_latest = True
+                    latest_changelog += line
 
     # COMMANDS
 

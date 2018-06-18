@@ -45,7 +45,7 @@ class Host:
     def __init__(self, slack_client):
         self.slack_client = slack_client
         # connect to slack upon init
-        slack_client.rtm_connect()
+        slack_client.rtm_connect(auto_reconnect=True)
         # channel id of channel where host currently is
         self.channel_id = self.get_channel_id(main.channel)
 

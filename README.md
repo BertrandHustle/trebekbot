@@ -1,5 +1,9 @@
 # trebekbot
 
+version 0.5.4 changelog (6-18-18):
+Bugs:
+  - fixed websocket crash
+
 version 0.5.3 changelog (4-5-18):
 Bugs:
   - fixed crash from querying slack api for channel

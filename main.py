@@ -13,7 +13,6 @@ from atexit import register
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
-build_version = '0.5.3'
 
 # set to 1 for debug mode
 debug = 0

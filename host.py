@@ -6,6 +6,7 @@ from re import sub, findall, match, IGNORECASE
 from os import path
 from contextlib import suppress
 from unidecode import unidecode
+from json import decoder
 import difflib
 import editdistance
 
@@ -137,14 +138,15 @@ class Host:
     :param: slack_output: json of user message from slack
     '''
     def get_user(self, slack_output):
-        user_id = slack_output['user']
-        user = self.slack_client.api_call(
-        'users.info',
-        user = user_id
-        )
-        # in case we don't locate a user
-        if user:
-            return user['user']['name']
+        with suppress(decoder.JSONDecodeError):
+            user_id = slack_output['user']
+            user = self.slack_client.api_call(
+            'users.info',
+            user = user_id
+            )
+            # in case we don't locate a user
+            if user:
+                return user['user']['name']
 
     # returns bugfix/feature notes for latest version of trebekbot
     def get_latest_changelog(self, changelog_path):

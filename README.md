@@ -1,5 +1,9 @@
 # trebekbot
 
+version 0.5.5 changelog (6-19-18):
+Bugs:
+  - fixed (hopefully) json decoding error when asking slack api for user (see issue #18)
+
 version 0.5.4 changelog (6-18-18):
 Bugs:
   - fixed websocket crash

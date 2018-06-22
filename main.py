@@ -47,7 +47,11 @@ if __name__=='__main__':
     # ensure that we backup scores if trebekbot crashes
     # TODO: impliment this
     register(user_db.backup_db, user_db)
-    user_db.create_table_users(user_db.connection)
+    # control flow for recovering backup db from crash
+    if os.path.isfile('database_files/users.db.bak'):
+        user_db.recover_from_backup('database_files/users.db.bak', users.db)
+    else:
+        user_db.create_table_users(user_db.connection)
     # host introduces itself to channel
     host.say(channel, host.intro_text)
     host.say(channel, host.get_latest_changelog('README.md'))

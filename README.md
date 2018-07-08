@@ -4,6 +4,7 @@ version 0.5.6 changelog (7-8-18):
 Bugs:
 Features:
   - Added html scrubber, questions no longer have html and valid links are displayed separately
+  
 version 0.5.5 changelog (6-19-18):
 Bugs:
   - fixed (hopefully) json decoding error when asking slack api for user (see issue #18)

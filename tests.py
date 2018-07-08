@@ -256,6 +256,8 @@ def test_pair_off_answers(given_answer, expected_answer, expected_list):
   expected_list = set(expected_list)
   assert test_list == expected_list
 
+# Host tests
+
 @pytest.mark.parametrize("given_word, expected_word, expected_value", [
   ('Test', 'Toast', False),
   ('Test', 'Tost', True),

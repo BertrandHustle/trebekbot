@@ -218,8 +218,12 @@ class Host:
             if current_champion_name and user == current_champion_name:
                 user = ':crown:' + user
             self.say(main.channel, 'Hello ' + user)
-
-    # gets a random question from the jeopardy_json_file
+    '''
+    gets a random question from the jeopardy_json_file
+    :param slack_output: the output we hear coming from slack_output
+    :param test_question: allows us to feed in a question for testing rather
+    than getting a random one from the json
+    '''
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             asked_question = question.Question()

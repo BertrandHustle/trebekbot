@@ -5,7 +5,6 @@ from contextlib import suppress
 from random import randint
 from requests import get as get_http_code
 from requests.exceptions import RequestException
-from bs4 import BeautifulSoup
 
 # TODO: strip out hyperlinks e.g.
 
@@ -138,9 +137,6 @@ class Question:
             question_text = re.sub(r'\n', '', question)
             # valid links to return
             valid_links = []
-            # BeautifulSoup finds any href= links
-            # soup = BeautifulSoup(question)
-            # soup_links = soup.find_all('a', href=True)
             # use regex to check in case link syntax got mangled
             regex_links = re.findall(r'http://.*?\"', question)
             # remove trailing quotes

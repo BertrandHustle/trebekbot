@@ -223,6 +223,13 @@ class Host:
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             asked_question = question.Question()
+            # if question has valid html links add them here and say them
+            # separately
+            valid_links = []
+            # check if question has html links
+            if type(question) == 'tuple':
+                valid_links = [link for links in asked_question[1:]]
+                asked_question = asked_question[0]
             # parse this so it's pretty in slack
             if asked_question.daily_double:
                 question_text = '[*'+asked_question.category+'*] ' + \
@@ -234,6 +241,9 @@ class Host:
                 '['+asked_question.date+'] ' + \
                 '_'+asked_question.text+'_'
             self.say(main.channel, question_text)
+            if valid_links:
+                for link in valid_links:
+                    self.say(link)
             return asked_question
 
     '''

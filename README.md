@@ -4,6 +4,7 @@ version 0.5.6 changelog (7-8-18):
 
 Bugs:
   - None
+
 Features:
   - Added html scrubber, questions no longer have html and valid links are displayed separately
 
@@ -23,6 +24,7 @@ Bugs:
   - fixed crash from querying slack api for channel
   - fixed issue with 'spelling bee' questions
   - parentheses in answers now treated as optional to the answer
+
 Features:
   - trebekbot now announces latest changes on startup
 
@@ -41,6 +43,7 @@ version 0.5.0 changelog:
 Bugs:
 - fixed numerical answers not counting as correct
 - updated slackclient to 1.1.0 (hoping this will fix the restart issue)
+
 Features:
 - improved answer checking
 
@@ -54,6 +57,7 @@ version 0.3.8 changelog:
 Features:
 - trebekbot now gives a top ten list of scorers before nightly restarts
 - increased daily double timer to 90 seconds
+
 Bugs:
 - fixed syntax issues in questions and top_ten()
 - fixed last night champion reporting wrong score
@@ -62,6 +66,7 @@ version 0.3.7 changelog:
 
 Features:
 - dates have been added to questions
+
 Bugs:
 - '00' bug has been fixed
 - -0 wager bug should be fixed
@@ -71,6 +76,7 @@ version 0.3.6 changelog:
 Features:
 - Updated daily double text to indicate that wagers of 0 do NOT count as
 valid wagers.
+
 Bugs:
 - Hyphens are now properly parsed as whitespace
 - 0 value daily doubles are handled properly

@@ -1,20 +1,24 @@
 # trebekbot
 
 version 0.5.6 changelog (7-8-18):
+
 Bugs:
   - None
 Features:
   - Added html scrubber, questions no longer have html and valid links are displayed separately
 
 version 0.5.5 changelog (6-19-18):
+
 Bugs:
   - fixed (hopefully) json decoding error when asking slack api for user (see issue #18)
 
 version 0.5.4 changelog (6-18-18):
+
 Bugs:
   - fixed websocket crash
 
 version 0.5.3 changelog (4-5-18):
+
 Bugs:
   - fixed crash from querying slack api for channel
   - fixed issue with 'spelling bee' questions
@@ -23,20 +27,22 @@ Features:
   - trebekbot now announces latest changes on startup
 
 version 0.5.2 changelog (3-22-18):
+
 Bugs:
   - fixed wager crash bug
 
 version 0.5.1 changelog (3-19-18):
+
 Bugs:
 - fixed answer control flow so we get true 'close' answer responses
 
 version 0.5.0 changelog:
 
-Features:
-- improved answer checking
 Bugs:
 - fixed numerical answers not counting as correct
 - updated slackclient to 1.1.0 (hoping this will fix the restart issue)
+Features:
+- improved answer checking
 
 version 0.3.9 changelog:
 

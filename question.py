@@ -132,8 +132,8 @@ class Question:
     @staticmethod
     def separate_html(question):
         with suppress(RequestException):
-            # if 'iron oxide' in question:
-                # pdb.set_trace()
+            if 'A?S<D<AS>D<' in question:
+                pdb.set_trace()
             # scrub newline chars from question text
             question_text = re.sub(r'\n', '', question)
             # valid links to return
@@ -146,7 +146,7 @@ class Question:
             # remove trailing quotes
             regex_links = [link[:-1] for link in regex_links]
             # scrub out html from question
-            question_text = re.sub(r'<\w*.*</\w*>', '', question_text)
+            question_text = re.sub(r'<.*?>', '', question_text)
             if regex_links:
                 for link in regex_links:
                     # slice up the link to remove extra quotes

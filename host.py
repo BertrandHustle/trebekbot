@@ -158,14 +158,15 @@ class Host:
         a blank line
         '''
         found_latest = False
-        # pdb.set_trace()
         with open(changelog_path, 'r', encoding='utf8') as changelog:
             for line in changelog.readlines():
-                # this is so we don't trip the first blank line after the title
-                if line == '\n' and found_latest:
-                    return latest_changelog
-                elif found_latest or match(r'version\s\d.\d.\d', line, IGNORECASE):
+                version_number_line = match(r'version\s\d.\d.\d', line, IGNORECASE)
+                if version_number_line and not found_latest:
                     found_latest = True
+                    latest_changelog += line
+                elif version_number_line and found_latest :
+                    return latest_changelog
+                elif found_latest:
                     latest_changelog += line
 
     # COMMANDS

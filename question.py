@@ -131,8 +131,6 @@ class Question:
     @staticmethod
     def separate_html(question):
         with suppress(RequestException):
-            if 'A?S<D<AS>D<' in question:
-                pdb.set_trace()
             # scrub newline chars from question text
             question_text = re.sub(r'\n', '', question)
             # valid links to return

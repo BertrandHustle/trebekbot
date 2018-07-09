@@ -333,13 +333,17 @@ def test_get_wager(slack_output, user_score, expected_value):
 
 def test_get_latest_changelog():
     changelog = 'support_files/test_README.md'
-    test_latest_changelog = [
-    'version 0.5.3 changelog (4-5-18):',
+    test_latest_changelog = ['version 0.5.3 changelog (4-5-18):',
+    '',
     'Bugs:',
     '  - fixed crash from querying slack api for channel',
-    '  - fixed issue with \'spelling bee\' questions',
-    '  - parentheses in answers now treated as optional to the answer'
-    ]
+    "  - fixed issue with 'spelling bee' questions",
+    '  - parentheses in answers now treated as optional to the answer',
+    '',
+    'Features:',
+    '  - trebekbot now gives a top ten list of scorers before nightly restarts',
+    '  - increased daily double timer to 90 seconds',
+    '']
     print(test_host.get_latest_changelog(changelog).split('\n'))
     assert test_host.get_latest_changelog(changelog).split('\n')[:-1] \
     == test_latest_changelog

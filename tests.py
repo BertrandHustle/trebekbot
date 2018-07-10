@@ -69,9 +69,16 @@ def test_question_constructor():
     assert type(test_question.answer) == str
     assert type(test_question.category) == str
     assert type(test_question.daily_double) == bool
-    assert type(test_question.text) == str
+    assert type(test_question.text) == str and test_question.text != ''
     assert type(test_question.value) == int
     assert type(test_question.date) == str
+    assert type(test_question.slack_text) == str
+    test_links_question = question.Question()
+    print(test_links_question.valid_links, test_links_question.text)
+    if test_links_question.valid_links:
+        assert type(test_links_question.valid_links) == list
+        for link in test_links_question.valid_links:
+            assert link.startswith('http://')
 
 def test_get_value():
     '''
@@ -89,9 +96,9 @@ def test_get_value():
  target="_blank">body</a>
  has remained unchanged in its glass display case since her death in 1879
  ''',
- ('This patron saint of Lourdes\' body has remained unchanged in its glass\
+ ['This patron saint of Lourdes\' body has remained unchanged in its glass\
  display case since her death in 1879',
- ['http://www.j-archive.com/media/2004-11-17_DJ_21.jpg'])),
+ 'http://www.j-archive.com/media/2004-11-17_DJ_21.jpg']),
 
  # test 404 link
  ('''
@@ -110,11 +117,11 @@ def test_get_value():
   It has more iron oxide than any other variety of quartz, which is believed to \
   account for its rich \
   <a href="http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg" target="_blank">\
-  color</a>', ('Jon of the Clue Crew holds a purple gem in a pair of tweezers.\
+  color</a>', ['Jon of the Clue Crew holds a purple gem in a pair of tweezers.\
  It has more iron oxide than any other variety of quartz,\
  which is believed to account for its rich color',\
-  ["http://www.j-archive.com/media/2007-12-13_DJ_28.jpg",\
-  "http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg"]))
+  "http://www.j-archive.com/media/2007-12-13_DJ_28.jpg",\
+  "http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg"])
 ])
 def test_separate_html(test_text, expected_output):
     assert test_question.separate_html(test_text) == expected_output

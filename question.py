@@ -6,19 +6,6 @@ from random import randint
 from requests import get as get_http_code
 from requests.exceptions import RequestException
 
-# TODO: strip out hyperlinks e.g.
-
-'''
-'This patron saint of Lourdes'
-<a href="http://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
-target="_blank">body</a>
-has remained unchanged in its glass display case since her death in 1879'
-
-These might be challenging
-<a href="http://www.j-archive.com/media/2010-06-15_DJ_20.jpg" target=
-"_blank">What</a> the ant had in song'
-'''
-
 '''
 json example:
 {"category": "HISTORY",
@@ -34,11 +21,13 @@ Galileo was under house arrest for espousing this man's theory'",
 '''
 Holds details about questions and questions themselves
 :str text: The actual text of the question
-:str answer: The answer to the question
 :int value: The dollar value of the question
 :str category: The category of the question
 :boolean daily_double: True if question is a daily double
-:str asker: User who asked the question
+:str answer: The answer to the question
+:str date: Date the question was originally aired
+:str slack_text: The formatted text we push to slack when question is requested
+:list links: List of valid image/audio links associated with question
 '''
 class Question:
 
@@ -53,12 +42,41 @@ class Question:
         # used to test daily doubles
         # question_list = self.filter_questions(question_list, daily_double=1)
         question = question_list[randint(0, len(question_list))]
-        self.text = question['question']
+        # text with html links separated out
+        scrubbed_text = Question.separate_html(question['question'])
+        # pdb.set_trace()
+        self.text = ''
+        self.valid_links = []
+        if type(scrubbed_text) == str:
+            self.text = scrubbed_text
+        # if there are valid html links included in question text
+        elif type(scrubbed_text) == list:
+            self.text = scrubbed_text[0]
+            self.valid_links = scrubbed_text[1:]
         self.value = Question.convert_value_to_int(question['value'])
         self.category = question['category']
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question['answer']
         self.date = question['air_date']
+        self.slack_text = Question.format_slack_text(self)
+
+    # formats text to be pretty for slack
+    @staticmethod
+    def format_slack_text(question):
+        if question.daily_double:
+            question_text = '[*'+question.category+'*] ' + \
+            '['+question.date+'] ' + \
+            '_'+question.text+'_'
+        else:
+            question_text = '[*'+question.category+'*] ' + \
+            '['+question.get_value()+'] ' + \
+            '['+question.date+'] ' + \
+            '_'+question.text+'_'
+        if question.valid_links:
+            pdb.set_trace()
+            for link in question.valid_links:
+                question_text += '\n'+link
+        return question_text
 
     def get_value(self):
         return ('$' + str(self.value))
@@ -127,16 +145,15 @@ class Question:
     returns a tuple of the question text and link if link is valid,
     otherwise just returns the text
     '''
-
     @staticmethod
-    def separate_html(question):
+    def separate_html(question_text):
         with suppress(RequestException):
             # scrub newline chars from question text
-            question_text = re.sub(r'\n', '', question)
+            question_text = re.sub(r'\n', '', question_text)
             # valid links to return
             valid_links = []
             # use regex to check in case link syntax got mangled
-            regex_links = re.findall(r'http://.*?\"', question)
+            regex_links = re.findall(r'http://.*?\"', question_text)
             # remove trailing quotes
             regex_links = [link[:-1] for link in regex_links]
             # scrub out html from question
@@ -154,7 +171,7 @@ class Question:
             # only return links if they're valid, otherwise we just want the
             # scrubbed text
             if valid_links:
-                return (question_text, valid_links)
+                return [question_text] + valid_links
             else:
                 return question_text
 

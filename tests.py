@@ -73,11 +73,9 @@ def test_question_constructor():
     assert type(test_question.value) == int
     assert type(test_question.date) == str
     assert type(test_question.slack_text) == str
-    test_links_question = question.Question()
-    print(test_links_question.valid_links, test_links_question.text)
-    if test_links_question.valid_links:
-        assert type(test_links_question.valid_links) == list
-        for link in test_links_question.valid_links:
+    if test_question.valid_links:
+        assert type(test_question.valid_links) == list
+        for link in test_question.valid_links:
             assert link.startswith('http://')
 
 def test_get_value():

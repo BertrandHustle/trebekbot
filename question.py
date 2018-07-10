@@ -73,7 +73,6 @@ class Question:
             '['+question.date+'] ' + \
             '_'+question.text+'_'
         if question.valid_links:
-            pdb.set_trace()
             for link in question.valid_links:
                 question_text += '\n'+link
         return question_text

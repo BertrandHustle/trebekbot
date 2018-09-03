@@ -21,15 +21,8 @@ def db_after():
     yield db_after
     test_db.drop_table_users(test_db.connection)
 
-# used to clean up backup db after backup test
-@pytest.fixture
-def backup_after():
-    yield backup_after
-    test_backup_path = path.join('database_files', 'test.db.bak')
-    backup_db_connection = test_db.create_connection(test_backup_path)
-    test_db.drop_table_users(backup_db_connection)
-
 # fixture for cleaning out test users from database (but leaving table present)
+# TODO: make this run after failed tests 
 @pytest.fixture
 def scrub_test_users():
     yield scrub_test_users
@@ -392,16 +385,26 @@ scrub_test_users()
 # TODO: test force flag
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
-    (8, 'Morp', 501, 5000, 0),
-    (6, 'Carol', 301, 0, 0),
-    (5, 'Jim', 201, 0, 0),
-    (1, 'Bob', 101, 0, 0),
-    (2, 'LaVar', 100, 0, 0),
-    (3, 'Stemp', 0, 0, 0),
-    (7, 'Eve', -156, 0, 0),
-    (4, 'boop', -9500, 0, 0)
+    (8, 'Morp', 501, 5000, 0, 0),
+    (6, 'Carol', 301, 0, 0, 0),
+    (5, 'Jim', 201, 0, 0, 0),
+    (1, 'Bob', 101, 0, 0, 0),
+    (2, 'LaVar', 100, 0, 0, 0),
+    (3, 'Stemp', 0, 0, 0, 0),
+    (7, 'Eve', -156, 0, 0, 0),
+    (4, 'boop', -9500, 0, 0, 0)
     ]
     assert test_db.return_top_ten(test_db.connection) == expected_list
+
+def test_increment_win(populate_db, scrub_test_users):
+    test_connection = test_db.connection
+    test_db.increment_win(test_connection, 'Carol')
+    test_query = test_connection.cursor().execute(
+    '''
+    SELECT WINS FROM USERS WHERE NAME = ?
+    ''', ('Carol',)
+    )
+    assert test_query.fetchall()[0][0] == 1
 
 def test_get_champion(populate_db, scrub_test_users):
     expected_champion_name = 'Morp'

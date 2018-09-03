@@ -32,6 +32,7 @@ class db(object):
     :sql_param score: current money value of user
     :sql_param champion_score: leader's score (for persistence between resets)
     :sql_param champion: flag if user was the champion before reboot
+    :sql_param wins: total all-time wins
     '''
 
     def create_table_users(self, connection):
@@ -44,7 +45,8 @@ class db(object):
         name text NOT NULL UNIQUE,
         score integer NOT NULL DEFAULT 0,
         champion_score integer NOT NULL DEFAULT 0,
-        champion boolean DEFAULT 0
+        champion boolean DEFAULT 0,
+        wins boolean DEFAULT 0
         );
         '''
         )
@@ -101,6 +103,16 @@ class db(object):
         ).fetchall()
         return top_ten
 
+    # gets user with most wins
+    def return_all_time_champ(self, connection):
+        cursor = connection.cursor()
+        champion_search = cursor.execute(
+        '''
+        SELECT NAME, MAX(WINS) FROM USERS
+        '''
+        ).fetchall()
+        return champion_search[0][0], champion_search[0][1]
+
     # gets champion (highest scorer) from database
     def get_champion(self, connection):
         cursor = connection.cursor()
@@ -155,6 +167,18 @@ class db(object):
         END
         WHERE NAME = ?
         ''', (score_change, score_change, user)
+        )
+        self.connection.commit()
+
+    # adds 1 to a user's wins
+    def increment_win(self, connection, user):
+        cursor = connection.cursor()
+        cursor.execute(
+        '''
+        UPDATE USERS
+        SET WINS = WINS + 1
+        WHERE NAME = ?
+        ''', (user,)
         )
         self.connection.commit()
 

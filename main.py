@@ -38,22 +38,14 @@ daily_double_answerer = None
 current_champion_name = None
 current_champion_score = None
 
-#TODO: add try/catch for websocket errors
 if __name__=='__main__':
     # create host object
     host = host.Host(slack_client)
-    # setup database
+    # setup database (or connect to existing one)
     user_db = db.db('users.db')
-    # ensure that we backup scores if trebekbot crashes
-    # TODO: impliment this
-    register(user_db.backup_db, user_db)
-    # control flow for recovering backup db from crash
-    if os.path.isfile('database_files/users.db.bak'):
-        user_db.recover_from_backup('database_files/users.db.bak', users.db)
-    else:
-        user_db.create_table_users(user_db.connection)
     # host introduces itself to channel
     host.say(channel, host.intro_text)
+    # TODO: make this a separate command
     host.say(channel, host.get_latest_changelog('README.md'))
     host.say(channel, host.help_text)
     # establish champion

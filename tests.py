@@ -436,24 +436,6 @@ def test_get_score(scrub_test_users):
     )
     assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
-def test_backup_db(populate_db, backup_after):
-    test_backup_path = path.join('database_files', 'test.db.bak')
-    test_db.backup_db(test_db.connection)
-    assert path.isfile(test_db.filepath + '.bak')
-    # test that we can overwrite backup
-    test_db.backup_db(test_db.connection)
-    # recover data from backup
-    backup_db_connection = test_db.create_connection(test_backup_path)
-    assert test_db.get_score(backup_db_connection, 'Carol') == 301
-
-def test_recover_from_backup(populate_db, backup_after):
-    test_backup_path = path.join('database_files', 'test.db.bak')
-    print(len(test_backup_path))
-    test_db.backup_db(test_db.connection)
-    new_test_db = db.db('new_db')
-    test_db.recover_from_backup(test_backup_path, new_test_db)
-    assert new_test_db.get_score(new_test_db.connection, 'Carol') == 301
-
 def test_wipe_scores(populate_db, db_after):
     test_db.wipe_scores(test_db.connection)
     # get scores

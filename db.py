@@ -1,16 +1,24 @@
 import sqlite3
-from os import path
+from os import path, environ
 from shutil import copyfile
 
 '''
 Class for database setup/functions
 This will primarily serve to store users and track their scores/money totals
+:param filename: name of database file
+:param filepath: path to persistant storage where db is to be located
+:param connection: connection object to database
 '''
 
 class db(object):
     def __init__(self, db_file):
         self.filename = db_file
-        self.filepath = path.join('database_files', db_file)
+        self.filepath = None
+        # fallback to local dir so we don't break db tests
+        try:
+            self.filepath = path.join(environ['BACKUP_PATH'], db_file)
+        except KeyError:
+            self.filepath = path.join('database_files', db_file)
         self.connection = self.create_connection(self.filepath)
         self.create_table_users(self.connection)
         self.connection.commit()
@@ -169,40 +177,3 @@ class db(object):
         '''
         )
         self.connection.commit()
-
-    # TODO: fix db class so we can make this a db object
-    # backs up db so we can keep scores persistant through crashes
-    def backup_db(self, connection):
-        cursor = connection.cursor()
-        backup_file = self.filepath + '.bak'
-        # create backup
-        copyfile(self.filepath, backup_file)
-
-    '''
-    recover from backed up database in the event of a crash
-    :param backup_db: the backup database from which we pull data
-    :param new_db: the new db where we are pushing our backed up data
-    '''
-    @staticmethod
-    def recover_from_backup(backup_db_filepath, new_db):
-        cursor = new_db.connection.cursor()
-        # wipe info from old users table, then copy over users table from backup
-        cursor.execute(
-        '''
-        DELETE FROM USERS
-        '''
-        )
-        new_db.connection.commit()
-        cursor.execute(
-        '''
-        ATTACH DATABASE ? AS backup
-        ''', (backup_db_filepath,)
-        )
-        new_db.connection.commit()
-        cursor.execute(
-        '''
-        INSERT INTO ?.USERS SELECT * FROM ?.USERS
-        ''',
-        (new_db.filepath, backup_db_filepath,)
-        )
-        new_db.connection.commit()

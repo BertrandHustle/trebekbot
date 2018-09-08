@@ -45,6 +45,7 @@ class Host:
     '''
 
     def __init__(self, slack_client):
+        self.uptime = time.time()
         self.slack_client = slack_client
         # connect to slack upon init
         slack_client.rtm_connect(auto_reconnect=True)
@@ -216,6 +217,11 @@ class Host:
     def changelog(self, slack_output):
         if self.hear(slack_output, 'changelog'):
             self.say(main.channel, self.get_latest_changelog('README.md'))
+
+    # shows time trebekbot was last booted up (uptime)
+    def uptime(self, slack_output):
+        if self.hear(slack_output, 'uptime'):
+            self.say(main.channel, self.uptime)
 
     # say hi!
     def hello(self, slack_output):

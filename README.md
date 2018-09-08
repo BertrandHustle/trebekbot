@@ -7,7 +7,7 @@ Bugs:
 
 Features:
   - Added persistent storage so scores aren't erased if trebekbot crashes
-  - Added ..changelog command
+  - Added ..changelog and ..uptime commands
 
 version 0.5.6 changelog (7-8-18):
 

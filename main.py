@@ -68,6 +68,7 @@ if __name__=='__main__':
         host.myscore(slack_output, user_db)
         host.top_ten(slack_output)
         host.changelog(slack_output)
+        host.uptime(slack_output)
 
         current_question = host.ask_question(slack_output)
 

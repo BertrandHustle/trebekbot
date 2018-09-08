@@ -220,7 +220,7 @@ class Host:
             self.say(main.channel, self.get_latest_changelog('README.md'))
 
     # shows time trebekbot was last booted up (uptime)
-    def uptime(self, slack_output):
+    def say_uptime(self, slack_output):
         if self.hear(slack_output, 'uptime'):
             self.say(main.channel, self.uptime)
 

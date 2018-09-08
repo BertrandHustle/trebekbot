@@ -246,6 +246,16 @@ class Host:
             self.say(main.channel, asked_question.slack_text)
             return asked_question
 
+    # DEBUG_COMMANDS
+
+    # asks daily double, but only if it's bertrand_hustle
+    def debug_daily_double(self, slack_output):
+        user = self.get_user(slack_output)
+        if self.hear(slack_output, 'dd') and user == 'bertrand_hustle':
+            asked_question = question.Question(daily_double=True)
+            self.say(main.channel, asked_question.slack_text)
+            return asked_question
+
     '''
     checks if the answer to a question is correct and updates score accordingly
     :param slack_output: the output we hear coming from slack_output

@@ -22,7 +22,7 @@ def db_after():
     test_db.drop_table_users(test_db.connection)
 
 # fixture for cleaning out test users from database (but leaving table present)
-# TODO: make this run after failed tests 
+# TODO: make this run after failed tests
 @pytest.fixture
 def scrub_test_users():
     yield scrub_test_users
@@ -153,6 +153,14 @@ def test_calc_wager(wager, user_score, expected_value):
 ])
 def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
+
+'''
+not a strict unit test, but used to test new daily_double param on Question
+this is used for the host.debug_daily_double method
+'''
+def test_get_daily_double():
+    test_question = question.Question(daily_double=True)
+    assert test_question.daily_double == True
 
 def test_filter_questions():
     # set up

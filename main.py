@@ -70,6 +70,8 @@ if __name__=='__main__':
         host.changelog(slack_output)
         host.say_uptime(slack_output)
 
+        # used for debugging purposes
+        current_question = host.debug_daily_double(slack_output)
         current_question = host.ask_question(slack_output)
 
         if current_question:

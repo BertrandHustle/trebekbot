@@ -251,6 +251,7 @@ class Host:
     # asks daily double, but only if it's bertrand_hustle
     def debug_daily_double(self, slack_output):
         if self.hear(slack_output, 'dd'):
+            slack_output = slack_output[0]
             # this can't be an 'and' because we need valid slack output first
             if self.get_user(slack_output) == 'bertrand_hustle':
                 asked_question = question.Question(daily_double=True)

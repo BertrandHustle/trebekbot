@@ -2,6 +2,7 @@ import pdb
 import main
 import question
 import db
+from time import time, ctime
 from re import sub, findall, match, IGNORECASE
 from os import path
 from contextlib import suppress
@@ -45,7 +46,7 @@ class Host:
     '''
 
     def __init__(self, slack_client):
-        self.uptime = time.time()
+        self.uptime = ctime(time())
         self.slack_client = slack_client
         # connect to slack upon init
         slack_client.rtm_connect(auto_reconnect=True)

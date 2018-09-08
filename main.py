@@ -99,12 +99,12 @@ if __name__=='__main__':
                         current_contestant = host.get_user(slack_output[0])
                     # pass if contestant doesn't know answer
                     if host.hear(slack_output, 'pass'):
-                        if wager == 0:
+                        if wager:
                             host.say(channel, "Coward. The correct answer is: "\
                             + question_asked.answer)
                             # this breaks out of loop
                             question_asked, answer_given, wager = None, None, None
-                        if wager:
+                        else:
                             host.say(channel, "Sorry, you cannot pass after wagering.")
                     # make sure that no one else gets to do the wagering
                     if host.hear(slack_output, 'wager') and \

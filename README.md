@@ -1,5 +1,14 @@
 # trebekbot
 
+version 0.5.7 changelog (9-8-18):
+
+Bugs:
+  - None
+
+Features:
+  - Added persistent storage so scores aren't erased if trebekbot crashes
+  - Added ..changelog command
+
 version 0.5.6 changelog (7-8-18):
 
 Bugs:

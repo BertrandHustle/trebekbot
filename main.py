@@ -45,8 +45,6 @@ if __name__=='__main__':
     user_db = db.db('users.db')
     # host introduces itself to channel
     host.say(channel, host.intro_text)
-    # TODO: make this a separate command
-    host.say(channel, host.get_latest_changelog('README.md'))
     host.say(channel, host.help_text)
     # establish champion
     current_champion_name, current_champion_score = \

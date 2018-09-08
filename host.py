@@ -41,6 +41,7 @@ class Host:
     '''+command_prefix+'''myscore: find out what your current score is
     '''+command_prefix+'''topten: find out who the top ten scorers are
     '''+command_prefix+'''wager: put in your wager for daily doubles
+    '''+command_prefix+'''changelog: show latest changelog notes
     '''
 
     def __init__(self, slack_client):
@@ -169,13 +170,6 @@ class Host:
                 elif found_latest:
                     latest_changelog += line
 
-    # COMMANDS
-
-    # lists trebekbot functions
-    def help(self, slack_output):
-        if self.hear(slack_output, 'help'):
-            self.say(main.channel, self.help_text)
-
     '''
     gets wager value from output for daily doubles
     :param: slack_output: json of user message from slack
@@ -210,6 +204,18 @@ class Host:
                 return 0
             else:
                 return wager
+
+    # COMMANDS
+
+    # lists trebekbot functions
+    def help(self, slack_output):
+        if self.hear(slack_output, 'help'):
+            self.say(main.channel, self.help_text)
+
+    # shows latest changelog
+    def changelog(self, slack_output):
+        if self.hear(slack_output, 'changelog'):
+            self.say(main.channel, self.get_latest_changelog('README.md'))
 
     # say hi!
     def hello(self, slack_output):

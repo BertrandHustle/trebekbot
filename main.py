@@ -97,6 +97,15 @@ if __name__=='__main__':
                     # try even if we don't have output
                     with suppress(IndexError, KeyError):
                         current_contestant = host.get_user(slack_output[0])
+                    # pass if contestant doesn't know answer
+                    if host.hear(slack_output, 'pass'):
+                        if not wager:
+                            host.say(channel, "Coward. The correct answer is: "\
+                            + question_asked.answer)
+                            # this breaks out of loop
+                            question_asked, answer_given, wager = None, None, None
+                        if wager:
+                            host.say(channel, "Sorry, you cannot pass after wagering.")
                     # make sure that no one else gets to do the wagering
                     if host.hear(slack_output, 'wager') and \
                     current_contestant == daily_double_answerer:

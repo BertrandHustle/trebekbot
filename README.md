@@ -3,7 +3,7 @@
 version 0.5.7 changelog (9-8-18):
 
 Bugs:
-  - Added ..dd for debug purposes
+  - fixed topten bug (?)
 
 Features:
   - Added persistent storage so scores aren't erased if trebekbot crashes

@@ -71,6 +71,7 @@ if __name__=='__main__':
         host.say_uptime(slack_output)
 
         # used for debugging purposes
+        # TODO: fix this so it only gives daily doubles
         current_question = host.debug_daily_double(slack_output)
         current_question = host.ask_question(slack_output)
 

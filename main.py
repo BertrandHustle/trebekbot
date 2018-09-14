@@ -69,6 +69,7 @@ if __name__=='__main__':
         host.top_ten(slack_output)
         host.changelog(slack_output)
         host.say_uptime(slack_output)
+        host.crash(slack_output)
 
         # used for debugging purposes
         # TODO: fix this so it only gives daily doubles

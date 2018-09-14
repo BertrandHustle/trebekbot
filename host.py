@@ -248,6 +248,13 @@ class Host:
 
     # DEBUG_COMMANDS
 
+    # crashes trebekbot to force a restart
+    def crash():
+        if self.hear(slack_output, 'crash'):
+            slack_output = slack_output[0]
+            if self.get_user(slack_output) == 'bertrand_hustle':
+                raise Exception
+
     # asks daily double, but only if it's bertrand_hustle
     def debug_daily_double(self, slack_output):
         if self.hear(slack_output, 'dd'):
@@ -284,7 +291,14 @@ class Host:
             answer_check = self.fuzz_answer(user_answer, correct_answer)
             # respond to user
             if answer_check is 'close':
-                self.say(main.channel, user_address+ ' Please be more specific.')
+                # if user answer has equal or less words than correct answer
+                if len(user_answer.split(' ')) <= len(correct_answer.split(' ')):
+                    self.say(main.channel, user_address+
+                    ' Please be more specific.')
+                # if user answer has more words than correct answer
+                else:
+                    self.say(main.channel, user_address+
+                    ' Please be less specific.')
                 return 'close'
             # right answer
             elif answer_check:
@@ -303,7 +317,6 @@ class Host:
                     user_db.update_score(user_db.connection, user, -wager)
                 else:
                     user_db.update_score(user_db.connection, user, -question.value)
-
 
     # returns user's current score
     def myscore(self, slack_output, db):

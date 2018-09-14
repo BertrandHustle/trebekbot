@@ -1,9 +1,19 @@
 # trebekbot
 
+version 0.5.8 changelog (9-13-18):
+
+Bugs:
+  - fixed issue with winning score checking
+  - persistent score db functioning as intended
+
+Features:
+  - Added debug commands
+  - Added 'be less specific' response 
+
 version 0.5.7 changelog (9-8-18):
 
 Bugs:
-  - fixed topten bug (?)
+  - fixed topten bug
 
 Features:
   - Added persistent storage so scores aren't erased if trebekbot crashes

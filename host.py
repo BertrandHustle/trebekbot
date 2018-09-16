@@ -249,7 +249,7 @@ class Host:
     # DEBUG_COMMANDS
 
     # crashes trebekbot to force a restart
-    def crash():
+    def crash(self, slack_output):
         if self.hear(slack_output, 'crash'):
             slack_output = slack_output[0]
             if self.get_user(slack_output) == 'bertrand_hustle':

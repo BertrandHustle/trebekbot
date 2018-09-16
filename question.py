@@ -35,19 +35,16 @@ class Question:
     jeopardy_json_file = open('./support_files/JEOPARDY_QUESTIONS1.json').read()
     question_list = json.loads(jeopardy_json_file)
 
-    def __init__(self,
-    # TODO: impliement this param
-    daily_double=None,
-    banned_categories='missing this category',
-    banned_phrases=['seen here', 'heard here', 'audio clue']):
+    def __init__(self):
         question_list = self.question_list
-        question_list = self.filter_questions(question_list, banned_categories,
-        banned_phrases)
-        if daily_double:
-            question_list = self.filter_questions(question_list, daily_double=1)
+        question_list = self.filter_questions(question_list, banned_categories=\
+        'missing this category', banned_phrases=['seen here', 'heard here', 'audio clue'])
+        # used to test daily doubles
+        # question_list = self.filter_questions(question_list, daily_double=1)
         question = question_list[randint(0, len(question_list))]
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])
+        # pdb.set_trace()
         self.text = ''
         self.valid_links = []
         if type(scrubbed_text) == str:

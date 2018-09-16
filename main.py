@@ -72,8 +72,8 @@ if __name__=='__main__':
         # used for debugging purposes
         host.crash(slack_output)
         # TODO impliment debug daily double here
+
         current_question = host.ask_question(slack_output)
-        current_question = host.debug_daily_double(slack_output)
 
         if current_question:
             # this is how we store a persistant question/answer

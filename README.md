@@ -1,5 +1,13 @@
 # trebekbot
 
+version 0.5.9 changelog (9-18-18):
+
+Bugs:
+  - fixed 'be less specific than' bug
+
+Features:
+  - None
+
 version 0.5.8 changelog (9-13-18):
 
 Bugs:
@@ -8,7 +16,7 @@ Bugs:
 
 Features:
   - Added debug commands
-  - Added 'be less specific' response 
+  - Added 'be less specific' response
 
 version 0.5.7 changelog (9-8-18):
 

@@ -287,12 +287,13 @@ class Host:
             if current_champion_name and user == current_champion_name:
                 user_address = ':crown: <@'+user_id+'|'+user+'>'
             correct_answer = question.answer
+            # TODO: refactor this so it can be unit tested
             # check if answer is correct
             answer_check = self.fuzz_answer(user_answer, correct_answer)
             # respond to user
             if answer_check is 'close':
                 # if user answer has equal or less words than correct answer
-                if len(user_answer.split(' ')) < len(correct_answer.split(' ')):
+                if len(user_answer.split(' ')) <= len(correct_answer.split(' ')):
                     self.say(main.channel, user_address+
                     ' Please be more specific.')
                 # if user answer has more words than correct answer

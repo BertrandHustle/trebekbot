@@ -325,6 +325,16 @@ def test_fuzz_word(given_word, expected_word, expected_value):
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
 
+@pytest.mark.parametrize("given_answer, correct_answer, expected_reply", [
+ ('princess di', 'Princess Diana', 'Please be more specific.'),
+ ('general mills and general electric', 'General Motors & General Electric', \
+ 'Please be more specific.'),
+ ('8', '4 pounds', 'Please be more specific.')
+])
+def test_check_closeness(given_answer, correct_answer, expected_reply):
+    assert test_host.check_closeness(given_answer, correct_answer) == \
+    expected_reply
+
 @pytest.mark.parametrize("slack_output, user_score, expected_value", [
  ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
  '..wager 20000', 'type': 'message', 'ts': '1497097067.238474',
@@ -415,6 +425,14 @@ def test_increment_win(populate_db, scrub_test_users):
     ''', ('Carol',)
     )
     assert test_query.fetchall()[0][0] == 1
+
+def test_get_user_wins(populate_db, scrub_test_users):
+    test_connection = test_db.connection
+    test_db.increment_win(test_connection, 'Carol')
+    test_db.increment_win(test_connection, 'Carol')
+    test_db.increment_win(test_connection, 'Carol')
+    test_query = test_db.get_user_wins(test_connection, 'Carol')
+    assert test_query == 3
 
 def test_get_champion(populate_db, scrub_test_users):
     expected_champion_name = 'Morp'

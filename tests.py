@@ -37,7 +37,6 @@ def scrub_test_users():
 def populate_db():
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
     test_score = 101
-    #set_trace()
     # ensure that we have a varied list of scorers
     for user in test_users:
         test_db.add_user_to_db(test_db.connection, user)
@@ -56,6 +55,13 @@ def populate_db():
     ''',
     (5000, 'Morp')
     )
+
+# same as above, but all scores are zero
+@pytest.fixture
+def populate_db_all_scores_zero():
+    test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
+    for user in test_users:
+        test_db.add_user_to_db(test_db.connection, user)
 
 # tests question constructor
 def test_question_constructor():
@@ -367,6 +373,8 @@ def test_get_latest_changelog():
     assert test_host.get_latest_changelog(changelog).split('\n')[:-1] \
     == test_latest_changelog
 
+# TODO: make sure test.db gets killed after any failure
+
 # DATABASE TESTS
 # TODO: add bad values in here e.g. ' ', 0
 def test_add_user_to_db():
@@ -440,6 +448,31 @@ def test_get_champion(populate_db, scrub_test_users):
     expected_champion_score = 501
     assert test_db.get_champion(test_db.connection) == \
     (expected_champion_name, expected_champion_score)
+    # create a tie
+    test_db.connection.execute(
+    '''
+    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    ''',
+    (10000, 'Bob')
+    )
+    test_db.connection.execute(
+    '''
+    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    ''',
+    (10000, 'Jim')
+    )
+    expected_champion_names = ['Bob', 'Jim']
+    expected_champion_scores = [10000, 10000]
+    assert test_db.get_champion(test_db.connection) == \
+    [(expected_champion_names[0], expected_champion_scores[0]),
+     (expected_champion_names[1], expected_champion_scores[1])]
+
+'''
+not a real unit test, but used to test the edge case where there is no champ
+for db.get_champion()
+'''
+def test_no_champion(populate_db_all_scores_zero, scrub_test_users):
+    assert test_db.get_champion(test_db.connection) == None
 
 def test_get_last_nights_champion(populate_db, scrub_test_users):
     expected_champion_name = 'Morp'

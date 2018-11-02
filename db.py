@@ -121,8 +121,14 @@ class db(object):
         SELECT NAME, MAX(SCORE) FROM USERS
         '''
         ).fetchall()
-        return champion_search[0][0], champion_search[0][1]
+        champion_name = champion_search[0][0]
+        champion_score = champion_search[0][1]
+        if champion_score > 0:
+            return champion_name, champion_score
 
+    # TODO: get rid of this and set_champion, both are unnecessary since we
+    # have a persistant database now
+    
     # same as above, but gets champion_score (last night's score)
     # instead of current score
     def get_last_nights_champion(self, connection):

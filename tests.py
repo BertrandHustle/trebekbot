@@ -320,7 +320,8 @@ def test_fuzz_word(given_word, expected_word, expected_value):
  # special case for spelling bee questions, may need to filter those out
  ('Rorschach', 'R-O-R-S-C-H-A-C-H', True),
  ('R&D', 'R&D', True),
- ('B', 'R', False)
+ ('B', 'R', False),
+ ('8', '4 pounds', False)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value
@@ -329,7 +330,7 @@ def test_fuzz_answer(given_answer, expected_answer, expected_value):
  ('princess di', 'Princess Diana', 'Please be more specific.'),
  ('general mills and general electric', 'General Motors & General Electric', \
  'Please be more specific.'),
- ('8', '4 pounds', 'Please be more specific.')
+ ('the almighty king of siam', 'the king of siam', 'Please be less specific.')
 ])
 def test_check_closeness(given_answer, correct_answer, expected_reply):
     assert test_host.check_closeness(given_answer, correct_answer) == \

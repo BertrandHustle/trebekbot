@@ -1,5 +1,13 @@
 # trebekbot
 
+version 0.6.0 changelog (10-18-18):
+
+Bugs:
+  - ACTUALLY fixed the 'be less specific than' bug
+
+Features:
+  - added a win counter with ..mywins
+
 version 0.5.9 changelog (9-18-18):
 
 Bugs:

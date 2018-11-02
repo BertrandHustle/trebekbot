@@ -234,6 +234,49 @@ class Host:
             if current_champion_name and user == current_champion_name:
                 user = ':crown:' + user
             self.say(main.channel, 'Hello ' + user)
+
+    # returns user's current score
+    def myscore(self, slack_output, db):
+        if self.hear(slack_output, 'myscore'):
+            slack_output = slack_output[0]
+            user = self.get_user(slack_output)
+            # needed to avoid querying db for name with crown in it
+            user_address = user
+            if current_champion_name and user == current_champion_name:
+                user_address = ':crown: ' + user
+            self.say(main.channel, user_address + ', your score is: '+ ' $' + \
+            str(db.get_score(db.connection, user)))
+
+    # returns top ten scorers
+    # if force flag is active, ignore slack and say the top ten regardless (for testing)
+    def top_ten(self, slack_output, force=None):
+        if self.hear(slack_output, 'topten') or force:
+            top_ten_list = user_db.return_top_ten(user_db.connection)
+            slack_list = 'Here\'s our top scorers: \n'
+            count = 1
+            # TODO: improve/refactor this
+            for champ,name,score,champ_score,id, wins in top_ten_list:
+                # give crown for being champ
+                if current_champion_name and name == current_champion_name:
+                    name = ':crown: ' + name
+                # format: 1. Morp - $501
+                slack_list += str(count) + '. ' + name + ' - ' + '$' \
+                + str(score) + '\n'
+                count += 1
+            self.say(main.channel, slack_list)
+
+    # TODO: finish writing this
+    # gets total all-time wins for user
+    def mywins(self, slack_output):
+        if self.hear(slack_output, 'mywins'):
+            slack_output = slack_output[0]
+            user = self.get_user(slack_output)
+            if current_champion_name and user == current_champion_name:
+                user = ':crown: ' + user
+            wins = str(user_db.get_user_wins(user_db.connection, user))
+            self.say(main.channel, user)
+
+
     '''
     gets a random question from the jeopardy_json_file
     :param slack_output: the output we hear coming from slack_output
@@ -264,6 +307,22 @@ class Host:
                 asked_question = question.Question(daily_double=True)
                 self.say(main.channel, asked_question.slack_text)
                 return asked_question
+
+    '''
+    check if user needs to be more specific or less specific in their answer
+    :string user_answer: answer given by user
+    :string correct_answer: correct answer to question
+    '''
+    def check_closeness(self, user_answer, correct_answer):
+        # this will be either 'more' or 'less' depending on closeness to answer
+        closeness = None
+        # if user answer has equal or less words than correct answer
+        if len(user_answer.split(' ')) <= len(correct_answer.split(' ')):
+            closeness = 'more'
+        # if user answer has more words than correct answer
+        else:
+            closeness = 'less'
+        return 'Please be {} specific.'.format(closeness)
 
     '''
     checks if the answer to a question is correct and updates score accordingly
@@ -318,37 +377,6 @@ class Host:
                     user_db.update_score(user_db.connection, user, -wager)
                 else:
                     user_db.update_score(user_db.connection, user, -question.value)
-
-    # returns user's current score
-    def myscore(self, slack_output, db):
-        if self.hear(slack_output, 'myscore'):
-            slack_output = slack_output[0]
-            user = self.get_user(slack_output)
-            # needed to avoid querying db for name with crown in it
-            user_address = user
-            if current_champion_name and user == current_champion_name:
-                user_address = ':crown: ' + user
-            self.say(main.channel, user_address + ', your score is: '+ ' $' + \
-            str(db.get_score(db.connection, user)))
-
-
-    # returns top ten scorers
-    # if force flag is active, ignore slack and say the top ten regardless
-    def top_ten(self, slack_output, force=None):
-        if self.hear(slack_output, 'topten') or force:
-            top_ten_list = user_db.return_top_ten(user_db.connection)
-            slack_list = 'Here\'s our top scorers: \n'
-            count = 1
-            # TODO: improve/refactor this
-            for champ,name,score,champ_score,id, wins in top_ten_list:
-                # give crown for being champ
-                if current_champion_name and name == current_champion_name:
-                    name = ':crown: ' + name
-                # format: 1. Morp - $501
-                slack_list += str(count) + '. ' + name + ' - ' + '$' \
-                + str(score) + '\n'
-                count += 1
-            self.say(main.channel, slack_list)
 
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod

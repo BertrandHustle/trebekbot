@@ -182,6 +182,22 @@ class db(object):
         )
         self.connection.commit()
 
+    # shows all-time wins for user
+    def get_user_wins(self, connection, user):
+        cursor = connection.cursor()
+        wins = cursor.execute(
+        '''
+        SELECT WINS FROM USERS WHERE NAME = ?
+        ''',
+        (user,)
+        ).fetchall()
+        '''
+        fetchall results look like this: [(0,)],
+        so we need to drill into this data structure
+        '''
+        if wins:
+            return wins[0][0]
+
     # resets scores to 0 for all users, used for nightly resets
     def wipe_scores(self, connection):
         cursor = connection.cursor()

@@ -3,7 +3,7 @@
 import os
 import sys
 import time
-import host
+import src.host as host
 import db
 import pdb
 from datetime import datetime
@@ -22,7 +22,8 @@ slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 # NOTE: do not use # in the name, slack's api returns the channel name only
 channel = 'trivia'
-# channel_id = None
+# export channel to env so host can grab it
+os.environ['SLACK_CHANNEL'] = channel
 # this needs to be outside the loop so it stays persistant
 question_asked = None
 answer_given = None

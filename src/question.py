@@ -35,12 +35,13 @@ class Question:
     jeopardy_json_file = open('./support_files/JEOPARDY_QUESTIONS1.json').read()
     question_list = json.loads(jeopardy_json_file)
 
-    def __init__(self):
+    def __init__(self, daily_double=None):
         question_list = self.question_list
         question_list = self.filter_questions(question_list, banned_categories=\
         'missing this category', banned_phrases=['seen here', 'heard here', 'audio clue'])
         # used to test daily doubles
-        # question_list = self.filter_questions(question_list, daily_double=1)
+        if daily_double:
+            question_list = self.filter_questions(question_list, daily_double=1)
         question = question_list[randint(0, len(question_list))]
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])

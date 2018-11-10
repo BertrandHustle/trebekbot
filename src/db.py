@@ -1,6 +1,5 @@
 import sqlite3
 from os import path, environ
-from shutil import copyfile
 
 '''
 Class for database setup/functions
@@ -18,7 +17,7 @@ class db(object):
         try:
             self.filepath = path.join(environ['BACKUP_PATH'], db_file)
         except KeyError:
-            self.filepath = path.join('../', 'database_files', db_file)
+            self.filepath = path.join('database_files', db_file)
         self.connection = self.create_connection(self.filepath)
         self.create_table_users(self.connection)
         self.connection.commit()

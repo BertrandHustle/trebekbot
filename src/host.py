@@ -502,6 +502,9 @@ class Host:
         # if we get an empty string, don't bother
         if not given_answer:
             return False
+        # exception for single letter answers
+        if len(given_answer) == 1 and len(correct_answer) == 1:
+            return given_answer == correct_answer
         # we only want exact matches if the answer is a number
         try:
             # prevents cases like '0' or '00'

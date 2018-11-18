@@ -3,8 +3,7 @@
 version 0.6.1 changelog (11-8-18):
 
 Bugs:
-  - still unsure if 'specific' bug is fixed
-  - question filtering isn't working correctly
+  - single letter answer bug fixed
 
 Features:
   - repackaged project

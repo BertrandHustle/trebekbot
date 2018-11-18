@@ -1,6 +1,6 @@
 import pdb
-import src.question as question
-import src.db as db
+import question as question
+import db as db
 from time import time, ctime
 from re import sub, findall, match, IGNORECASE
 from os import path, environ

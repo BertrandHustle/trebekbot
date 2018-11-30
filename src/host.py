@@ -39,6 +39,7 @@ class Host:
     '''+command_prefix+'''ask: trebekbot will ask you a question
     '''+command_prefix+'''whatis: use this to provide an answer to the question
     '''+command_prefix+'''myscore: find out what your current score is
+    '''+command_prefix+'''mywins: find out your all-time win count
     '''+command_prefix+'''topten: find out who the top ten scorers are
     '''+command_prefix+'''wager: put in your wager for daily doubles
     '''+command_prefix+'''pass: pass a daily double if you don't know it

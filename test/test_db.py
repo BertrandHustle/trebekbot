@@ -1,8 +1,10 @@
+from sys import path as syspath
+syspath.append('c:\\users\\hooks\\documents\\programming\\projects\\trebekbot\\src')
 from re import findall
 from atexit import register
 from os import path, remove
 import pytest
-import src.db as db
+import db
 
 # TODO: use Mock for db
 

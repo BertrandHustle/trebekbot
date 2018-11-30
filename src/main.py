@@ -3,7 +3,7 @@
 import os
 import sys
 import time
-import host as host
+import host
 import db
 import pdb
 from datetime import datetime

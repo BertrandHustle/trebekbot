@@ -15,7 +15,7 @@ author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 
 # set to 1 for debug mode
-debug = 1
+debug = 0
 # retrieve id/token/etc. from env variables
 bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']

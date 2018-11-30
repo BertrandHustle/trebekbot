@@ -267,7 +267,7 @@ class Host:
             if current_champion_name and user == current_champion_name:
                 user = ':crown: ' + user
             wins = str(user_db.get_user_wins(user_db.connection, user))
-            self.say(self.channel_id, user)
+            self.say(self.channel_id, user + ' wins: ' + wins)
 
 
     '''

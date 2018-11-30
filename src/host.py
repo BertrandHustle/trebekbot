@@ -21,9 +21,6 @@ else:
     eng_dict = open('./support_files/words.txt').read().splitlines()
 current_champion_name, current_champion_score = user_db.get_last_nights_champion(user_db.connection)
 
-# get channel from main
-slack_channel = environ.get('SLACK_CHANNEL')
-
 '''
  Class that acts as the "host" of Jeopardy
  e.g. asks clues, gets point values, etc.
@@ -55,7 +52,7 @@ class Host:
         # connect to slack upon init
         slack_client.rtm_connect(auto_reconnect=True)
         # channel id of channel where host currently is
-        self.channel_id = self.get_channel_id(slack_channel)
+        self.channel_id = self.get_channel_id(environ.get('SLACK_CHANNEL'))
 
     # listens for output in slack channel
     '''
@@ -74,22 +71,16 @@ class Host:
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
             text = slack_output['text']
-            '''
-            with suppress(KeyError):
-                if text == '..hello':
-                    pdb.set_trace()
-            '''
             channel = slack_output['channel']
             user = self.get_user(slack_output)
-            #TODO: change this var name, it's misleading
-            # prefix without the ';;'
-            prefix = text[2:].split(' ')[0]
+            text_minus_prefix = text[2:].split(' ')[0]
             # if the text starts with the command_prefix
             # and the rest of the text minus the prefix matches what we're listening for
             # and we're in the right channel
-            if text.startswith(self.command_prefix) and channel == self.channel_id\
-            and prefix == listen_for:
-                answer = text.split(prefix)[1]
+            if text.startswith(self.command_prefix) \
+            and channel == self.channel_id \
+            and text_minus_prefix == listen_for:
+                answer = text.split(text_minus_prefix)[1]
                 # add user to db if theyre not in there already
                 user_db.add_user_to_db(user_db.connection, user)
                 if answer:
@@ -123,8 +114,7 @@ class Host:
         'channels.info',
         channel = channel_id
         )
-        # add the hash to make it match the slack_channel value
-        return '#'+channel['channel']['name']
+        return channel['channel']['name']
 
     # mostly here because we can't test the slack api methods
     def get_channel_id_from_json(self, channel_name, channel_json):
@@ -216,17 +206,17 @@ class Host:
     # lists trebekbot functions
     def help(self, slack_output):
         if self.hear(slack_output, 'help'):
-            self.say(slack_channel, self.help_text)
+            self.say(self.channel_id, self.help_text)
 
     # shows latest changelog
     def changelog(self, slack_output):
         if self.hear(slack_output, 'changelog'):
-            self.say(slack_channel, self.get_latest_changelog('README.md'))
+            self.say(self.channel_id, self.get_latest_changelog('README.md'))
 
     # shows time trebekbot was last booted up (uptime)
     def say_uptime(self, slack_output):
         if self.hear(slack_output, 'uptime'):
-            self.say(slack_channel, self.uptime)
+            self.say(self.channel_id, self.uptime)
 
     # say hi!
     def hello(self, slack_output):
@@ -235,7 +225,7 @@ class Host:
             user = self.get_user(slack_output)
             if current_champion_name and user == current_champion_name:
                 user = ':crown:' + user
-            self.say(slack_channel, 'Hello ' + user)
+            self.say(self.channel_id, 'Hello ' + user)
 
     # returns user's current score
     def myscore(self, slack_output, db):
@@ -246,7 +236,7 @@ class Host:
             user_address = user
             if current_champion_name and user == current_champion_name:
                 user_address = ':crown: ' + user
-            self.say(slack_channel, user_address + ', your score is: '+ ' $' + \
+            self.say(self.channel_id, user_address + ', your score is: '+ ' $' + \
             str(db.get_score(db.connection, user)))
 
     # returns top ten scorers
@@ -265,7 +255,7 @@ class Host:
                 slack_list += str(count) + '. ' + name + ' - ' + '$' \
                 + str(score) + '\n'
                 count += 1
-            self.say(slack_channel, slack_list)
+            self.say(self.channel_id, slack_list)
 
     # TODO: finish writing this
     # gets total all-time wins for user
@@ -276,7 +266,7 @@ class Host:
             if current_champion_name and user == current_champion_name:
                 user = ':crown: ' + user
             wins = str(user_db.get_user_wins(user_db.connection, user))
-            self.say(slack_channel, user)
+            self.say(self.channel_id, user)
 
 
     '''
@@ -288,7 +278,7 @@ class Host:
     def ask_question(self, slack_output):
         if self.hear(slack_output, 'ask'):
             asked_question = question.Question()
-            self.say(slack_channel, asked_question.slack_text)
+            self.say(self.channel_id, asked_question.slack_text)
             return asked_question
 
     # DEBUG_COMMANDS
@@ -307,7 +297,7 @@ class Host:
             # this can't be an 'and' because we need valid slack output first
             if self.get_user(slack_output) == 'bertrand_hustle':
                 asked_question = question.Question(daily_double=True)
-                self.say(slack_channel, asked_question.slack_text)
+                self.say(self.channel_id, asked_question.slack_text)
                 return asked_question
 
     '''
@@ -361,7 +351,7 @@ class Host:
                 return 'close'
             # right answer
             elif answer_check:
-                self.say(slack_channel, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
+                self.say(self.channel_id, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
                 # award points to user
                 if question.daily_double:
                     user_db.update_score(user_db.connection, user, wager)
@@ -370,7 +360,7 @@ class Host:
                 return 'right'
             # wrong answer
             else:
-                self.say(slack_channel, user_address+ ' :x: Sorry, that is incorrect.')
+                self.say(self.channel_id, user_address+ ' :x: Sorry, that is incorrect.')
                 # take away points from user
                 if question.daily_double and wager:
                     user_db.update_score(user_db.connection, user, -wager)

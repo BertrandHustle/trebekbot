@@ -1,4 +1,4 @@
-import psycopg2
+import sqlite3
 from os import path, environ
 
 '''
@@ -15,17 +15,15 @@ class db(object):
         self.filepath = None
         # fallback to local dir so we don't break db tests
         try:
-            self.filepath = path.join(environ['DATABASE_URL'], db_file)
+            self.filepath = path.join(environ['BACKUP_PATH'], db_file)
         except KeyError:
             self.filepath = path.join('database_files', db_file)
-        # self.connection = self.create_connection(self.filepath)
-        self.connection = self.create_connection(environ['DATABASE_URL'])
-        print('CONNECTION SUCCESSFUL')
+        self.connection = self.create_connection(self.filepath)
         self.create_table_users(self.connection)
         self.connection.commit()
 
     def create_connection(self, db_file):
-        return psycopg2.connect("dbname="+db_file)
+        return sqlite3.connect(db_file)
 
     '''
     :param connection: connection to the sql database

@@ -18,7 +18,8 @@ class db(object):
             self.filepath = path.join(environ['DATABASE_URL'], db_file)
         except KeyError:
             self.filepath = path.join('database_files', db_file)
-        self.connection = self.create_connection(self.filepath)
+        # self.connection = self.create_connection(self.filepath)
+        self.connection = self.create_connection(self.filename)
         self.create_table_users(self.connection)
         self.connection.commit()
 

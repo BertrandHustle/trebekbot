@@ -20,6 +20,7 @@ class db(object):
             self.filepath = path.join('database_files', db_file)
         # self.connection = self.create_connection(self.filepath)
         self.connection = self.create_connection(environ['DATABASE_URL'])
+        print('CONNECTION SUCCESSFUL')
         self.create_table_users(self.connection)
         self.connection.commit()
 

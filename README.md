@@ -1,6 +1,13 @@
 # trebekbot
 
-version 0.6.2 changelog (11-8-18):
+version 0.7.1 changelog (1-27-19):
+Bugs:
+  - fixed incorrect bot id
+
+Features:
+  - using Heroku postgres db now
+
+version 0.7.0 changelog (1-17-19):
 
 Bugs:
   - fixed crashing on close answers

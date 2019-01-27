@@ -1,10 +1,15 @@
 import pdb
 import json
 import re
+from os import path, pardir
 from contextlib import suppress
 from random import randint
 from requests import get as get_http_code
 from requests.exceptions import RequestException
+
+# C:\Users\Hooks\Documents\Programming\Projects\Trebekbot\support_files\JEOPARDY_QUESTIONS1.json
+
+project_root = path.join(path.dirname(path.abspath(__file__)), pardir)
 
 '''
 json example:
@@ -32,7 +37,7 @@ Holds details about questions and questions themselves
 class Question:
 
     # init
-    jeopardy_json_file = open('../support_files/JEOPARDY_QUESTIONS1.json').read()
+    jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
     question_list = json.loads(jeopardy_json_file)
 
     def __init__(self, daily_double=None):

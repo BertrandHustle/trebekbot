@@ -52,8 +52,8 @@ class db(object):
         name text NOT NULL UNIQUE,
         score integer NOT NULL DEFAULT 0,
         champion_score integer NOT NULL DEFAULT 0,
-        champion boolean DEFAULT 0,
-        wins boolean DEFAULT 0
+        champion integer DEFAULT 0,
+        wins integer DEFAULT 0
         );
         '''
         )

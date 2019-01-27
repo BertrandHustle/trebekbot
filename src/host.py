@@ -132,8 +132,21 @@ class Host:
         return self.get_channel_id_from_json(channel_name, channel_list)
 
     '''
+    get bot's slack id
+    :param bot_name:
+    '''
+    def get_bot_id(self, bot_name):
+        api_call = self.slack_client.api_call("users.list")
+        if api_call.get('ok'):
+            # retrieve all users so we can find our bot
+            users = api_call.get('members')
+            for user in users:
+                if 'name' in user and user.get('name') == bot_name:
+                    return user.get('id')
+
+    '''
     get user by checking user id
-    :param: slack_output: json of user message from slack
+    :param slack_output: json of user message from slack
     '''
     def get_user(self, slack_output):
         with suppress(decoder.JSONDecodeError):
@@ -346,7 +359,7 @@ class Host:
             if answer_check is 'close':
                 self.say(
                 self.channel_id,
-                user_address + \
+                user_address + ' ' + \
                 self.check_closeness(user_answer, correct_answer)
                 )
                 return 'close'

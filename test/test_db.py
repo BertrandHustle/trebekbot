@@ -6,8 +6,6 @@ from os import path, remove
 import pytest
 import db
 
-# TODO: use Mock for db
-
 # set up test objects
 test_db = db.db('test.db')
 

@@ -17,7 +17,8 @@ bot_name = 'trebekbot'
 # set to 1 for debug mode
 debug = 0
 # retrieve id/token/etc. from env variables
-bot_id = os.environ.get('TREBEKBOT_ID')
+# bot_id = os.environ.get('TREBEKBOT_ID')
+bot_id = host.get_bot_id('trebekbot')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 # NOTE: do not use # in the name, slack's api returns the channel name only

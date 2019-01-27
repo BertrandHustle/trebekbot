@@ -1,4 +1,5 @@
 import sqlite3
+import psycopg2
 from os import path, environ
 
 '''
@@ -10,6 +11,7 @@ This will primarily serve to store users and track their scores/money totals
 '''
 
 class db(object):
+
     def __init__(self, db_file):
         self.filename = db_file
         self.filepath = None
@@ -17,13 +19,19 @@ class db(object):
         try:
             self.filepath = path.join(environ['BACKUP_PATH'], db_file)
         except KeyError:
-            self.filepath = path.join('database_files', db_file)
+            self.filepath = path.join('../database_files', db_file)
         self.connection = self.create_connection(self.filepath)
         self.create_table_users(self.connection)
         self.connection.commit()
 
+    # we want to keep the sqlite3 conn for local testing
     def create_connection(self, db_file):
-        return sqlite3.connect(db_file)
+        try:
+            # heroku postgres database url
+            DATABASE_URL = environ['DATABASE_URL']
+            return psycopg2.connect(DATABASE_URL, sslmode='require')
+        except:
+            return sqlite3.connect(db_file)
 
     '''
     :param connection: connection to the sql database

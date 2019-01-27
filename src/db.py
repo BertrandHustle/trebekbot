@@ -142,7 +142,7 @@ class db(object):
         cursor = connection.cursor()
         champion_search = cursor.execute(
         '''
-        SELECT NAME, MAX(CHAMPION_SCORE) FROM USERS
+        SELECT NAME, MAX(CHAMPION_SCORE) FROM USERS GROUP BY NAME
         '''
         ).fetchall()
         return champion_search[0][0], champion_search[0][1]

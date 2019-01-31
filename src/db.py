@@ -1,4 +1,3 @@
-import sqlite3
 import psycopg2
 from os import path, environ
 
@@ -8,6 +7,11 @@ This will primarily serve to store users and track their scores/money totals
 :param filename: name of database file
 :param filepath: path to persistant storage where db is to be located
 :param connection: connection object to database
+'''
+
+'''
+# heroku postgres database url
+DATABASE_URL = environ['DATABASE_URL']
 '''
 
 class db(object):
@@ -24,14 +28,9 @@ class db(object):
         self.create_table_users(self.connection)
         self.connection.commit()
 
-    # we want to keep the sqlite3 conn for local testing
     def create_connection(self, db_file):
-        try:
-            # heroku postgres database url
-            DATABASE_URL = environ['DATABASE_URL']
-            return psycopg2.connect(DATABASE_URL, sslmode='require')
-        except:
-            return sqlite3.connect(db_file)
+        # return psycopg2.connect(DATABASE_URL, sslmode='require')
+        return psycopg2.connect("dbname='postgres' user='postgres' host='localhost'")
 
     '''
     :param connection: connection to the sql database
@@ -48,7 +47,7 @@ class db(object):
         cursor.execute(
         '''
         CREATE TABLE IF NOT EXISTS users (
-        id integer PRIMARY KEY,
+        id serial,
         name text NOT NULL UNIQUE,
         score integer NOT NULL DEFAULT 0,
         champion_score integer NOT NULL DEFAULT 0,
@@ -76,7 +75,7 @@ class db(object):
         cursor = connection.cursor()
         cursor.execute(
         '''
-        INSERT OR IGNORE INTO USERS(name) VALUES(?)
+        INSERT INTO USERS(name) VALUES(%s) ON CONFLICT(name) DO NOTHING;
         ''',
         (user,)
         )

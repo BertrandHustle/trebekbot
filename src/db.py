@@ -1,4 +1,5 @@
 import psycopg2
+import pdb
 from os import path, environ
 
 '''
@@ -29,6 +30,7 @@ class db(object):
         self.connection.commit()
 
     def create_connection(self, db_file):
+        pdb.set_trace()
         # return psycopg2.connect(DATABASE_URL, sslmode='require')
         return psycopg2.connect("dbname='postgres' user='postgres' host='localhost'")
 

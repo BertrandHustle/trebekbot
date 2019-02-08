@@ -1,9 +1,13 @@
+import os
 from sys import path as syspath
-syspath.append('c:\\users\\hooks\\documents\\programming\\projects\\trebekbot\\src')
+syspath.append(
+os.path.abspath(
+os.path.join(
+os.path.dirname(__file__), os.path.pardir)))
 from re import findall
-from os import path, remove
+
 import pytest
-import db
+import src.db as db
 import docker
 import pdb
 
@@ -15,16 +19,16 @@ import psycopg2
 def postgres_setup():
     docker_client = docker.from_env()
     docker_ports = {'5432/tcp':'5432'}
-    docker_client.containers.run("postgres", detach=True, ports=docker_ports)
+    psql = docker_client.containers.run("postgres", detach=True, ports=docker_ports)
+    # connect to psql
+    psql.exec_run('psql -U postgres')
+    psql.exec_run('CREATE DATABASE postgres;')
 
 # spins down docker container
 @pytest.fixture(scope="session", autouse=True)
 def postgres_teardown():
     docker_client = docker.from_env()
     docker_client.containers.list()[0].stop()
-
-# set up test objects
-test_db = db.db('test.db')
 
 # fixture for tearing down test database completely
 @pytest.fixture
@@ -73,6 +77,11 @@ def populate_db_all_scores_zero():
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
     for user in test_users:
         test_db.add_user_to_db(test_db.connection, user)
+
+postgres_setup()
+postgres_teardown()
+# set up test objects
+test_db = db.db('test.db')
 
 def test_add_user_to_db():
     # do this twice to ensure that we're adhering to the UNIQUE constraint

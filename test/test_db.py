@@ -16,17 +16,28 @@ import psycopg2
 
 # starts postgres instance in docker container
 @pytest.fixture(scope="session", autouse=True)
-def postgres_setup():
+def postgres_setup(request):
+    print('setting up docker')
     docker_client = docker.from_env()
     docker_ports = {'5432/tcp':'5432'}
-    psql = docker_client.containers.run("postgres", detach=True, ports=docker_ports)
+    psql = None
+    try:
+        psql = docker_client.containers.run("postgres", detach=True, ports=docker_ports)
+    except docker.errors.APIError:
+        # kill all running containers to free up port
+        # pdb.set_trace()
+        [c.stop() for c in docker_client.containers.list()]
+        quit()
     # connect to psql
     psql.exec_run('psql -U postgres')
     psql.exec_run('CREATE DATABASE postgres;')
+    test_db = db.db('test.db')
+    return test_db
 
 # spins down docker container
 @pytest.fixture(scope="session", autouse=True)
 def postgres_teardown():
+    print('tearing down docker')
     docker_client = docker.from_env()
     docker_client.containers.list()[0].stop()
 
@@ -78,12 +89,8 @@ def populate_db_all_scores_zero():
     for user in test_users:
         test_db.add_user_to_db(test_db.connection, user)
 
-postgres_setup()
-postgres_teardown()
-# set up test objects
-test_db = db.db('test.db')
-
 def test_add_user_to_db():
+    test_db = postgres_setup
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')

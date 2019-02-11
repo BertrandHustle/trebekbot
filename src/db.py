@@ -1,6 +1,7 @@
 import psycopg2
 import pdb
 from os import path, environ
+from time import sleep
 
 '''
 Class for database setup/functions
@@ -30,8 +31,9 @@ class db(object):
         self.connection.commit()
 
     def create_connection(self, db_file):
-        pdb.set_trace()
+        #pdb.set_trace()
         # return psycopg2.connect(DATABASE_URL, sslmode='require')
+        sleep(15)
         return psycopg2.connect("dbname='postgres' user='postgres' host='localhost'")
 
     '''

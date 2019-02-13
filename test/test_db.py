@@ -5,6 +5,7 @@ os.path.abspath(
 os.path.join(
 os.path.dirname(__file__), os.path.pardir)))
 from re import findall
+from atexit import register
 
 import pytest
 import src.db as db
@@ -22,35 +23,37 @@ def postgres_setup(request):
     docker_ports = {'5432/tcp':'5432'}
     psql = None
     try:
-        psql = docker_client.containers.run("postgres", detach=True, ports=docker_ports)
-    except docker.errors.APIError:
+        psql = docker_client.containers.run(
+            "postgres",
+            detach=True,
+            ports=docker_ports
+        )
+    except:
         # kill all running containers to free up port
-        # pdb.set_trace()
         [c.stop() for c in docker_client.containers.list()]
         quit()
     # connect to psql
-    psql.exec_run('psql -U postgres')
-    psql.exec_run('CREATE DATABASE postgres;')
-    test_db = db.db('test.db')
-    return test_db
+    # pdb.set_trace()
+    # psql.exec_run('psql -U postgres')
+    # psql.exec_run('CREATE DATABASE postgres;')
+    # psql.exec_run('quit;')
+
+def return_test_db():
+    docker_client = docker.from_env()
+    docker_host = docker_client.containers.list()[0].name
+    return db.db(docker_host)
 
 # spins down docker container
-@pytest.fixture(scope="session", autouse=True)
 def postgres_teardown():
     print('tearing down docker')
     docker_client = docker.from_env()
-    docker_client.containers.list()[0].stop()
-
-# fixture for tearing down test database completely
-@pytest.fixture
-def db_after():
-    yield db_after
-    test_db.drop_table_users(test_db.connection)
+    [c.stop() for c in docker_client.containers.list()]
 
 # fixture for cleaning out test users from database (but leaving table present)
 # TODO: make this run after failed tests
 @pytest.fixture
 def scrub_test_users():
+    test_db = return_test_db()
     yield scrub_test_users
     test_db.connection.execute(
     '''
@@ -61,6 +64,7 @@ def scrub_test_users():
 # set up fixture to populate test db with a range of scorers
 @pytest.fixture
 def populate_db():
+    test_db = return_test_db()
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
     test_score = 101
     # ensure that we have a varied list of scorers
@@ -90,7 +94,7 @@ def populate_db_all_scores_zero():
         test_db.add_user_to_db(test_db.connection, user)
 
 def test_add_user_to_db():
-    test_db = postgres_setup
+    test_db = return_test_db()
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')
@@ -225,3 +229,5 @@ def test_wipe_scores(populate_db, db_after):
     test_scores = [x[2] for x in test_scores]
     # this works because every score should be 0
     assert not any(test_scores)
+
+register(postgres_teardown)

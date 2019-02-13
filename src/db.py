@@ -1,7 +1,6 @@
 import psycopg2
 import pdb
 from os import path, environ
-from time import sleep
 
 '''
 Class for database setup/functions
@@ -18,23 +17,20 @@ DATABASE_URL = environ['DATABASE_URL']
 
 class db(object):
 
-    def __init__(self, db_file):
-        self.filename = db_file
+    def __init__(self, db_host):
         self.filepath = None
-        # fallback to local dir so we don't break db tests
-        try:
-            self.filepath = path.join(environ['BACKUP_PATH'], db_file)
-        except KeyError:
-            self.filepath = path.join('../database_files', db_file)
-        self.connection = self.create_connection(self.filepath)
+        self.db_host = db_host
+        self.connection = self.create_connection(self.db_host)
         self.create_table_users(self.connection)
         self.connection.commit()
 
-    def create_connection(self, db_file):
-        #pdb.set_trace()
-        # return psycopg2.connect(DATABASE_URL, sslmode='require')
-        sleep(15)
-        return psycopg2.connect("dbname='postgres' user='postgres' host='localhost'")
+    def create_connection(self, db_host):
+        return psycopg2.connect(
+            dbname='postgres',
+            user='postgres',
+            host=db_host,
+            connect_timeout=20
+        )
 
     '''
     :param connection: connection to the sql database

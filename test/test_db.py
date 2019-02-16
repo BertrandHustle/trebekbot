@@ -74,7 +74,7 @@ def populate_db_all_scores_zero():
     for user in test_users:
         test_db.add_user_to_db(test_db.connection, user)
 
-# {'database': 'test', 'host': '127.0.0.1', 'port': 55116, 'user': 'postgres'}
+# set up test db
 test_pg = testing.postgresql.Postgresql()
 test_db = psycopg2.connect(**test_pg.dsn())
 test_db_split = test_db.dsn.split(' ')
@@ -96,13 +96,13 @@ def test_add_user_to_db():
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')
-    test_query = test_db.connection.execute(
+    test_cursor = test_db.connection.cursor()
+    test_query = test_cursor.execute(
     '''
-    SELECT * FROM USERS WHERE NAME = ?
-    ''',
-    ('Bob',)
+    SELECT * FROM USERS WHERE NAME = 'Bob'
+    '''
     )
-    query_results = test_query.fetchall()
+    query_results = test_cursor.fetchall()
     check_results = findall(r'Bob', str(query_results))
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1

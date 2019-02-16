@@ -9,45 +9,27 @@ from atexit import register
 
 import pytest
 import src.db as db
-import docker
+import testing.postgresql
 import pdb
 
 #testing
 import psycopg2
 
-# starts postgres instance in docker container
+'''
+# starts postgres instance
 @pytest.fixture(scope="session", autouse=True)
-def postgres_setup(request):
-    print('setting up docker')
-    docker_client = docker.from_env()
-    docker_ports = {'5432/tcp':'5432'}
-    psql = None
-    try:
-        psql = docker_client.containers.run(
-            "postgres",
-            detach=True,
-            ports=docker_ports
-        )
-    except:
-        # kill all running containers to free up port
-        [c.stop() for c in docker_client.containers.list()]
-        quit()
-    # connect to psql
-    # pdb.set_trace()
-    # psql.exec_run('psql -U postgres')
-    # psql.exec_run('CREATE DATABASE postgres;')
-    # psql.exec_run('quit;')
+def postgres_setup():
+    test_pg = testing.postgresql.Postgresql()
+    # engine = create_engine(test_pg.url())
+    test_db = db.db(**test_pg.dsn())
+    return test_db
+'''
 
-def return_test_db():
-    docker_client = docker.from_env()
-    docker_host = docker_client.containers.list()[0].name
-    return db.db(docker_host)
-
-# spins down docker container
+# spins down postgres db
 def postgres_teardown():
-    print('tearing down docker')
-    docker_client = docker.from_env()
-    [c.stop() for c in docker_client.containers.list()]
+    test_pg.stop()
+
+register(postgres_teardown)
 
 # fixture for cleaning out test users from database (but leaving table present)
 # TODO: make this run after failed tests
@@ -64,7 +46,6 @@ def scrub_test_users():
 # set up fixture to populate test db with a range of scorers
 @pytest.fixture
 def populate_db():
-    test_db = return_test_db()
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
     test_score = 101
     # ensure that we have a varied list of scorers
@@ -93,8 +74,25 @@ def populate_db_all_scores_zero():
     for user in test_users:
         test_db.add_user_to_db(test_db.connection, user)
 
+# {'database': 'test', 'host': '127.0.0.1', 'port': 55116, 'user': 'postgres'}
+test_pg = testing.postgresql.Postgresql()
+test_db = psycopg2.connect(**test_pg.dsn())
+test_db_split = test_db.dsn.split(' ')
+# dictionary used to construct postgres connection
+psql_conn_dict = {}
+for s in test_db_split:
+    equal_split = s.split('=')
+    key = equal_split[0]
+    value = equal_split[1]
+    psql_conn_dict[key] = value
+test_db = db.db(
+    psql_conn_dict['dbname'],
+    psql_conn_dict['host'],
+    psql_conn_dict['port'],
+    psql_conn_dict['user']
+)
+
 def test_add_user_to_db():
-    test_db = return_test_db()
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')
@@ -229,5 +227,3 @@ def test_wipe_scores(populate_db, db_after):
     test_scores = [x[2] for x in test_scores]
     # this works because every score should be 0
     assert not any(test_scores)
-
-register(postgres_teardown)

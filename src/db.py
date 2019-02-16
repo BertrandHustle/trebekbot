@@ -16,20 +16,26 @@ DATABASE_URL = environ['DATABASE_URL']
 '''
 
 class db(object):
-
-    def __init__(self, db_host):
-        self.filepath = None
-        self.db_host = db_host
-        self.connection = self.create_connection(self.db_host)
+    def __init__(self, db_name, host, port, user):
+        self.db_name = db_name
+        self.host = host
+        self.port = port
+        self.user = user
+        self.connection = self.create_connection(
+            self.db_name,
+            self.host,
+            self.port,
+            self.user
+        )
         self.create_table_users(self.connection)
         self.connection.commit()
 
-    def create_connection(self, db_host):
+    def create_connection(self, db_name, host, port, user):
         return psycopg2.connect(
-            dbname='postgres',
-            user='postgres',
-            host=db_host,
-            connect_timeout=20
+            database=db_name,
+            host=host,
+            port=port,
+            user=user
         )
 
     '''

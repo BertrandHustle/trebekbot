@@ -112,11 +112,8 @@ def test_add_user_to_db():
  ('LaVar', '-200', -200),
  ('LaVar', '-200', -400),
  ('LaVar', '500', 100),
- ('Stemp', 'Invalid Value', 0),
  ('boop', '-9000', -9000),
- ('boop', '-500', -9500),
- # this makes sense, if we get a non-int it should do nothing
- ('LaVar', 'ants', 100)
+ ('boop', '-500', -9500)
 ])
 def test_update_score(user, value_change, expected_result):
     test_db.add_user_to_db(test_db.connection, user)

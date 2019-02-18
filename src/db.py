@@ -91,19 +91,16 @@ class db(object):
     # tells us what the given user's score is
     def get_score(self, connection, user):
         cursor = connection.cursor()
-        select_score_results = cursor.execute(
+        select_score = cursor.execute(
         '''
-        SELECT SCORE FROM USERS WHERE NAME = ?
+        SELECT SCORE FROM USERS WHERE NAME = %s
         ''',
         (user,)
-        ).fetchall()
-        '''
-        fetchall results look like this: [(0,)],
-        so we need to drill into this data structure
-        '''
+        )
+        results = cursor.fetchall()
         # TODO: make this more elegant
-        if select_score_results:
-            return select_score_results[0][0]
+        if results:
+            return results[0][0]
 
     # gets top ten scorers from database
     def return_top_ten(self, connection):
@@ -180,10 +177,10 @@ class db(object):
         '''
         UPDATE USERS
         SET SCORE = CASE
-        WHEN (SCORE + ?) <= -10000 THEN (SCORE = -10000)
-        ELSE SCORE + ?
+            WHEN (SCORE + %s) <= -10000 THEN -10000
+            ELSE SCORE + %s
         END
-        WHERE NAME = ?
+        WHERE NAME = %s
         ''', (score_change, score_change, user)
         )
         self.connection.commit()

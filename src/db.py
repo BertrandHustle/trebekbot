@@ -109,7 +109,8 @@ class db(object):
         '''
         SELECT * FROM USERS ORDER BY SCORE DESC LIMIT 10
         ''',
-        ).fetchall()
+        )
+        top_ten = cursor.fetchall()
         return top_ten
 
     # gets user with most wins
@@ -192,7 +193,7 @@ class db(object):
         '''
         UPDATE USERS
         SET WINS = WINS + 1
-        WHERE NAME = ?
+        WHERE NAME = %s
         ''', (user,)
         )
         self.connection.commit()

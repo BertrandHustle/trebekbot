@@ -1,78 +1,16 @@
 import os
+import pytest
+import testing.postgresql
+import pdb
+import psycopg2
 from sys import path as syspath
 syspath.append(
 os.path.abspath(
 os.path.join(
 os.path.dirname(__file__), os.path.pardir)))
+import src.db as db
 from re import findall
 from atexit import register
-
-import pytest
-import src.db as db
-import testing.postgresql
-import pdb
-
-#testing
-import psycopg2
-
-'''
-# starts postgres instance
-@pytest.fixture(scope="session", autouse=True)
-def postgres_setup():
-    test_pg = testing.postgresql.Postgresql()
-    # engine = create_engine(test_pg.url())
-    test_db = db.db(**test_pg.dsn())
-    return test_db
-'''
-
-# spins down postgres db
-def postgres_teardown():
-    test_pg.stop()
-
-register(postgres_teardown)
-
-# fixture for cleaning out test users from database (but leaving table present)
-# TODO: make this run after failed tests
-@pytest.fixture
-def scrub_test_users():
-    test_db = return_test_db()
-    yield scrub_test_users
-    test_db.connection.execute(
-    '''
-    DELETE FROM USERS
-    '''
-    )
-
-# set up fixture to populate test db with a range of scorers
-@pytest.fixture
-def populate_db():
-    test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
-    test_score = 101
-    # ensure that we have a varied list of scorers
-    for user in test_users:
-        test_db.add_user_to_db(test_db.connection, user)
-        test_db.update_score(test_db.connection, user, test_score)
-        test_score += 100
-    # check to make sure negative numbers work too
-    test_db.connection.execute(
-    '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
-    ''',
-    (-156, 'Eve')
-    )
-    test_db.connection.execute(
-    '''
-    UPDATE USERS SET CHAMPION_SCORE = ? WHERE NAME = ?
-    ''',
-    (5000, 'Morp')
-    )
-
-# same as above, but all scores are zero
-@pytest.fixture
-def populate_db_all_scores_zero():
-    test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
-    for user in test_users:
-        test_db.add_user_to_db(test_db.connection, user)
 
 # set up test db
 test_pg = testing.postgresql.Postgresql()
@@ -91,6 +29,55 @@ test_db = db.db(
     psql_conn_dict['port'],
     psql_conn_dict['user']
 )
+
+# spins down postgres db
+def postgres_teardown():
+    test_pg.stop()
+
+register(postgres_teardown)
+
+# fixture for cleaning out test users from database (but leaving table present)
+# TODO: make this run after failed tests
+@pytest.fixture
+def scrub_test_users():
+    yield scrub_test_users
+    test_db.connection.cursor().execute(
+    '''
+    DELETE FROM USERS
+    '''
+    )
+
+# set up fixture to populate test db with a range of scorers
+@pytest.fixture
+def populate_db():
+    test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
+    test_score = 101
+    # ensure that we have a varied list of scorers
+    for user in test_users:
+        test_db.add_user_to_db(test_db.connection, user)
+        test_db.update_score(test_db.connection, user, test_score)
+        test_score += 100
+    test_cursor = test_db.connection.cursor()
+    # check to make sure negative numbers work too
+    test_cursor.execute(
+    '''
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
+    ''',
+    (-156, 'Eve')
+    )
+    test_cursor.execute(
+    '''
+    UPDATE USERS SET CHAMPION_SCORE = %s WHERE NAME = %s
+    ''',
+    (5000, 'Morp')
+    )
+
+# same as above, but all scores are zero
+@pytest.fixture
+def populate_db_all_scores_zero():
+    test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
+    for user in test_users:
+        test_db.add_user_to_db(test_db.connection, user)
 
 def test_add_user_to_db():
     # do this twice to ensure that we're adhering to the UNIQUE constraint
@@ -123,29 +110,30 @@ def test_update_score(user, value_change, expected_result):
 # we can't do this above because it scrubs the db after EVERY parametrized test
 scrub_test_users()
 
-# TODO: test force flag
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
-    (8, 'Morp', 501, 5000, 0, 0),
-    (6, 'Carol', 301, 0, 0, 0),
-    (5, 'Jim', 201, 0, 0, 0),
+    (5, 'Morp', 501, 5000, 0, 0),
+    (3, 'Carol', 301, 0, 0, 0),
+    (2, 'Jim', 201, 0, 0, 0),
     (1, 'Bob', 101, 0, 0, 0),
-    (2, 'LaVar', 100, 0, 0, 0),
-    (3, 'Stemp', 0, 0, 0, 0),
-    (7, 'Eve', -156, 0, 0, 0),
-    (4, 'boop', -9500, 0, 0, 0)
+    # (2, 'LaVar', 100, 0, 0, 0),
+    # (3, 'Stemp', 0, 0, 0, 0),
+    (4, 'Eve', -156, 0, 0, 0),
+    # (4, 'boop', -9500, 0, 0, 0)
     ]
     assert test_db.return_top_ten(test_db.connection) == expected_list
 
 def test_increment_win(populate_db, scrub_test_users):
     test_connection = test_db.connection
+    test_cursor = test_db.connection.cursor()
     test_db.increment_win(test_connection, 'Carol')
-    test_query = test_connection.cursor().execute(
+    test_query = test_cursor.execute(
     '''
-    SELECT WINS FROM USERS WHERE NAME = ?
-    ''', ('Carol',)
+    SELECT WINS FROM USERS WHERE NAME = %s
+    ''',
+    ('Carol',)
     )
-    assert test_query.fetchall()[0][0] == 1
+    assert test_cursor.fetchall()[0][0] == 1
 
 def test_get_user_wins(populate_db, scrub_test_users):
     test_connection = test_db.connection

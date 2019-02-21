@@ -148,16 +148,17 @@ def test_get_champion(populate_db, scrub_test_users):
     expected_champion_score = 501
     assert test_db.get_champion(test_db.connection) == \
     (expected_champion_name, expected_champion_score)
+    test_cursor = test_db.connection.cursor()
     # create a tie
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (10000, 'Bob')
     )
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (10000, 'Jim')
     )
@@ -195,7 +196,7 @@ def test_get_score(scrub_test_users):
     assert test_db.get_score(test_db.connection, 'Lucy') == 0
     test_db.connection.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (100, 'Lucy')
     )

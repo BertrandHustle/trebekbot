@@ -128,9 +128,11 @@ class db(object):
         cursor = connection.cursor()
         champion_search = cursor.execute(
         '''
-        SELECT NAME, MAX(SCORE) FROM USERS
+        SELECT NAME, SCORE FROM USERS WHERE
+        SCORE = (SELECT MAX(SCORE) FROM USERS)
         '''
-        ).fetchall()
+        )
+        champion_search = cursor.fetchall()
         champion_name = champion_search[0][0]
         champion_score = champion_search[0][1]
         if champion_score > 0:
@@ -145,9 +147,12 @@ class db(object):
         cursor = connection.cursor()
         champion_search = cursor.execute(
         '''
-        SELECT NAME, MAX(CHAMPION_SCORE) FROM USERS GROUP BY NAME
+        SELECT NAME, CHAMPION_SCORE FROM USERS WHERE
+        CHAMPION_SCORE = (SELECT MAX(CHAMPION_SCORE) FROM USERS)
         '''
-        ).fetchall()
+        )
+        champion_search = cursor.fetchall()
+        pdb.set_trace()
         return champion_search[0][0], champion_search[0][1]
 
     # sets champion before nightly reset
@@ -162,7 +167,7 @@ class db(object):
         )
         cursor.execute(
         '''
-        UPDATE USERS SET CHAMPION = 1, CHAMPION_SCORE = ? WHERE NAME = ?
+        UPDATE USERS SET CHAMPION = 1, CHAMPION_SCORE = %s WHERE NAME = %s
         ''',
         (score, user)
         )
@@ -203,14 +208,11 @@ class db(object):
         cursor = connection.cursor()
         wins = cursor.execute(
         '''
-        SELECT WINS FROM USERS WHERE NAME = ?
+        SELECT WINS FROM USERS WHERE NAME = %s
         ''',
         (user,)
-        ).fetchall()
-        '''
-        fetchall results look like this: [(0,)],
-        so we need to drill into this data structure
-        '''
+        )
+        wins = cursor.fetchall()
         if wins:
             return wins[0][0]
 

@@ -112,14 +112,13 @@ scrub_test_users()
 
 def test_return_top_ten(populate_db, scrub_test_users):
     expected_list = [
-    (5, 'Morp', 501, 5000, 0, 0),
-    (3, 'Carol', 301, 0, 0, 0),
-    (2, 'Jim', 201, 0, 0, 0),
+    (13, 'Morp', 501, 5000, 0, 0),
+    (11, 'Carol', 301, 0, 0, 0),
+    (10, 'Jim', 201, 0, 0, 0),
     (1, 'Bob', 101, 0, 0, 0),
-    # (2, 'LaVar', 100, 0, 0, 0),
-    # (3, 'Stemp', 0, 0, 0, 0),
-    (4, 'Eve', -156, 0, 0, 0),
-    # (4, 'boop', -9500, 0, 0, 0)
+    (3, 'LaVar', 100, 0, 0, 0),
+    (12, 'Eve', -156, 0, 0, 0),
+    (7, 'boop', -9500, 0, 0, 0)
     ]
     assert test_db.return_top_ten(test_db.connection) == expected_list
 
@@ -183,18 +182,21 @@ def test_get_last_nights_champion(populate_db, scrub_test_users):
 
 def test_set_champion(populate_db, scrub_test_users):
     test_db.set_champion(test_db.connection, 'Morp', 501)
-    test_result = test_db.connection.execute(
+    test_cursor = test_db.connection.cursor()
+    test_cursor.execute(
     '''
     SELECT * FROM USERS WHERE CHAMPION = 1 AND CHAMPION_SCORE = 501
     '''
-    ).fetchone()
+    )
+    test_result = test_cursor.fetchone()
     assert (test_result[1], test_result[3]) == ('Morp', 501)
 
 # TODO: test if user doesn't exist
 def test_get_score(scrub_test_users):
     test_db.add_user_to_db(test_db.connection, 'Lucy')
     assert test_db.get_score(test_db.connection, 'Lucy') == 0
-    test_db.connection.execute(
+    test_cursor = test_db.connection.cursor()
+    test_cursor.execute(
     '''
     UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
@@ -202,14 +204,16 @@ def test_get_score(scrub_test_users):
     )
     assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
-def test_wipe_scores(populate_db, db_after):
+def test_wipe_scores(populate_db):
     test_db.wipe_scores(test_db.connection)
+    test_cursor = test_db.connection.cursor()
     # get scores
-    test_scores = test_db.connection.execute(
+    test_cursor.execute(
     '''
     SELECT * FROM USERS ORDER BY SCORE DESC
     ''',
-    ).fetchall()
+    )
+    test_scores = test_cursor.fetchall()
     test_scores = [x[2] for x in test_scores]
     # this works because every score should be 0
     assert not any(test_scores)

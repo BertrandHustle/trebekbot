@@ -152,7 +152,7 @@ class db(object):
         '''
         )
         champion_search = cursor.fetchall()
-        pdb.set_trace()
+        # pdb.set_trace()
         return champion_search[0][0], champion_search[0][1]
 
     # sets champion before nightly reset

@@ -18,8 +18,8 @@ bot_name = 'trebekbot'
 # set to 1 for debug mode
 debug = 0
 # setup database (or connect to existing one)
-db_url = urlparse.urlparse(os.environ['DATABASE_URL']).path[1:]
-user_db = db.db('dbname=db_url sslmode=require')
+# db_url = urlparse.urlparse(os.environ['DATABASE_URL']).path[1:]
+user_db = db.db(os.environ['DATABASE_URL'], sslmode=require)
 # create host object
 host = host.Host(slack_client, user_db)
 # retrieve id/token/etc. from env variables

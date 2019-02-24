@@ -1,17 +1,19 @@
-# import pdb
-import question
-import db
+from os import path, environ
+from sys import path as syspath
+syspath.append(
+path.abspath(
+path.join(
+path.dirname(__file__), path.pardir)))
+import src.question as question
+import src.db as db
 from time import time, ctime
 from re import sub, findall, match, IGNORECASE
-from os import path, environ
 from contextlib import suppress
 from unidecode import unidecode
 from json import decoder
 import difflib
 import editdistance
 
-# initialize user database
-user_db = db.db('users.db')
 # initialize dictionary
 eng_dict = ''
 if path.isfile('/usr/share/dict/words'):
@@ -19,15 +21,15 @@ if path.isfile('/usr/share/dict/words'):
     eng_dict = words_file.readlines()
 else:
     eng_dict = open('./support_files/words.txt').read().splitlines()
-current_champion_name, current_champion_score = user_db.get_last_nights_champion(user_db.connection)
-
-'''
- Class that acts as the "host" of Jeopardy
- e.g. asks clues, gets point values, etc.
- think of this as the class that handles listening and talking to slack
-'''
 
 class Host:
+    '''
+     Class that acts as the "host" of Jeopardy
+     e.g. asks clues, gets point values, etc.
+     think of this as the class that handles listening and talking to slack
+     :param slack_client: slackclient object
+     :param user_db: db object containing connection to user db
+    '''
 
     # what to type before we give trebekbot a command
     command_prefix = '..'
@@ -47,13 +49,18 @@ class Host:
     '''+command_prefix+'''uptime: show start time of this trebekbot
     '''
 
-    def __init__(self, slack_client):
+    def __init__(self, slack_client, user_db):
         self.uptime = ctime(time())
         self.slack_client = slack_client
         # connect to slack upon init
         slack_client.rtm_connect(auto_reconnect=True)
         # channel id of channel where host currently is
         self.channel_id = self.get_channel_id(environ.get('SLACK_CHANNEL'))
+        # connect to user database
+        self.user_db = user_db
+        # get current champion info
+        self.current_champion_name, self.current_champion_score = \
+        self.user_db.get_last_nights_champion(self.user_db.connection)
 
     # listens for output in slack channel
     '''
@@ -83,7 +90,7 @@ class Host:
             and text_minus_prefix == listen_for:
                 answer = text.split(text_minus_prefix)[1]
                 # add user to db if theyre not in there already
-                user_db.add_user_to_db(user_db.connection, user)
+                self.user_db.add_user_to_db(self.user_db.connection, user)
                 if answer:
                     # return the answer without the prefix if we 'hear' the command prefix
                     return answer
@@ -237,7 +244,7 @@ class Host:
         if self.hear(slack_output, 'hello'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            if current_champion_name and user == current_champion_name:
+            if self.current_champion_name and user == self.current_champion_name:
                 user = ':crown:' + user
             self.say(self.channel_id, 'Hello ' + user)
 
@@ -248,7 +255,7 @@ class Host:
             user = self.get_user(slack_output)
             # needed to avoid querying db for name with crown in it
             user_address = user
-            if current_champion_name and user == current_champion_name:
+            if self.current_champion_name and user == self.current_champion_name:
                 user_address = ':crown: ' + user
             self.say(self.channel_id, user_address + ', your score is: '+ ' $' + \
             str(db.get_score(db.connection, user)))
@@ -257,13 +264,13 @@ class Host:
     # if force flag is active, ignore slack and say the top ten regardless (for testing)
     def top_ten(self, slack_output, force=None):
         if self.hear(slack_output, 'topten') or force:
-            top_ten_list = user_db.return_top_ten(user_db.connection)
+            top_ten_list = self.user_db.return_top_ten(self.user_db.connection)
             slack_list = 'Here\'s our top scorers: \n'
             count = 1
             # TODO: improve/refactor this
             for champ,name,score,champ_score,id, wins in top_ten_list:
                 # give crown for being champ
-                if current_champion_name and name == current_champion_name:
+                if self.current_champion_name and name == self.current_champion_name:
                     name = ':crown: ' + name
                 # format: 1. Morp - $501
                 slack_list += str(count) + '. ' + name + ' - ' + '$' \
@@ -277,9 +284,9 @@ class Host:
         if self.hear(slack_output, 'mywins'):
             slack_output = slack_output[0]
             user = self.get_user(slack_output)
-            if current_champion_name and user == current_champion_name:
+            if self.current_champion_name and user == self.current_champion_name:
                 user = ':crown: ' + user
-            wins = str(user_db.get_user_wins(user_db.connection, user))
+            wins = str(self.user_db.get_user_wins(self.user_db.connection, user))
             self.say(self.channel_id, user + ' wins: ' + wins)
 
 
@@ -349,7 +356,7 @@ class Host:
             # what we use to address the user when they answer
             user_address = '<@'+user_id+'|'+user+'>'
             # if the user is the champ, give them a crown!
-            if current_champion_name and user == current_champion_name:
+            if self.current_champion_name and user == self.current_champion_name:
                 user_address = ':crown: <@'+user_id+'|'+user+'>'
             correct_answer = question.answer
             # TODO: refactor this so it can be unit tested
@@ -368,18 +375,18 @@ class Host:
                 self.say(self.channel_id, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
                 # award points to user
                 if question.daily_double:
-                    user_db.update_score(user_db.connection, user, wager)
+                    self.user_db.update_score(self.user_db.connection, user, wager)
                 else:
-                    user_db.update_score(user_db.connection, user, question.value)
+                    self.user_db.update_score(self.user_db.connection, user, question.value)
                 return 'right'
             # wrong answer
             else:
                 self.say(self.channel_id, user_address+ ' :x: Sorry, that is incorrect.')
                 # take away points from user
                 if question.daily_double and wager:
-                    user_db.update_score(user_db.connection, user, -wager)
+                    self.user_db.update_score(self.user_db.connection, user, -wager)
                 else:
-                    user_db.update_score(user_db.connection, user, -question.value)
+                    self.user_db.update_score(self.user_db.connection, user, -question.value)
 
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod

@@ -1,10 +1,14 @@
 # Main file for trebekbot
-# used this to start: https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
-import os
 import sys
+import os
+sys.path.append(
+os.path.abspath(
+os.path.join(
+os.path.dirname(__file__), os.path.pardir)))
+import src.question as question
+import src.db as db
+import src.host as host
 import time
-import host
-import db
 import pdb
 from datetime import datetime
 from slackclient import SlackClient
@@ -39,12 +43,12 @@ daily_double_answerer = None
 # tracking last night's champion
 current_champion_name = None
 current_champion_score = None
+# setup database (or connect to existing one)
+user_db = db.db(environ['DATABASE_URL'] + ' ' + 'sslmode=require')
 
 if __name__=='__main__':
     # create host object
-    host = host.Host(slack_client)
-    # setup database (or connect to existing one)
-    user_db = db.db('users.db')
+    host = host.Host(slack_client, user_db)
     # host introduces itself to channel
     host.say(channel, host.intro_text)
     host.say(channel, host.help_text)

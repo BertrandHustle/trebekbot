@@ -10,46 +10,27 @@ This will primarily serve to store users and track their scores/money totals
 :param connection: connection object to database
 '''
 
-'''
-# heroku postgres database url
-DATABASE_URL = environ['DATABASE_URL']
-'''
-
 class db(object):
-    def __init__(self, db_name, host, port, user):
-        self.db_name = db_name
-        self.host = host
-        self.port = port
-        self.user = user
-        self.connection = self.create_connection(
-            self.db_name,
-            self.host,
-            self.port,
-            self.user
-        )
+    def __init__(self, conn_string):
+        '''
+        db object for interacing with psql database
+        :param conn_string: psql connection string of comma-separated options
+        '''
+        self.conn_string = conn_string
+        self.connection = psycopg2.connect(self.conn_string)
         self.create_table_users(self.connection)
         self.connection.commit()
 
-    def create_connection(self, db_name, host, port, user):
-        return psycopg2.connect(
-            database=db_name,
-            host=host,
-            port=port,
-            user=user
-        )
-
-    '''
-    :param connection: connection to the sql database
-    :sql_param name: name of user
-    :sql_param score: current money value of user
-    :sql_param champion_score: leader's score (for persistence between resets)
-    :sql_param champion: flag if user was the champion before reboot
-    :sql_param wins: total all-time wins
-    '''
-
     def create_table_users(self, connection):
+        '''
+        :param connection: connection to the sql database
+        :sql_param name: name of user
+        :sql_param score: current money value of user
+        :sql_param champion_score: leader's score (for persistence between resets)
+        :sql_param champion: flag if user was the champion before reboot
+        :sql_param wins: total all-time wins
+        '''
         cursor = connection.cursor()
-        # TODO: Fix this to avoid injection attacks
         cursor.execute(
         '''
         CREATE TABLE IF NOT EXISTS users (

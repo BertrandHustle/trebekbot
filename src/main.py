@@ -1,13 +1,9 @@
 # Main file for trebekbot
 import sys
 import os
-sys.path.append(
-os.path.abspath(
-os.path.join(
-os.path.dirname(__file__), os.path.pardir)))
-import src.question as question
-import src.db as db
-import src.host as host
+import question
+import db
+import host
 import time
 import pdb
 from datetime import datetime

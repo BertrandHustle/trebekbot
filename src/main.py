@@ -16,6 +16,10 @@ bot_name = 'trebekbot'
 
 # set to 1 for debug mode
 debug = 0
+# setup database (or connect to existing one)
+user_db = db.db(environ['DATABASE_URL'] + ' ' + 'sslmode=require')
+# create host object
+host = host.Host(slack_client, user_db)
 # retrieve id/token/etc. from env variables
 # bot_id = os.environ.get('TREBEKBOT_ID')
 bot_id = host.get_bot_id('trebekbot')
@@ -39,12 +43,8 @@ daily_double_answerer = None
 # tracking last night's champion
 current_champion_name = None
 current_champion_score = None
-# setup database (or connect to existing one)
-user_db = db.db(environ['DATABASE_URL'] + ' ' + 'sslmode=require')
 
 if __name__=='__main__':
-    # create host object
-    host = host.Host(slack_client, user_db)
     # host introduces itself to channel
     host.say(channel, host.intro_text)
     host.say(channel, host.help_text)

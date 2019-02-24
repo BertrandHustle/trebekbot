@@ -6,6 +6,7 @@ import db
 import host
 import time
 import pdb
+import urllib.parse as urlparse
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -17,7 +18,8 @@ bot_name = 'trebekbot'
 # set to 1 for debug mode
 debug = 0
 # setup database (or connect to existing one)
-user_db = db.db('dbname=' + os.environ['DATABASE_URL'] + ' ' + 'sslmode=require')
+db_url = urlparse.urlparse(os.environ['DATABASE_URL']).path[1:]
+user_db = db.db('dbname=db_url sslmode=require')
 # create host object
 host = host.Host(slack_client, user_db)
 # retrieve id/token/etc. from env variables

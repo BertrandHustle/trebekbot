@@ -20,15 +20,15 @@ debug = 0
 # setup database (or connect to existing one)
 # thanks to joamag on stackoverflow
 result = urlparse.urlparse(os.environ['DATABASE_URL'])
-user = result.username
+dbuser = result.username
 password = result.password
 dbname = result.path[1:]
-host = result.hostname
+dbhost = result.hostname
 user_db = db.db(
     'dbname=' + dbname + ' ' +
-    'user=' + user + ' ' +
+    'user=' + dbuser + ' ' +
     'password=' + password + ' ' +
-    'host=' + host + ' ' +
+    'host=' + dbhost + ' ' +
     'sslmode=require'
 )
 # create host object

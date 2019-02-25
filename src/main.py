@@ -32,12 +32,12 @@ user_db = db.db(
     'sslmode=require'
 )
 # retrieve id/token/etc. from env variables
-# bot_id = os.environ.get('TREBEKBOT_ID')
-bot_id = host.get_bot_id('trebekbot')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 # create host object
 host = host.Host(slack_client, user_db)
+# bot_id = os.environ.get('TREBEKBOT_ID')
+bot_id = host.get_bot_id('trebekbot')
 # NOTE: do not use # in the name, slack's api returns the channel name only
 channel = 'trivia'
 # export channel to env so host can grab it

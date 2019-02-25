@@ -133,8 +133,10 @@ class db(object):
         '''
         )
         champion_search = cursor.fetchall()
-        # pdb.set_trace()
-        return champion_search[0][0], champion_search[0][1]
+        try:
+            return champion_search[0][0], champion_search[0][1]
+        except IndexError:
+            return None, None
 
     # sets champion before nightly reset
     # TODO: this needs to store score as well as username

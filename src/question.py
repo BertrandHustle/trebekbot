@@ -7,8 +7,6 @@ from random import randint
 from requests import get as get_http_code
 from requests.exceptions import RequestException
 
-# C:\Users\Hooks\Documents\Programming\Projects\Trebekbot\support_files\JEOPARDY_QUESTIONS1.json
-
 project_root = path.join(path.dirname(path.abspath(__file__)), pardir)
 
 '''
@@ -41,16 +39,7 @@ class Question:
     question_list = json.loads(jeopardy_json_file)
 
     def __init__(self, daily_double=None):
-        question_list = self.question_list
-        question_list = self.filter_questions(
-        question_list,
-        banned_categories = 'missing this category',
-        banned_phrases = ['seen here', 'heard here', 'audio clue']
-        )
-        # used to test daily doubles
-        if daily_double:
-            question_list = self.filter_questions(question_list, daily_double=1)
-        question = question_list[randint(0, len(question_list))]
+        question = get_random_question(daily_double)
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])
         self.text = ''
@@ -67,6 +56,22 @@ class Question:
         self.answer = question['answer']
         self.date = question['air_date']
         self.slack_text = Question.format_slack_text(self)
+
+    # gets random question from given json file
+    @staticmethod
+    def get_random_question(json_file, daily_double=None):
+        jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
+        question_list = json.loads(jeopardy_json_file)
+        question_list = self.filter_questions(
+        question_list,
+        banned_categories = 'missing this category',
+        banned_phrases = ['seen here', 'heard here', 'audio clue']
+        )
+        # used to test daily doubles
+        if daily_double:
+            question_list = self.filter_questions(question_list, daily_double=1)
+        question = question_list[randint(0, len(question_list))]
+        return question
 
     # formats text to be pretty for slack
     @staticmethod

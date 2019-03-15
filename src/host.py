@@ -100,7 +100,7 @@ class Host:
             'chat.postMessage',
             channel=channel,
             text=message,
-            as_user=True
+            username='trebekbot'
         )
 
     '''

@@ -1,7 +1,6 @@
 from os import path
 from sys import path as syspath
 syspath.append('c:\\users\\hooks\\documents\\programming\\projects\\trebekbot\\src')
-print(syspath)
 import pytest
 import host
 import json

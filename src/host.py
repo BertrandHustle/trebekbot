@@ -345,7 +345,7 @@ class Host:
             # respond to user
             if answer_check is 'close':
                 self.say(
-                slack_channel,
+                self.channel_id,
                 user_address + \
                 self.check_closeness(user_answer, correct_answer)
                 )

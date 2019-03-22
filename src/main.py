@@ -6,6 +6,7 @@ import time
 import host
 import db
 import pdb
+from atexit import register
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -17,7 +18,7 @@ bot_name = 'trebekbot'
 # set to 1 for debug mode
 debug = 0
 # retrieve id/token/etc. from env variables
-bot_id = os.environ.get('TREBEKBOT_ID')
+# bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 # NOTE: do not use # in the name, slack's api returns the channel name only
@@ -195,7 +196,6 @@ if __name__=='__main__':
         # TODO: this shouldn't wipe the database, it should just set all
         # the scores to 0
         current_time = datetime.now().time()
-        # if current_time.hour == 23 and current_time.minute == 59 and current_time.second == 59:
         if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
             host.say(channel, 'Tonight\'s Top Scorers:')
             host.top_ten(slack_output, force=1)

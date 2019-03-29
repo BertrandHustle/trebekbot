@@ -1,5 +1,10 @@
 # trebekbot
 
+version 0.6.3 changelog (3-21-19):
+
+Bugs:
+  - fixed slack api token
+
 version 0.6.2 changelog (11-8-18):
 
 Bugs:

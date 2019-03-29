@@ -6,7 +6,7 @@ import time
 import host
 import db
 import pdb
-import signal
+from atexit import register
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -39,10 +39,10 @@ daily_double_answerer = None
 current_champion_name = None
 current_champion_score = None
 
-def restart_handler(signal, frame):
+def restart_handler():
     print('RESTARTING')
 
-signal.signal(signal.SIGTERM, restart_handler)
+register(restart_handler)
 
 if __name__=='__main__':
     # create host object

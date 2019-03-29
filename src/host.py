@@ -1,6 +1,6 @@
 # import pdb
-import question
-import db
+import src.question as question
+import src.db as db
 from time import time, ctime
 from re import sub, findall, match, IGNORECASE
 from os import path, environ
@@ -351,7 +351,7 @@ class Host:
                 )
                 return 'close'
             # right answer
-            elif answer_check:
+            elif answer_check is True:
                 self.say(self.channel_id, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
                 # award points to user
                 if question.daily_double:
@@ -360,7 +360,7 @@ class Host:
                     user_db.update_score(user_db.connection, user, question.value)
                 return 'right'
             # wrong answer
-            else:
+            elif answer_check is False:
                 self.say(self.channel_id, user_address+ ' :x: Sorry, that is incorrect.')
                 # take away points from user
                 if question.daily_double and wager:

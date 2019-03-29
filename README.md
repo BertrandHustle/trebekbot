@@ -4,6 +4,7 @@ version 0.6.4 changelog (3-28-19):
 
 Bugs:
   - filtering issue (maybe) fixed
+  - single letter issue (maybe) fixed
 
 version 0.6.3 changelog (3-21-19):
 

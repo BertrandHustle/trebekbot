@@ -6,6 +6,7 @@ import time
 import host
 import db
 import pdb
+import signal
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -37,6 +38,11 @@ daily_double_answerer = None
 # tracking last night's champion
 current_champion_name = None
 current_champion_score = None
+
+def restart_handler(signal, frame):
+    print('RESTARTING')
+
+signal.signal(signal.SIGTERM, restart_handler)
 
 if __name__=='__main__':
     # create host object
@@ -223,6 +229,3 @@ if __name__=='__main__':
             print(current_champion_name)
         # delay so trebekbot has time to think
         time.sleep(1)
-
-    host.top_ten(slack_output, force=1)
-    print('RESTARTING')

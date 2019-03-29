@@ -40,8 +40,8 @@ class Question:
     def __init__(self, daily_double=None):
         filtered_question_list = self.filter_questions(
         self.question_list,
-        banned_categories,
-        banned_phrases
+        self.banned_categories,
+        self.banned_phrases
         )
         # used to test daily doubles
         if daily_double:

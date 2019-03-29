@@ -6,11 +6,9 @@ import time
 import host
 import db
 import pdb
-from atexit import register
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
-from atexit import register
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
@@ -225,3 +223,5 @@ if __name__=='__main__':
             print(current_champion_name)
         # delay so trebekbot has time to think
         time.sleep(1)
+
+    host.top_ten(slack_output, force=1)

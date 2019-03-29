@@ -225,3 +225,4 @@ if __name__=='__main__':
         time.sleep(1)
 
     host.top_ten(slack_output, force=1)
+    print('RESTARTING')

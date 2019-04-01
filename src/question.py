@@ -46,7 +46,7 @@ class Question:
         # used to test daily doubles
         if daily_double:
             filtered_question_list = \
-            self.filter_questions(filtered_question_list, daily_double=0)
+            self.filter_questions(filtered_question_list)
         question = filtered_question_list[randint(0, len(filtered_question_list))]
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])

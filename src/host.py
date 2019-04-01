@@ -481,7 +481,6 @@ class Host:
 
     # checks if given answer is close enough to correct answer
     # TODO: rename this
-    # OPTIMIZE: parentheses control flow
     # TODO: make conjunctions/disjunctions behave as logical operators
 
     @staticmethod
@@ -496,6 +495,12 @@ class Host:
         # exception for single letter answers
         if len(given_answer) == 1 and len(correct_answer) == 1:
             return given_answer == correct_answer
+        # TODO: make this handle ampersands, etc.
+        # account for slashes
+        if '/' in correct_answer:
+            correct_answer = correct_answer.split('/')
+        correct_answer = list(correct_answer)
+        for answer in correct_answer:
         # we only want exact matches if the answer is a number
         try:
             # prevents cases like '0' or '00'

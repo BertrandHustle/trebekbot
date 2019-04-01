@@ -497,10 +497,12 @@ class Host:
             return given_answer == correct_answer
         # TODO: make this handle ampersands, etc.
         # account for slashes
+        '''
         if '/' in correct_answer:
             correct_answer = correct_answer.split('/')
         correct_answer = list(correct_answer)
         for answer in correct_answer:
+        '''
         # we only want exact matches if the answer is a number
         try:
             # prevents cases like '0' or '00'

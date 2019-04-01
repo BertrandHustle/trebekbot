@@ -37,7 +37,7 @@ class Question:
     banned_categories = 'missing this category',
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    def __init__(self, daily_double=None):
+    def __init__(self):
         filtered_question_list = self.filter_questions(
         self.question_list,
         self.banned_categories,
@@ -46,7 +46,7 @@ class Question:
         # used to test daily doubles
         if daily_double:
             filtered_question_list = \
-            self.filter_questions(filtered_question_list)
+            self.filter_questions(filtered_question_list, daily_double=1)
         question = filtered_question_list[randint(0, len(filtered_question_list))]
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])

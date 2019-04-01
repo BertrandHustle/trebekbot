@@ -37,14 +37,14 @@ class Question:
     banned_categories = 'missing this category',
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    def __init__(self):
+    def __init__(self, daily_double_debug=None):
         filtered_question_list = self.filter_questions(
         self.question_list,
         self.banned_categories,
         self.banned_phrases
         )
         # used to test daily doubles
-        if daily_double:
+        if daily_double_debug:
             filtered_question_list = \
             self.filter_questions(filtered_question_list, daily_double=1)
         question = filtered_question_list[randint(0, len(filtered_question_list))]

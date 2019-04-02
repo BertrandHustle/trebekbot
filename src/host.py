@@ -297,7 +297,7 @@ class Host:
             slack_output = slack_output[0]
             # this can't be an 'and' because we need valid slack output first
             if self.get_user(slack_output) == 'bertrand_hustle':
-                asked_question = question.Question(daily_double=True)
+                asked_question = question.Question(daily_double_debug=True)
                 self.say(self.channel_id, asked_question.slack_text)
                 return asked_question
 

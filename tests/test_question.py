@@ -91,21 +91,13 @@ def test_separate_html(test_text, expected_output):
 def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
 
-'''
-not a strict unit test, but used to test new daily_double param on Question
-this is used for the host.debug_daily_double method
-'''
-def test_get_daily_double():
-    test_question = question.Question(daily_double=True)
-    assert test_question.daily_double == True
-
 def test_filter_questions():
     # set up
     test_json = open('./tests/test_files/test_questions.json').read()
     test_question_list = json.loads(test_json)
 
     # act
-    dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
+    dd_filter = test_question.filter_questions(test_question_list, daily_double_debug=1)
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
     heard_seen_here_filter = test_question.filter_questions(

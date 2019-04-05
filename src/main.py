@@ -11,6 +11,7 @@ from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
 import urllib.parse as urlparse
+import psycopg2
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'

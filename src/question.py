@@ -37,9 +37,20 @@ class Question:
     # init
     jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
     question_list = json.loads(jeopardy_json_file)
+    banned_categories = 'missing this category',
+    banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    def __init__(self, daily_double=None):
-        question = get_random_question(daily_double)
+    def __init__(self, daily_double_debug=None):
+        filtered_question_list = self.filter_questions(
+        self.question_list,
+        banned_categories = self.banned_categories,
+        banned_phrases = self.banned_phrases
+        )
+        # used to test daily doubles
+        if daily_double_debug:
+            filtered_question_list = \
+            self.filter_questions(filtered_question_list, daily_double=1)
+        question = filtered_question_list[randint(0, len(filtered_question_list))]
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])
         self.text = ''
@@ -117,15 +128,18 @@ class Question:
         # if single phrase is passed in as a string
         elif banned_phrases and type(banned_phrases) is str:
             question_list = list(filter(lambda x: phrase.lower() not in \
-            x['question'].lower(), return_list))
+            x['question'].lower(), question_list))
         # if list of categories is passed in, these are in upper case in json
         if banned_categories and type(banned_categories) is list:
-            banned_categories = [c.upper() for c in banned_categories]
+            # 'missing this category' is the only non-capitalized category
+            banned_categories = [c.upper() for c in banned_categories \
+            if c != 'missing this category']
             question_list = list(filter(lambda x: x['category'] not in\
             banned_categories, question_list))
         # if single category is passed in as a string
         elif banned_categories and type(banned_categories) is str:
-            banned_categories = banned_categories.upper()
+            if banned_categories != 'missing this category':
+                banned_categories = banned_categories.upper()
             question_list = list(filter(lambda x: x['category'] !=\
             banned_categories, question_list))
         return question_list

@@ -10,7 +10,6 @@ import urllib.parse as urlparse
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
-from atexit import register
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
@@ -32,6 +31,7 @@ user_db = db.db(
     'sslmode=require'
 )
 # retrieve id/token/etc. from env variables
+# bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 # create host object
@@ -56,6 +56,7 @@ daily_double_answerer = None
 # tracking last night's champion
 current_champion_name = None
 current_champion_score = None
+
 
 if __name__=='__main__':
     # host introduces itself to channel
@@ -209,7 +210,6 @@ if __name__=='__main__':
         # TODO: this shouldn't wipe the database, it should just set all
         # the scores to 0
         current_time = datetime.now().time()
-        # if current_time.hour == 23 and current_time.minute == 59 and current_time.second == 59:
         if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
             host.say(channel, 'Tonight\'s Top Scorers:')
             host.top_ten(slack_output, force=1)

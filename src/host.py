@@ -1,9 +1,4 @@
-from os import path, environ
-from sys import path as syspath
-syspath.append(
-path.abspath(
-path.join(
-path.dirname(__file__), path.pardir)))
+# import pdb
 import src.question as question
 import src.db as db
 from time import time, ctime
@@ -321,7 +316,7 @@ class Host:
             slack_output = slack_output[0]
             # this can't be an 'and' because we need valid slack output first
             if self.get_user(slack_output) == 'bertrand_hustle':
-                asked_question = question.Question(daily_double=True)
+                asked_question = question.Question(daily_double_debug=True)
                 self.say(self.channel_id, asked_question.slack_text)
                 return asked_question
 
@@ -375,7 +370,7 @@ class Host:
                 )
                 return 'close'
             # right answer
-            elif answer_check:
+            elif answer_check is True:
                 self.say(self.channel_id, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
                 # award points to user
                 if question.daily_double:
@@ -384,7 +379,7 @@ class Host:
                     self.user_db.update_score(self.user_db.connection, user, question.value)
                 return 'right'
             # wrong answer
-            else:
+            elif answer_check is False:
                 self.say(self.channel_id, user_address+ ' :x: Sorry, that is incorrect.')
                 # take away points from user
                 if question.daily_double and wager:
@@ -505,7 +500,6 @@ class Host:
 
     # checks if given answer is close enough to correct answer
     # TODO: rename this
-    # OPTIMIZE: parentheses control flow
     # TODO: make conjunctions/disjunctions behave as logical operators
 
     @staticmethod
@@ -520,6 +514,14 @@ class Host:
         # exception for single letter answers
         if len(given_answer) == 1 and len(correct_answer) == 1:
             return given_answer == correct_answer
+        # TODO: make this handle ampersands, etc.
+        # account for slashes
+        '''
+        if '/' in correct_answer:
+            correct_answer = correct_answer.split('/')
+        correct_answer = list(correct_answer)
+        for answer in correct_answer:
+        '''
         # we only want exact matches if the answer is a number
         try:
             # prevents cases like '0' or '00'

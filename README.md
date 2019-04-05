@@ -1,13 +1,17 @@
 # trebekbot
 
-version 0.7.1 changelog (1-27-19):
+version 0.6.4 changelog (3-28-19):
+
 Bugs:
-  - fixed incorrect bot id
+  - filtering issue (maybe) fixed
+  - single letter issue (maybe) fixed
 
-Features:
-  - using Heroku postgres db now
+version 0.6.3 changelog (3-21-19):
 
-version 0.7.0 changelog (1-17-19):
+Bugs:
+  - fixed slack api token
+
+version 0.6.2 changelog (11-8-18):
 
 Bugs:
   - fixed crashing on close answers

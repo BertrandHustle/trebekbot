@@ -10,6 +10,7 @@ from atexit import register
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
+import urllib.parse as urlparse
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'
@@ -39,12 +40,21 @@ daily_double_answerer = None
 current_champion_name = None
 current_champion_score = None
 
-def restart_handler():
-    print('RESTARTING')
 
-register(restart_handler)
 
 if __name__=='__main__':
+
+    # psql test
+
+    result = urlparse.urlparse(os.environ['DATABASE_URL'])
+    dbuser = result.username
+    password = result.password
+    dbname = result.path[1:]
+    dbhost = result.hostname
+
+    self.conn_string = ' '.join(list(result, dbuser, password, dbname, dbhost))
+    self.connection = psycopg2.connect(self.conn_string)
+
     # create host object
     host = host.Host(slack_client)
     # setup database (or connect to existing one)

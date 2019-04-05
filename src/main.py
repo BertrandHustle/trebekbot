@@ -52,8 +52,8 @@ if __name__=='__main__':
     dbname = result.path[1:]
     dbhost = result.hostname
 
-    self.conn_string = ' '.join([dbuser, password, dbname, dbhost])
-    self.connection = psycopg2.connect(self.conn_string)
+    conn_string = ' '.join([dbuser, password, dbname, dbhost])
+    connection = psycopg2.connect(self.conn_string)
 
     print('psql connected')
 

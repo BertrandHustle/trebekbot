@@ -53,7 +53,7 @@ if __name__=='__main__':
     dbname = result.path[1:]
     dbhost = result.hostname
 
-    conn_string = ' '.join([dbuser, password, dbname, dbhost])
+    conn_string = 'dbname=' + dbname + ' ' + 'user=' + dbuser + ' ' + 'password=' + password + ' ' + 'host=' + dbhost + ' ' + 'sslmode=require'
     connection = psycopg2.connect(conn_string)
 
     print('psql connected')

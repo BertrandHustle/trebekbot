@@ -35,22 +35,13 @@ Holds details about questions and questions themselves
 class Question:
 
     # init
-    jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
-    question_list = json.loads(jeopardy_json_file)
+    # jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
+    # question_list = json.loads(jeopardy_json_file)
     banned_categories = 'missing this category',
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
     def __init__(self, daily_double_debug=None):
-        filtered_question_list = self.filter_questions(
-        self.question_list,
-        banned_categories = self.banned_categories,
-        banned_phrases = self.banned_phrases
-        )
-        # used to test daily doubles
-        if daily_double_debug:
-            filtered_question_list = \
-            self.filter_questions(filtered_question_list, daily_double=1)
-        question = filtered_question_list[randint(0, len(filtered_question_list))]
+        question = self.get_random_question(daily_double=daily_double_debug)
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])
         self.text = ''
@@ -70,17 +61,16 @@ class Question:
 
     # gets random question from given json file
     @staticmethod
-    def get_random_question(json_file, daily_double=None):
+    def get_random_question(daily_double=None):
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
         question_list = json.loads(jeopardy_json_file)
-        question_list = self.filter_questions(
+        # pdb.set_trace()
+        question_list = Question.filter_questions(
         question_list,
-        banned_categories = 'missing this category',
-        banned_phrases = ['seen here', 'heard here', 'audio clue']
+        daily_double=daily_double,
+        banned_categories=Question.banned_categories,
+        banned_phrases=Question.banned_phrases
         )
-        # used to test daily doubles
-        if daily_double:
-            question_list = self.filter_questions(question_list, daily_double=1)
         question = question_list[randint(0, len(question_list))]
         return question
 
@@ -114,12 +104,13 @@ class Question:
     :param banned_phrases: filters questions by key phrases, such as
     "seen here" or "heard here"
     '''
-    def filter_questions(self, question_list, daily_double=None,
+    @staticmethod
+    def filter_questions(question_list, daily_double=None,
     banned_categories=None, banned_phrases=None):
         # if we want to filter for only daily doubles
         if daily_double:
             question_list = list(filter(lambda x: \
-            self.is_daily_double(x['value']), question_list))
+            Question.is_daily_double(x['value']), question_list))
         # if list of phrases is passed in as arg
         if banned_phrases and type(banned_phrases) is list:
             for phrase in banned_phrases:

@@ -97,7 +97,7 @@ def test_filter_questions():
     test_question_list = json.loads(test_json)
 
     # act
-    dd_filter = test_question.filter_questions(test_question_list, daily_double_debug=1)
+    dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
     heard_seen_here_filter = test_question.filter_questions(

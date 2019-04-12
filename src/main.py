@@ -15,7 +15,7 @@ author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 
 # set to 1 for debug mode
-debug = 0
+debug = 1
 # setup database (or connect to existing one)
 # thanks to joamag on stackoverflow
 result = urlparse.urlparse(os.environ['DATABASE_URL'])

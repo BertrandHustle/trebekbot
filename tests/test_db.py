@@ -1,18 +1,20 @@
 from sys import path as syspath
+from sqlalchemy import create_engine
 syspath.append('c:\\users\\hooks\\documents\\programming\\projects\\trebekbot\\src')
 from re import findall
-from atexit import register
 from os import path, remove
 import pytest
 import db
+import testing.postgresql
+import pdb
 
-# set up test objects
-test_db = db.db('test.db')
-
-# kill db on exit
-def kill_test_db():
-    test_db.connection.close()
-    return remove(test_db.filepath)
+# set up test db
+postgresql = testing.postgresql.Postgresql()
+engine = create_engine(postgresql.url())
+dsn = postgresql.dsn()
+conn_string = 'dbname=' + dsn['database'] + ' ' +'user=' + dsn['user'] + ' ' +\
+'host=' + dsn['host'] + ' ' + 'port=' + str(dsn['port'])
+test_db = db.db(conn_string)
 
 # fixture for tearing down test database completely
 @pytest.fixture
@@ -34,6 +36,7 @@ def scrub_test_users():
 # set up fixture to populate test db with a range of scorers
 @pytest.fixture
 def populate_db():
+    test_cursor = test_db.connection.cursor()
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
     test_score = 101
     # ensure that we have a varied list of scorers
@@ -42,15 +45,15 @@ def populate_db():
         test_db.update_score(test_db.connection, user, test_score)
         test_score += 100
     # check to make sure negative numbers work too
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (-156, 'Eve')
     )
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
-    UPDATE USERS SET CHAMPION_SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET CHAMPION_SCORE = %s WHERE NAME = %s
     ''',
     (5000, 'Morp')
     )
@@ -63,16 +66,17 @@ def populate_db_all_scores_zero():
         test_db.add_user_to_db(test_db.connection, user)
 
 def test_add_user_to_db():
+    test_cursor = test_db.connection.cursor()
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')
-    test_query = test_db.connection.execute(
+    test_query = test_cursor.execute(
     '''
-    SELECT * FROM USERS WHERE NAME = ?
+    SELECT * FROM USERS WHERE NAME = %s
     ''',
     ('Bob',)
     )
-    query_results = test_query.fetchall()
+    query_results = test_cursor.fetchall()
     check_results = findall(r'Bob', str(query_results))
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1
@@ -197,5 +201,3 @@ def test_wipe_scores(populate_db, db_after):
     test_scores = [x[2] for x in test_scores]
     # this works because every score should be 0
     assert not any(test_scores)
-
-register(kill_test_db)

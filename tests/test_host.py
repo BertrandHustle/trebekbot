@@ -1,4 +1,5 @@
 import os
+from sqlalchemy import create_engine
 from sys import path as syspath
 syspath.append(
 os.path.abspath(
@@ -9,12 +10,15 @@ import src.db as db
 import pytest
 import json
 import slackclient
+import testing.postgresql
 
 # set up test objects
 sc = slackclient.SlackClient('slack_token')
 
 # set up test db
-test_db = db.db('test.db')
+postgresql = testing.postgresql.Postgresql()
+engine = create_engine(postgresql.url())
+test_db = db.db(**postgresql.dsn)
 
 # TODO: find a way to make this not duplicate code from test_db
 def populate_db(database):

@@ -163,18 +163,21 @@ class db(object):
     :param score_change: the amount by which we will change the user's score
     '''
     def update_score(self, connection, user, score_change):
-        cursor = connection.cursor()
-        cursor.execute(
-        '''
-        UPDATE USERS
-        SET SCORE = CASE
-            WHEN (SCORE + %s) <= -10000 THEN -10000
-            ELSE SCORE + %s
-        END
-        WHERE NAME = %s
-        ''', (score_change, score_change, user)
-        )
-        self.connection.commit()
+        try:
+            cursor = connection.cursor()
+            cursor.execute(
+            '''
+            UPDATE USERS
+            SET SCORE = CASE
+                WHEN (SCORE + %s) <= -10000 THEN -10000
+                ELSE SCORE + %s
+            END
+            WHERE NAME = %s
+            ''', (int(score_change), int(score_change), user)
+            )
+            self.connection.commit()
+        except ValueError:
+            pass
 
     # adds 1 to a user's wins
     def increment_win(self, connection, user):

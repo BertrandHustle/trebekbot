@@ -41,7 +41,7 @@ class Question:
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
     def __init__(self, daily_double_debug=None):
-        question = self.get_random_question(daily_double=daily_double_debug)
+        question = self.get_random_question()
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])
         self.text = ''

@@ -75,7 +75,8 @@ class Host:
     '''
 
     def hear(self, slack_output, listen_for):
-        with suppress(IndexError, KeyError):
+        try:
+        #with suppress(IndexError, KeyError):
             # for some reason slack's output is a dict within a list, this gives us just the list
             slack_output = slack_output[0]
             text = slack_output['text']
@@ -96,6 +97,8 @@ class Host:
                     return answer
                 else:
                     return True
+        except Exception as e:
+            print(e)
 
     # say things back to channel
     '''

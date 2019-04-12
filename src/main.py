@@ -30,14 +30,12 @@ user_db = db.db(
     'host=' + dbhost + ' ' +
     'sslmode=require'
 )
+# set to 1 for debug mode
+debug = 0
 # retrieve id/token/etc. from env variables
 # bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
-# create host object
-host = host.Host(slack_client, user_db)
-# bot_id = os.environ.get('TREBEKBOT_ID')
-bot_id = host.get_bot_id('trebekbot')
 # NOTE: do not use # in the name, slack's api returns the channel name only
 channel = 'trivia'
 # export channel to env so host can grab it
@@ -59,6 +57,8 @@ current_champion_score = None
 
 
 if __name__=='__main__':
+    # create host object
+    host = host.Host(slack_client, user_db)
     # host introduces itself to channel
     host.say(channel, host.intro_text)
     host.say(channel, host.help_text)

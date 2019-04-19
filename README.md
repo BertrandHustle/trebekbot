@@ -5,6 +5,9 @@ version 0.6.5 changelog (4-18-19):
 Features:
   - migrated to Heroku
 
+Bugs:
+  - fixed double restarts
+
 version 0.6.4 changelog (3-28-19):
 
 Bugs:

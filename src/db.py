@@ -34,7 +34,7 @@ class db(object):
         cursor.execute(
         '''
         CREATE TABLE IF NOT EXISTS users (
-        id serial NOT NULL PRIMARY KEY,
+        id serial PRIMARY KEY,
         name text NOT NULL UNIQUE,
         score integer NOT NULL DEFAULT 0,
         champion_score integer NOT NULL DEFAULT 0,

@@ -72,6 +72,7 @@ def test_add_user_to_db():
     check_results = findall(r'Bob', str(query_results))
     # asserts both that Bob was added and that he was only added once
     assert len(check_results) == 1
+    assert type(query_results[0][0]) == int
 
 @pytest.mark.parametrize("user, value_change, expected_result", [
  ('LaVar', '0', 0),

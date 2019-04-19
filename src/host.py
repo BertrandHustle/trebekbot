@@ -56,11 +56,13 @@ class Host:
         self.user_db = user_db
         # get current champion info
         self.last_night_champion = self.user_db.get_last_nights_champion(self.user_db.connection)
+        '''
         try:
             self.current_champion_score, self.current_champion_name = \
             self.user_db.get_last_nights_champion(self.user_db.connection)
         except TypeError:
             pass
+        '''
 
     # listens for output in slack channel
     '''

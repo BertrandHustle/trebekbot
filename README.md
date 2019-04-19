@@ -1,5 +1,10 @@
 # trebekbot
 
+version 0.6.5 changelog (4-18-19):
+
+Features:
+  - migrated to Heroku
+
 version 0.6.4 changelog (3-28-19):
 
 Bugs:
@@ -15,9 +20,6 @@ version 0.6.2 changelog (11-8-18):
 
 Bugs:
   - fixed crashing on close answers
-
-Features:
-  - migrated to Heroku
 
 version 0.6.1 changelog (11-8-18):
 

@@ -15,7 +15,7 @@ author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 
 # set to 1 for debug mode
-debug = 1
+debug = 0
 # setup database (or connect to existing one)
 # thanks to joamag on stackoverflow
 result = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -56,6 +56,7 @@ current_champion_name = None
 current_champion_score = None
 
 
+# TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
     # create host object
     host = host.Host(slack_client, user_db)
@@ -63,19 +64,19 @@ if __name__=='__main__':
     host.say(channel, host.intro_text)
     host.say(channel, host.help_text)
     # establish champion
-    last_night_champ = user_db.get_last_nights_champion(user_db.connection)
+    last_night_champ = user_db.get_champion(user_db.connection)
     if last_night_champ:
         current_champion_score, current_champion_name = last_night_champ
     # add a win to the user's all-time win count
     user_db.increment_win(user_db.connection, current_champion_name)
     # announce champ
-    if current_champion_name:
+    if current_champion_name and current_champion_score > 0:
         host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
         :crown: @' + current_champion_name + '!')
         host.say(channel, 'With a total cash winnings of '+ \
         '$' + str(current_champion_score) + '!')
     # reset champion_scores here
-    user_db.wipe_champion_scores(user_db.connection)
+    user_db.wipe_scores(user_db.connection)
 
     while True:
         # get rolling slack output
@@ -206,9 +207,7 @@ if __name__=='__main__':
             question_asked = None
             answer_given = None
 
-        # restart at midnight (well, just before at 23:59:59)
-        # TODO: this shouldn't wipe the database, it should just set all
-        # the scores to 0
+        '''
         current_time = datetime.now().time()
         if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
             host.say(channel, 'Tonight\'s Top Scorers:')
@@ -223,6 +222,7 @@ if __name__=='__main__':
             user_db.wipe_scores(user_db.connection)
             # restart trebekbot
             os.execv(sys.executable, ['python'] + sys.argv)
+        '''
 
         # printing for debug purposes
         if debug:

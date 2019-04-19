@@ -15,19 +15,13 @@ dsn = postgresql.dsn()
 conn_string = 'dbname=' + dsn['database'] + ' ' +'user=' + dsn['user'] + ' ' +\
 'host=' + dsn['host'] + ' ' + 'port=' + str(dsn['port'])
 test_db = db.db(conn_string)
-
-# fixture for tearing down test database completely
-@pytest.fixture
-def db_after():
-    yield db_after
-    test_db.drop_table_users(test_db.connection)
+test_cursor = test_db.connection.cursor()
 
 # fixture for cleaning out test users from database (but leaving table present)
-# TODO: make this run after failed tests
 @pytest.fixture
 def scrub_test_users():
     yield scrub_test_users
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
     DELETE FROM USERS
     '''
@@ -36,7 +30,6 @@ def scrub_test_users():
 # set up fixture to populate test db with a range of scorers
 @pytest.fixture
 def populate_db():
-    test_cursor = test_db.connection.cursor()
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
     test_score = 101
     # ensure that we have a varied list of scorers
@@ -66,7 +59,6 @@ def populate_db_all_scores_zero():
         test_db.add_user_to_db(test_db.connection, user)
 
 def test_add_user_to_db():
-    test_cursor = test_db.connection.cursor()
     # do this twice to ensure that we're adhering to the UNIQUE constraint
     test_db.add_user_to_db(test_db.connection, 'Bob')
     test_db.add_user_to_db(test_db.connection, 'Bob')
@@ -102,27 +94,28 @@ scrub_test_users()
 
 # TODO: test force flag
 def test_return_top_ten(populate_db, scrub_test_users):
-    expected_list = [
-    (8, 'Morp', 501, 5000, 0, 0),
-    (6, 'Carol', 301, 0, 0, 0),
-    (5, 'Jim', 201, 0, 0, 0),
-    (1, 'Bob', 101, 0, 0, 0),
-    (2, 'LaVar', 100, 0, 0, 0),
-    (3, 'Stemp', 0, 0, 0, 0),
-    (7, 'Eve', -156, 0, 0, 0),
-    (4, 'boop', -9500, 0, 0, 0)
+    # using just names so we don't run into ID conflicts
+    expected_names = [
+    'Morp',
+    'Carol',
+    'Jim',
+    'Bob',
+    'LaVar',
+    'Stemp',
+    'Eve',
+    'boop'
     ]
-    assert test_db.return_top_ten(test_db.connection) == expected_list
+    top_ten_names = [x[1] for x in test_db.return_top_ten(test_db.connection)]
+    assert top_ten_names == expected_names
 
 def test_increment_win(populate_db, scrub_test_users):
-    test_connection = test_db.connection
-    test_db.increment_win(test_connection, 'Carol')
-    test_query = test_connection.cursor().execute(
+    test_db.increment_win(test_db.connection, 'Carol')
+    test_cursor.execute(
     '''
-    SELECT WINS FROM USERS WHERE NAME = ?
+    SELECT WINS FROM USERS WHERE NAME = %s
     ''', ('Carol',)
     )
-    assert test_query.fetchall()[0][0] == 1
+    assert test_cursor.fetchall()[0][0] == 1
 
 def test_get_user_wins(populate_db, scrub_test_users):
     test_connection = test_db.connection
@@ -138,15 +131,15 @@ def test_get_champion(populate_db, scrub_test_users):
     assert test_db.get_champion(test_db.connection) == \
     (expected_champion_name, expected_champion_score)
     # create a tie
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (10000, 'Bob')
     )
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (10000, 'Jim')
     )
@@ -167,37 +160,38 @@ def test_get_last_nights_champion(populate_db, scrub_test_users):
     expected_champion_name = 'Morp'
     expected_champion_score = 5000
     assert test_db.get_last_nights_champion(test_db.connection) == \
-    (expected_champion_name, expected_champion_score)
+    (expected_champion_score, expected_champion_name)
 
 def test_set_champion(populate_db, scrub_test_users):
     test_db.set_champion(test_db.connection, 'Morp', 501)
-    test_result = test_db.connection.execute(
+    test_cursor.execute(
     '''
     SELECT * FROM USERS WHERE CHAMPION = 1 AND CHAMPION_SCORE = 501
     '''
-    ).fetchone()
+    )
+    test_result = test_cursor.fetchone()
     assert (test_result[1], test_result[3]) == ('Morp', 501)
 
 # TODO: test if user doesn't exist
 def test_get_score(scrub_test_users):
     test_db.add_user_to_db(test_db.connection, 'Lucy')
     assert test_db.get_score(test_db.connection, 'Lucy') == 0
-    test_db.connection.execute(
+    test_cursor.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (100, 'Lucy')
     )
     assert test_db.get_score(test_db.connection, 'Lucy') == 100
 
-def test_wipe_scores(populate_db, db_after):
+def test_wipe_scores(populate_db):
     test_db.wipe_scores(test_db.connection)
     # get scores
-    test_scores = test_db.connection.execute(
+    test_cursor.execute(
     '''
     SELECT * FROM USERS ORDER BY SCORE DESC
     ''',
-    ).fetchall()
-    test_scores = [x[2] for x in test_scores]
+    )
+    test_scores = [x[2] for x in test_cursor.fetchall()]
     # this works because every score should be 0
     assert not any(test_scores)

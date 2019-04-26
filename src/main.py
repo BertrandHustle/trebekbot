@@ -76,7 +76,7 @@ if __name__=='__main__':
         '$' + str(current_champion_score) + '!')
     # show yesterday's leaderboard
     host.say(channel, 'Here\'s yesterday\'s top scores:')
-    host.top_ten(self, slack_output='', force=1)
+    host.top_ten(slack_output='', force=1)
     # reset champion_scores here
     user_db.wipe_scores(user_db.connection)
 

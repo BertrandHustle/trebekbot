@@ -101,8 +101,6 @@ class Host:
             and channel == self.channel_id \
             and text_minus_prefix == listen_for:
                 answer = text.split(text_minus_prefix)[1]
-                # add user to db if theyre not in there already
-                self.user_db.add_user_to_db(self.user_db.connection, user)
                 if answer:
                     # return the answer without the prefix if we 'hear' the command prefix
                     return answer

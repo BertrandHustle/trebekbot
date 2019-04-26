@@ -178,7 +178,6 @@ class db(object):
         (user,)
         )
         wins = cursor.fetchall()
-        pdb.set_trace()
         if wins:
             return wins[0][0]
 

@@ -44,12 +44,6 @@ def populate_db():
     ''',
     (-156, 'Eve')
     )
-    test_cursor.execute(
-    '''
-    UPDATE USERS SET CHAMPION_SCORE = %s WHERE NAME = %s
-    ''',
-    (5000, 'Morp')
-    )
 
 # same as above, but all scores are zero
 @pytest.fixture

@@ -84,7 +84,7 @@ class Host:
             username = user["name"]
             # trebekbot isn't playing!
             if 'trebekbot' not in username:
-                self.user_db.add_user_to_db(username)
+                self.user_db.add_user_to_db(self.user_db.connection, username)
 
     def hear(self, slack_output, listen_for):
         with suppress(IndexError, KeyError):

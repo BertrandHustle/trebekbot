@@ -64,17 +64,21 @@ if __name__=='__main__':
     host.say(channel, host.intro_text)
     host.say(channel, host.help_text)
     # establish champion
-    last_night_champ = user_db.get_champion(user_db.connection)
+    current_champion_name, current_champion_score = host.current_champion_name,\
+    host.current_champion_score
     if last_night_champ:
         current_champion_name, current_champion_score = last_night_champ
-    # add a win to the user's all-time win count
-    user_db.increment_win(user_db.connection, current_champion_name)
     # announce champ
     if current_champion_name and current_champion_score > 0:
+        # add a win to the user's all-time win count
+        user_db.increment_win(user_db.connection, current_champion_name)
         host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
         :crown: @' + current_champion_name + '!')
         host.say(channel, 'With a total cash winnings of '+ \
         '$' + str(current_champion_score) + '!')
+    # show yesterday's leaderboard
+    host.say(channel, 'Here\'s yesterday\'s top scores:')
+    host.top_ten(self, slack_output='', force=1)
     # reset champion_scores here
     user_db.wipe_scores(user_db.connection)
 

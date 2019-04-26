@@ -54,11 +54,12 @@ class Host:
         self.channel_id = self.get_channel_id(environ.get('SLACK_CHANNEL'))
         # connect to user database
         self.user_db = user_db
+        # TODO: refactor this, it's duplicated in main.py
         # get current champion info
         self.current_champion_score, self.current_champion_name = None, None
         try:
             self.current_champion_score, self.current_champion_name = \
-            self.user_db.get_last_nights_champion(self.user_db.connection)
+            self.user_db.get_champion(self.user_db.connection)
         except TypeError:
             pass
 

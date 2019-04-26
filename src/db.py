@@ -37,8 +37,6 @@ class db(object):
         id serial PRIMARY KEY,
         name text NOT NULL UNIQUE,
         score integer NOT NULL DEFAULT 0,
-        champion_score integer NOT NULL DEFAULT 0,
-        champion integer DEFAULT 0,
         wins integer DEFAULT 0
         );
         '''
@@ -119,27 +117,6 @@ class db(object):
         if champion_score > 0:
             return champion_name, champion_score
 
-    # TODO: get rid of this and set_champion, both are unnecessary since we
-    # have a persistant database now
-
-    # same as above, but gets champion_score (last night's score)
-    # instead of current score
-
-    def get_last_nights_champion(self, connection):
-        cursor = connection.cursor()
-        champion_search = cursor.execute(
-        '''
-        SELECT CHAMPION_SCORE, NAME FROM USERS
-        '''
-        )
-        champion_search = cursor.fetchall()
-        # put the highest score first
-        sorted_champion_search = sorted(champion_search, reverse=True)
-        try:
-            return sorted_champion_search[0]
-        except IndexError:
-            return None
-
     # sets champion before nightly reset
     # TODO: this needs to store score as well as username
     def set_champion(self, connection, user, score):
@@ -201,6 +178,7 @@ class db(object):
         (user,)
         )
         wins = cursor.fetchall()
+        pdb.set_trace()
         if wins:
             return wins[0][0]
 
@@ -210,16 +188,6 @@ class db(object):
         cursor.execute(
         '''
         UPDATE USERS SET SCORE = 0
-        '''
-        )
-        self.connection.commit()
-
-    # resets champion_scores to 0 for all users, used for nightly resets
-    def wipe_champion_scores(self, connection):
-        cursor = connection.cursor()
-        cursor.execute(
-        '''
-        UPDATE USERS SET CHAMPION_SCORE = 0
         '''
         )
         self.connection.commit()

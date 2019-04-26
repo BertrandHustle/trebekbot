@@ -157,12 +157,6 @@ for db.get_champion()
 def test_no_champion(populate_db_all_scores_zero, scrub_test_users):
     assert test_db.get_champion(test_db.connection) == None
 
-def test_get_last_nights_champion(populate_db, scrub_test_users):
-    expected_champion_name = 'Morp'
-    expected_champion_score = 5000
-    assert test_db.get_last_nights_champion(test_db.connection) == \
-    (expected_champion_score, expected_champion_name)
-
 def test_set_champion(populate_db, scrub_test_users):
     test_db.set_champion(test_db.connection, 'Morp', 501)
     test_cursor.execute(

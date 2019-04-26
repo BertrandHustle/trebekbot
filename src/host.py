@@ -40,7 +40,7 @@ class Host:
     '''+command_prefix+'''mywins: find out your all-time win count
     '''+command_prefix+'''topten: find out who the top ten scorers are
     '''+command_prefix+'''wager: put in your wager for daily doubles
-    '''+command_prefix+'''pass: pass a daily double if you don't know it
+    '''+command_prefix+'''nope: pass a daily double if you don't know it
     '''+command_prefix+'''changelog: show latest changelog notes
     '''+command_prefix+'''uptime: show start time of this trebekbot
     '''
@@ -62,6 +62,8 @@ class Host:
             self.user_db.get_champion(self.user_db.connection)
         except TypeError:
             pass
+        # create leaderboard
+        self.init_leaderboard()
 
     # listens for output in slack channel
     '''
@@ -74,6 +76,15 @@ class Host:
     'type': 'message',
     'channel': 'C5HLVN346'}]
     '''
+
+    # create leaderboard of users
+    def init_leaderboard(self):
+        # get list of users in channel
+        for user in self.slack_client.api_call('users.list')["members"]:
+            username = user["name"]
+            # trebekbot isn't playing!
+            if 'trebekbot' not in username:
+                self.user_db.add_user_to_db(username)
 
     def hear(self, slack_output, listen_for):
         with suppress(IndexError, KeyError):

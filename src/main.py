@@ -66,8 +66,6 @@ if __name__=='__main__':
     # establish champion
     current_champion_name, current_champion_score = host.current_champion_name,\
     host.current_champion_score
-    if last_night_champ:
-        current_champion_name, current_champion_score = last_night_champ
     # announce champ
     if current_champion_name and current_champion_score > 0:
         # add a win to the user's all-time win count
@@ -97,6 +95,7 @@ if __name__=='__main__':
         host.crash(slack_output)
         # TODO impliment debug daily double here
 
+        #TODO: change this so it always has a waiting question to be asked
         current_question = host.ask_question(slack_output)
 
         if current_question:
@@ -125,7 +124,7 @@ if __name__=='__main__':
                     with suppress(IndexError, KeyError):
                         current_contestant = host.get_user(slack_output[0])
                     # pass if contestant doesn't know answer
-                    if host.hear(slack_output, 'pass'):
+                    if host.hear(slack_output, 'nope'):
                         if not wager:
                             host.say(channel, "Coward. The correct answer is: "\
                             + question_asked.answer)

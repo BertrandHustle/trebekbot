@@ -10,6 +10,17 @@ import urllib.parse as urlparse
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+@app.route('/ask', methods=['POST'])
+def ask():
+    if request.form['token'] == os.environ['SIGNING_SECRET']:
+        payload = {'text': 'working!!!'}
+        return jsonify(payload)
+    else:
+        print(request.form)
 
 author = 'bertrand_hustle'
 bot_name = 'trebekbot'

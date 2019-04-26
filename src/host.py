@@ -56,9 +56,9 @@ class Host:
         self.user_db = user_db
         # TODO: refactor this, it's duplicated in main.py
         # get current champion info
-        self.current_champion_score, self.current_champion_name = None, None
+        self.current_champion_name, self.current_champion_score = None, None
         try:
-            self.current_champion_score, self.current_champion_name = \
+            self.current_champion_name, self.current_champion_score = \
             self.user_db.get_champion(self.user_db.connection)
         except TypeError:
             pass

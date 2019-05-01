@@ -1,2 +1,2 @@
 # worker: python src/main.py
-worker: python -m flask run
+web: gunicorn main:app

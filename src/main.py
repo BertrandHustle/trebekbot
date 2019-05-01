@@ -69,6 +69,7 @@ current_champion_score = None
 
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
+    app.run()
     # create host object
     host = host.Host(slack_client, user_db)
     # host introduces itself to channel

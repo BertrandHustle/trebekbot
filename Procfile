@@ -1,2 +1,2 @@
-web gunicorn gun:app
+web gunicorn gun.app:app
 # worker: python src/app.py

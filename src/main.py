@@ -4,9 +4,9 @@ bot_name = 'trebekbot'
 # Main file for trebekbot
 import sys
 import os
-import src.question
-import src.db
-import src.host
+import src.question as question
+import src.db as db
+import src.host as host
 import time
 import urllib.parse as urlparse
 from datetime import datetime

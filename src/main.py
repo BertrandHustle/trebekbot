@@ -63,7 +63,7 @@ def ask():
         question_asked = question.Question()
         return jsonify(question.Question().slack_text)
     else:
-        print(request.form)
+        return request.form
 
 @app.route('/ask_test', methods=['POST'])
 def ask_test():

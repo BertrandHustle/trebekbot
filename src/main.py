@@ -4,11 +4,10 @@ bot_name = 'trebekbot'
 # Main file for trebekbot
 import sys
 import os
-import question
-import db
-import host
+import src.question
+import src.db
+import src.host
 import time
-import pdb
 import urllib.parse as urlparse
 from datetime import datetime
 from slackclient import SlackClient

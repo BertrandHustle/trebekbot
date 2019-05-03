@@ -1,3 +1,6 @@
+author = 'bertrand_hustle'
+bot_name = 'trebekbot'
+
 # Main file for trebekbot
 import sys
 import os
@@ -13,17 +16,6 @@ from contextlib import suppress
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
-
-@app.route('/ask', methods=['POST'])
-def ask():
-    if request.form['token'] == os.environ['SIGNING_SECRET']:
-        payload = {'text': 'working!!!'}
-        return jsonify(payload)
-    else:
-        print(request.form)
-
-author = 'bertrand_hustle'
-bot_name = 'trebekbot'
 
 # set to 1 for debug mode
 debug = 0
@@ -91,6 +83,14 @@ if __name__=='__main__':
     host.top_ten(slack_output='', force=1)
     # reset champion_scores here
     user_db.wipe_scores(user_db.connection)
+
+    @app.route('/ask', methods=['POST'])
+    def ask():
+        if request.form['token'] == os.environ['SIGNING_SECRET']:
+            question_asked = question.Question()
+            return jsonify(question.Question().slack_text)
+        else:
+            print(request.form)
 
     while True:
         # get rolling slack output

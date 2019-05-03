@@ -3,7 +3,7 @@
 version 0.6.5 changelog (4-18-19):
 
 Features:
-  - migrated to Heroku
+  - migrated to Postgres
 
 Bugs:
   - fixed double restarts

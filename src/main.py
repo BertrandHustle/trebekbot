@@ -57,6 +57,18 @@ daily_double_answerer = None
 current_champion_name = None
 current_champion_score = None
 
+@app.route('/ask', methods=['POST'])
+def ask():
+    if request.form['token'] == os.environ['SIGNING_SECRET']:
+        question_asked = question.Question()
+        return jsonify(question.Question().slack_text)
+    else:
+        print(request.form)
+
+@app.route('/ask_test', methods=['POST'])
+def ask_test():
+    question_asked = question.Question()
+    return jsonify(question.Question().slack_text)
 
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
@@ -82,14 +94,6 @@ if __name__=='__main__':
     host.top_ten(slack_output='', force=1)
     # reset champion_scores here
     user_db.wipe_scores(user_db.connection)
-
-    @app.route('/ask', methods=['POST'])
-    def ask():
-        if request.form['token'] == os.environ['SIGNING_SECRET']:
-            question_asked = question.Question()
-            return jsonify(question.Question().slack_text)
-        else:
-            print(request.form)
 
     while True:
         # get rolling slack output

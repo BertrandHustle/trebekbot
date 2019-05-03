@@ -59,14 +59,12 @@ current_champion_score = None
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    if request.form['token'] == os.environ['SIGNING_SECRET']:
-        question_asked = question.Question()
-        payload = {'text' : question_asked.slack_text}
-        payload = jsonify(payload)
-        payload.status_code = 200
-        return payload
-    else:
-        return request.form
+    question_asked = question.Question()
+    payload = {'text' : question_asked.slack_text}
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
 
 @app.route('/ask_test', methods=['POST'])
 def ask_test():

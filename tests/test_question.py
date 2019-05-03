@@ -10,6 +10,7 @@ import pdb
 import json
 
 test_question = question.Question()
+pdb.set_trace()
 # tests question constructor
 def test_question_constructor():
     assert type(test_question.answer) == str

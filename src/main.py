@@ -61,7 +61,7 @@ current_champion_score = None
 def ask():
     if request.form['token'] == os.environ['SIGNING_SECRET']:
         question_asked = question.Question()
-        return jsonify({'text' : question.Question().slack_text})
+        return question.Question().slack_text
     else:
         return request.form
 

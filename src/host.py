@@ -70,9 +70,9 @@ class Host:
         self.say(self.channel, self.intro_text)
         self.say(self.channel, self.help_text)
         # announce champ
-        if current_champion_name and current_champion_score > 0:
+        if self.current_champion_name and self.current_champion_score > 0:
             # add a win to the user's all-time win count
-            user_db.increment_win(user_db.connection, current_champion_name)
+            user_db.increment_win(user_db.connection, self.current_champion_name)
             self.say(self.channel, 'Let\'s welcome back last night\'s returning champion, \
             :crown: @' + current_champion_name + '!')
             self.say(self.channel, 'With a total cash winnings of '+ \

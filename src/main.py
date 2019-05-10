@@ -56,6 +56,7 @@ current_champion_name = None
 current_champion_score = None
 # create host object
 host = host.Host(slack_client, user_db)
+host.say(channel, 'HOST STARTED')
 
 # resets timer and removes active question and answer
 def reset_timer():

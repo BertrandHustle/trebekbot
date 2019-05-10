@@ -67,8 +67,8 @@ class Host:
         # create leaderboard
         self.init_leaderboard()
         # host introduces itself to channel
-        self.say(self.channel, host.intro_text)
-        self.say(self.channel, host.help_text)
+        self.say(self.channel, self.intro_text)
+        self.say(self.channel, self.help_text)
         # announce champ
         if current_champion_name and current_champion_score > 0:
             # add a win to the user's all-time win count

@@ -47,8 +47,6 @@ question_asked = question.Question()
 answer_given = None
 # time limit for questions
 time_limit = 60
-# question timer
-timer = Timer(time_limit, reset_timer)
 # vars for daily doubles
 wager = 0
 # this is who asked the daily double
@@ -56,6 +54,8 @@ daily_double_answerer = None
 # tracking last night's champion
 current_champion_name = None
 current_champion_score = None
+# create host object
+host = host.Host(slack_client, user_db)
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -67,6 +67,9 @@ def reset_timer():
     # generate new question
     question_asked = question.Question()
     answer_given = None
+
+# question timer, has to be created after reset_timer
+timer = Timer(time_limit, reset_timer)
 
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
@@ -103,8 +106,6 @@ def help():
 
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
-    # create host object
-    host = host.Host(slack_client, user_db)
     # host introduces itself to channel
     host.say(channel, host.intro_text)
     host.say(channel, host.help_text)

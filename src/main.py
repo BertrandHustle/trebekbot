@@ -35,7 +35,6 @@ user_db = db.db(
 # set to 1 for debug mode
 debug = 0
 # retrieve id/token/etc. from env variables
-# bot_id = os.environ.get('TREBEKBOT_ID')
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
 # NOTE: do not use # in the name, slack's api returns the channel name only
@@ -43,12 +42,12 @@ channel = 'trivia'
 # export channel to env so host can grab it
 os.environ['SLACK_CHANNEL'] = channel
 # this needs to be outside the loop so it stays persistant
-question_asked = None
+question_asked = question.Question()
 answer_given = None
-# timeout for questions
-timer = 0
 # time limit for questions
 time_limit = 60
+# question timer
+timer = threading.Timer(time_limit, reset_timer)
 # vars for daily doubles
 wager = 0
 # this is who asked the daily double
@@ -57,23 +56,52 @@ daily_double_answerer = None
 current_champion_name = None
 current_champion_score = None
 
+# resets timer and removes active question and answer
+def reset_timer():
+    host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
+    # we want to take points away if it's a daily double
+    if question_asked.is_daily_double and wager:
+        user_db.update_score(user_db.connection, \
+        daily_double_answerer, -wager)
+    # generate new question
+    question_asked = question.Question()
+    answer_given = None
+
+# trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
-    question_asked = question.Question()
-    payload = {'text' : question_asked.slack_text}
+    payload = {
+    'text' : question_asked.slack_text
+    'response_type' : 'in_channel'}
+    payload = jsonify(payload)
+    payload.status_code = 200
+    # start question timer
+    timer.start()
+    return payload
+
+# say hello to a user
+@app.route('/hello', methods=['POST'])
+def hello():
+    user = request['user_name']
+    payload = {
+    'text' : 'Hello ' + user
+    'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200
     return payload
 
-
-@app.route('/ask_test', methods=['POST'])
-def ask_test():
-    question_asked = question.Question()
-    return jsonify(question.Question().slack_text)
+# display help text
+@app.route('/help', methods=['POST'])
+def help():
+    payload = {
+    'text' : host.help_text
+    'response_type' : 'in_channel'}
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
 
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
-    app.run()
     # create host object
     host = host.Host(slack_client, user_db)
     # host introduces itself to channel
@@ -95,6 +123,9 @@ if __name__=='__main__':
     host.top_ten(slack_output='', force=1)
     # reset champion_scores here
     user_db.wipe_scores(user_db.connection)
+
+    # start main game
+    app.run()
 
     while True:
         # get rolling slack output
@@ -225,23 +256,6 @@ if __name__=='__main__':
                 daily_double_answerer, -wager)
             question_asked = None
             answer_given = None
-
-        '''
-        current_time = datetime.now().time()
-        if current_time.hour == 11 and current_time.minute == 59 and current_time.second == 59:
-            host.say(channel, 'Tonight\'s Top Scorers:')
-            host.top_ten(slack_output, force=1)
-            host.say(channel, 'Restarting!')
-            # set the current champion in our database
-            champion_name, champion_score = \
-            user_db.get_champion(user_db.connection)
-            if champion_name:
-                user_db.set_champion(user_db.connection, champion_name, champion_score)
-            # make sure scores are reset when bot resets
-            user_db.wipe_scores(user_db.connection)
-            # restart trebekbot
-            os.execv(sys.executable, ['python'] + sys.argv)
-        '''
 
         # printing for debug purposes
         if debug:

@@ -67,19 +67,19 @@ class Host:
         # create leaderboard
         self.init_leaderboard()
         # host introduces itself to channel
-        host.say(self.channel, host.intro_text)
-        host.say(self.channel, host.help_text)
+        self.say(self.channel, host.intro_text)
+        self.say(self.channel, host.help_text)
         # announce champ
         if current_champion_name and current_champion_score > 0:
             # add a win to the user's all-time win count
             user_db.increment_win(user_db.connection, current_champion_name)
-            host.say(self.channel, 'Let\'s welcome back last night\'s returning champion, \
+            self.say(self.channel, 'Let\'s welcome back last night\'s returning champion, \
             :crown: @' + current_champion_name + '!')
-            host.say(self.channel, 'With a total cash winnings of '+ \
+            self.say(self.channel, 'With a total cash winnings of '+ \
             '$' + str(current_champion_score) + '!')
         # show yesterday's leaderboard
-        host.say(self.channel, 'Here\'s yesterday\'s top scores:')
-        host.top_ten(slack_output='', force=1)
+        self.say(self.channel, 'Here\'s yesterday\'s top scores:')
+        self.top_ten(slack_output='', force=1)
         # reset champion_scores here
         user_db.wipe_scores(user_db.connection)
 

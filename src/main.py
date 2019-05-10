@@ -128,7 +128,7 @@ if __name__=='__main__':
 
 
     # start main game
-    app.run()
+    app.run(debug=True, use_reloader=False)
 
     while True:
         # get rolling slack output

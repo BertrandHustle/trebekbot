@@ -29,7 +29,7 @@ class Host:
     '''
 
     # what to type before we give trebekbot a command
-    command_prefix = '..'
+    command_prefix = '/'
     intro_text = 'This iiiiiis trebekbot!'
     help_text = '''
     Use '''+command_prefix+''' to prefix commands.

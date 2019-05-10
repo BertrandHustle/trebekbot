@@ -126,9 +126,8 @@ def help():
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
 
-
     # start main game
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=False, use_reloader=False)
 
     while True:
         # get rolling slack output

@@ -86,7 +86,7 @@ def ask():
 # say hello to a user
 @app.route('/hello', methods=['POST'])
 def hello():
-    user = request['user_name']
+    user = request.form['user_name']
     payload = {
     'text' : 'Hello ' + user,
     'response_type' : 'in_channel'}

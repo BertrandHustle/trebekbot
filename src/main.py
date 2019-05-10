@@ -9,6 +9,7 @@ import src.db as db
 import src.host as host
 import time
 import urllib.parse as urlparse
+from threading import Timer
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -47,7 +48,7 @@ answer_given = None
 # time limit for questions
 time_limit = 60
 # question timer
-timer = threading.Timer(time_limit, reset_timer)
+timer = Timer(time_limit, reset_timer)
 # vars for daily doubles
 wager = 0
 # this is who asked the daily double

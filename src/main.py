@@ -71,7 +71,7 @@ def reset_timer():
 @app.route('/ask', methods=['POST'])
 def ask():
     payload = {
-    'text' : question_asked.slack_text
+    'text' : question_asked.slack_text,
     'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200
@@ -84,7 +84,7 @@ def ask():
 def hello():
     user = request['user_name']
     payload = {
-    'text' : 'Hello ' + user
+    'text' : 'Hello ' + user,
     'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200
@@ -94,7 +94,7 @@ def hello():
 @app.route('/help', methods=['POST'])
 def help():
     payload = {
-    'text' : host.help_text
+    'text' : host.help_text,
     'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200

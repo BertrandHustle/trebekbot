@@ -56,7 +56,25 @@ current_champion_name = None
 current_champion_score = None
 # create host object
 host = host.Host(slack_client, user_db)
-host.say(channel, 'HOST STARTED')
+# host introduces itself to channel
+host.say(channel, host.intro_text)
+host.say(channel, host.help_text)
+# establish champion
+current_champion_name, current_champion_score = host.current_champion_name,\
+host.current_champion_score
+# announce champ
+if current_champion_name and current_champion_score > 0:
+    # add a win to the user's all-time win count
+    user_db.increment_win(user_db.connection, current_champion_name)
+    host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
+    :crown: @' + current_champion_name + '!')
+    host.say(channel, 'With a total cash winnings of '+ \
+    '$' + str(current_champion_score) + '!')
+# show yesterday's leaderboard
+host.say(channel, 'Here\'s yesterday\'s top scores:')
+host.top_ten(slack_output='', force=1)
+# reset champion_scores here
+user_db.wipe_scores(user_db.connection)
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -107,25 +125,7 @@ def help():
 
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
-    # host introduces itself to channel
-    host.say(channel, host.intro_text)
-    host.say(channel, host.help_text)
-    # establish champion
-    current_champion_name, current_champion_score = host.current_champion_name,\
-    host.current_champion_score
-    # announce champ
-    if current_champion_name and current_champion_score > 0:
-        # add a win to the user's all-time win count
-        user_db.increment_win(user_db.connection, current_champion_name)
-        host.say(channel, 'Let\'s welcome back last night\'s returning champion, \
-        :crown: @' + current_champion_name + '!')
-        host.say(channel, 'With a total cash winnings of '+ \
-        '$' + str(current_champion_score) + '!')
-    # show yesterday's leaderboard
-    host.say(channel, 'Here\'s yesterday\'s top scores:')
-    host.top_ten(slack_output='', force=1)
-    # reset champion_scores here
-    user_db.wipe_scores(user_db.connection)
+
 
     # start main game
     app.run()

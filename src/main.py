@@ -33,8 +33,6 @@ user_db = db.db(
     'host=' + dbhost + ' ' +
     'sslmode=require'
 )
-# set to 1 for debug mode
-debug = 0
 # retrieve id/token/etc. from env variables
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = SlackClient(slack_token)
@@ -76,7 +74,7 @@ def ask():
     'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200
-    # start question timer
+    # start question timer and time keeper
     timer.start()
     return payload
 
@@ -226,16 +224,6 @@ while True:
         answer_given = None
     else:
         pass
-
-    # only check the timer if there's an active question
-    if question_asked and time.time() >= timer + time_limit:
-        host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
-        # we want to take points away if it's a daily double
-        if question_asked.is_daily_double and wager:
-            user_db.update_score(user_db.connection, \
-            daily_double_answerer, -wager)
-        question_asked = None
-        answer_given = None
 
     # printing for debug purposes
     if debug:

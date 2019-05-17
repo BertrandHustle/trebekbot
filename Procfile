@@ -1,2 +1,2 @@
-web gunicorn src.main:app --timeout 90
+web gunicorn src.main:app
 # worker: python src/app.py

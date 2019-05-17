@@ -100,13 +100,13 @@ def help():
     payload = jsonify(payload)
     payload.status_code = 200
     return payload
-'''
+
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
 
     # start main game
     app.run(debug=False, use_reloader=False)
-'''
+
 while True:
     # get rolling slack output
     slack_output = slack_client.rtm_read()

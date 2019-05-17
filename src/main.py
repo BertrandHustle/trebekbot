@@ -74,7 +74,7 @@ def ask():
     'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200
-    # start question timer and time keeper
+    # start question timer
     timer.start()
     return payload
 
@@ -103,7 +103,8 @@ def help():
 if __name__=='__main__':
 
     # start main game
-    app.run(debug=False, use_reloader=False)
+    # app.run(debug=False, use_reloader=False)
+    app.run()
 
 while True:
     # get rolling slack output

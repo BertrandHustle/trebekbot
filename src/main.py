@@ -9,7 +9,7 @@ import src.db as db
 import src.host as host
 import time
 import urllib.parse as urlparse
-from threading import Timer
+# from threading import Timer
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -64,7 +64,7 @@ def reset_timer():
     answer_given = None
 
 # question timer, has to be created after reset_timer
-timer = Timer(time_limit, reset_timer)
+# timer = Timer(time_limit, reset_timer)
 
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
@@ -75,7 +75,7 @@ def ask():
     payload = jsonify(payload)
     payload.status_code = 200
     # start question timer
-    timer.start()
+    # timer.start()
     return payload
 
 # say hello to a user

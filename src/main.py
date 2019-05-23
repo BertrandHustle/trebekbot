@@ -9,7 +9,7 @@ import src.db as db
 import src.host as host
 import time
 import urllib.parse as urlparse
-# from threading import Timer
+from threading import Timer
 from datetime import datetime
 from slackclient import SlackClient
 from contextlib import suppress
@@ -49,8 +49,9 @@ time_limit = 60
 wager = 0
 # this is who asked the daily double
 daily_double_answerer = None
-# create host object
-host = host.Host(slack_client, user_db)
+# init so we can declare these later in main and not break heroku
+host = None
+time = None
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -63,9 +64,6 @@ def reset_timer():
     question_asked = question.Question()
     answer_given = None
 
-# question timer, has to be created after reset_timer
-# timer = Timer(time_limit, reset_timer)
-
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -74,8 +72,8 @@ def ask():
     'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200
-    # start question timer
-    # timer.start()
+    start question timer
+    timer.start()
     return payload
 
 # say hello to a user
@@ -105,6 +103,11 @@ if __name__=='__main__':
     # start main game
     # app.run(debug=False, use_reloader=False)
     app.run()
+    # create host object
+    host = host.Host(slack_client, user_db)
+    # question timer, has to be created after reset_timer
+    timer = Timer(time_limit, reset_timer)
+
 
 while True:
     # get rolling slack output

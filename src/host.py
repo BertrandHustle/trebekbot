@@ -74,9 +74,9 @@ class Host:
             # add a win to the user's all-time win count
             user_db.increment_win(user_db.connection, self.current_champion_name)
             self.say(self.channel, 'Let\'s welcome back last night\'s returning champion, \
-            :crown: @' + current_champion_name + '!')
+            :crown: @' + self.current_champion_name + '!')
             self.say(self.channel, 'With a total cash winnings of '+ \
-            '$' + str(current_champion_score) + '!')
+            '$' + str(self.current_champion_score) + '!')
         # show yesterday's leaderboard
         self.say(self.channel, 'Here\'s yesterday\'s top scores:')
         self.top_ten(slack_output='', force=1)

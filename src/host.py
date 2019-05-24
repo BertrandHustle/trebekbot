@@ -392,7 +392,7 @@ class Host:
         answer_check = self.fuzz_answer(user_answer, correct_answer)
         # if answer is close but not wrong
         if answer_check is 'close':
-            return user_address + ' ' \
+            return user_address + ' ' + \
             self.check_closeness(user_answer, correct_answer)
         # right answer
         elif answer_check is True:

@@ -109,7 +109,7 @@ def whatis():
     user = request.form['user_name']
     answer = request.form['text']
     payload = {
-    'text' = host.check_answer(question_asked, answer, user),
+    'text' : host.check_answer(question_asked, answer, user),
     'response_type' : 'in_channel'
     }
     payload = jsonify(payload)

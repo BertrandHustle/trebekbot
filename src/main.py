@@ -80,10 +80,10 @@ def ask():
 # say hello to a user
 @app.route('/hello', methods=['POST'])
 def hello():
-    user = request.form['user_name']
+    user_name = request.form['user_name']
     user_id = request.form['user_id']
     payload = {
-    'text' : 'Hello ' + user + ' ' + user_id,
+    'text' : 'Hello ' + host.create_user_address(user_name, user_id),
     'response_type' : 'in_channel'
     }
     payload = jsonify(payload)

@@ -138,6 +138,17 @@ class Host:
             as_user=True
         )
 
+    def create_user_address(self, user_name, user_id):
+        '''
+        creates string to address user and adds crown if user is current champ
+        :param: user_name
+        '''
+        if self.current_champion_name == user_name:
+            return ':crown: <@'+user_id+'>'
+        else:
+            return '<@'+user_id+'>'
+
+
     '''
     [{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
     'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
@@ -370,16 +381,14 @@ class Host:
     :param slack_output: the output we hear coming from slack_output
     :param question: the question object
     :param answer: the answer given by user
-    :param user: user who answered the question
+    :param user_id: id of user who answered the question
     :param wager: optional, the wager if the question is a Daily Double
     '''
-    def check_answer(self, question, answer, user, wager=None):
+    def check_answer(self, question, answer, user_id, wager=None):
         user_id = slack_output['user']
-        # what we use to address the user when they answer
-        user_address = '<@'+user_id+'|'+user+'>'
         # if the user is the champ, give them a crown!
         if self.current_champion_name and user == self.current_champion_name:
-            user_address = ':crown: <@'+user_id+'|'+user+'>'
+            user_address = ':crown: <@'+user_id+'>'
         correct_answer = question.answer
         # TODO: refactor this so it can be unit tested
         # check if answer is correct

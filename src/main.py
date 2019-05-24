@@ -108,7 +108,7 @@ if __name__=='__main__':
     # question timer, has to be created after reset_timer
     timer = Timer(time_limit, reset_timer)
 
-
+'''
 while True:
     # get rolling slack output
     slack_output = slack_client.rtm_read()
@@ -244,3 +244,4 @@ while True:
         print(current_champion_name)
     # delay so trebekbot has time to think
     time.sleep(1)
+'''

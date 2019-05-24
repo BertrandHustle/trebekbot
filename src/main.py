@@ -51,7 +51,7 @@ wager = 0
 daily_double_answerer = None
 # init so we can declare these later in main and not break heroku
 host = None
-timer = None
+timer = Timer(time_limit, reset_timer)
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -99,9 +99,7 @@ def help():
 
 # TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
-
     # start main game
-    timer = Timer(time_limit, reset_timer)
     # app.run(debug=False, use_reloader=False)
     app.run()
     # create host object

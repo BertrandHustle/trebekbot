@@ -72,7 +72,7 @@ def ask():
     'response_type' : 'in_channel'}
     payload = jsonify(payload)
     payload.status_code = 200
-    start question timer
+    # start question timer
     timer.start()
     return payload
 

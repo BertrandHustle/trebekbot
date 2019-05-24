@@ -104,6 +104,6 @@ if __name__=='__main__':
     # app.run(debug=False, use_reloader=False)
     app.run()
     # create host object
-    host = host.Host(slack_client, user_db)
+    # host = host.Host(slack_client, user_db)
     # question timer, has to be created after reset_timer
     timer = Timer(time_limit, reset_timer)

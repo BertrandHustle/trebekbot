@@ -168,10 +168,10 @@ while True:
                     host.say(channel, '@'+daily_double_answerer + \
                     ', you\'ve wagered $'+str(wager))
                 '''
-                we need to check two things before someone can answer
-                a daily double:
-                1. are they the person who asked for it?
-                2. have they entered in a wager?
+                # we need to check two things before someone can answer
+                # a daily double:
+                # 1. are they the person who asked for it?
+                # 2. have they entered in a wager?
                 '''
                 if host.hear(slack_output, 'whatis') and \
                 current_contestant == daily_double_answerer and \

@@ -52,6 +52,7 @@ daily_double_answerer = None
 
 # resets timer and removes active question and answer
 def reset_timer():
+    global question_asked
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
     # we want to take points away if it's a daily double
     if question_asked.is_daily_double and wager:

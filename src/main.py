@@ -106,10 +106,11 @@ def help():
 # answer the current question
 @app.route('/whatis', methods=['POST'])
 def whatis():
-    user = request.form['user_name']
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
     answer = request.form['text']
     payload = {
-    'text' : host.check_answer(question_asked, answer, user),
+    'text' : host.check_answer(question_asked, answer, user_name, user_id),
     'response_type' : 'in_channel'
     }
     payload = jsonify(payload)

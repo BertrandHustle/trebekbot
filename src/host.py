@@ -142,12 +142,12 @@ class Host:
         '''
         creates string to address user and adds crown if user is current champ
         :param: user_name
+        :param: user_id
         '''
         if self.current_champion_name == user_name:
             return ':crown: <@'+user_id+'>'
         else:
             return '<@'+user_id+'>'
-
 
     '''
     [{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
@@ -376,48 +376,50 @@ class Host:
             closeness = 'less'
         return 'Please be {} specific.'.format(closeness)
 
-    '''
-    checks if the answer to a question is correct and updates score accordingly
-    :param slack_output: the output we hear coming from slack_output
-    :param question: the question object
-    :param answer: the answer given by user
-    :param user_id: id of user who answered the question
-    :param wager: optional, the wager if the question is a Daily Double
-    '''
-    def check_answer(self, question, answer, user_id, wager=None):
-        user_id = slack_output['user']
-        # if the user is the champ, give them a crown!
-        if self.current_champion_name and user == self.current_champion_name:
-            user_address = ':crown: <@'+user_id+'>'
+    def check_answer(self, question, answer, user_name, user_id, wager=None):
+        '''
+        checks if the answer to a question is correct and updates score accordingly
+        :param slack_output: the output we hear coming from slack_output
+        :param question: the question object
+        :param answer: the answer given by user
+        :param user_name: name of user answering question
+        :param user_id: id of user answering question
+        :param wager: optional, the wager if the question is a Daily Double
+        '''
+        user_address = self.create_user_address(user_name, user_id)
         correct_answer = question.answer
-        # TODO: refactor this so it can be unit tested
         # check if answer is correct
         answer_check = self.fuzz_answer(user_answer, correct_answer)
-        # respond to user
+        # if answer is close but not wrong
         if answer_check is 'close':
-            self.say(
-            self.channel_id,
-            user_address + ' ' + \
+            return user_address + ' ' \
             self.check_closeness(user_answer, correct_answer)
-            )
-            return 'close'
         # right answer
         elif answer_check is True:
-            self.say(self.channel_id, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
             # award points to user
             if question.daily_double:
-                self.user_db.update_score(self.user_db.connection, user, wager)
+                self.user_db.update_score(
+                self.user_db.connection, user_name, wager
+                )
             else:
-                self.user_db.update_score(self.user_db.connection, user, question.value)
-            return 'right'
+                self.user_db.update_score(
+                self.user_db.connection, user_name, question.value
+                )
+            return user_address+ \
+            ' :white_check_mark: That is correct. The answer is ' \
+            +correct_answer
         # wrong answer
         elif answer_check is False:
-            self.say(self.channel_id, user_address+ ' :x: Sorry, that is incorrect.')
             # take away points from user
             if question.daily_double and wager:
-                self.user_db.update_score(self.user_db.connection, user, -wager)
+                self.user_db.update_score(
+                self.user_db.connection, user_name, -wager
+                )
             else:
-                self.user_db.update_score(self.user_db.connection, user, -question.value)
+                self.user_db.update_score(
+                self.user_db.connection, user_name, -question.value
+                )
+            return user_address+ ' :x: Sorry, that is incorrect.'
 
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod

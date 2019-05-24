@@ -369,52 +369,46 @@ class Host:
     checks if the answer to a question is correct and updates score accordingly
     :param slack_output: the output we hear coming from slack_output
     :param question: the question object
+    :param answer: the answer given by user
+    :param user: user who answered the question
     :param wager: optional, the wager if the question is a Daily Double
     '''
-    def check_answer(self, slack_output, question, wager=None):
-        # we need this to prevent parsing a blank answer
-        if self.hear(slack_output, 'whatis'):
-            # init
-            # this drills down into the slack output to get the given answer
-            slack_output = slack_output[0]
-            user_answer = slack_output['text'].split('whatis')[1]
-            # who asked the question
-            user = self.get_user(slack_output)
-            user_id = slack_output['user']
-            # what we use to address the user when they answer
-            user_address = '<@'+user_id+'|'+user+'>'
-            # if the user is the champ, give them a crown!
-            if self.current_champion_name and user == self.current_champion_name:
-                user_address = ':crown: <@'+user_id+'|'+user+'>'
-            correct_answer = question.answer
-            # TODO: refactor this so it can be unit tested
-            # check if answer is correct
-            answer_check = self.fuzz_answer(user_answer, correct_answer)
-            # respond to user
-            if answer_check is 'close':
-                self.say(
-                self.channel_id,
-                user_address + ' ' + \
-                self.check_closeness(user_answer, correct_answer)
-                )
-                return 'close'
-            # right answer
-            elif answer_check is True:
-                self.say(self.channel_id, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
-                # award points to user
-                if question.daily_double:
-                    self.user_db.update_score(self.user_db.connection, user, wager)
-                else:
-                    self.user_db.update_score(self.user_db.connection, user, question.value)
-                return 'right'
-            # wrong answer
-            elif answer_check is False:
-                self.say(self.channel_id, user_address+ ' :x: Sorry, that is incorrect.')
-                # take away points from user
-                if question.daily_double and wager:
-                    self.user_db.update_score(self.user_db.connection, user, -wager)
-                else:
-                    self.user_db.update_score(self.user_db.connection, user, -question.value)
+    def check_answer(self, question, answer, user, wager=None):
+        user_id = slack_output['user']
+        # what we use to address the user when they answer
+        user_address = '<@'+user_id+'|'+user+'>'
+        # if the user is the champ, give them a crown!
+        if self.current_champion_name and user == self.current_champion_name:
+            user_address = ':crown: <@'+user_id+'|'+user+'>'
+        correct_answer = question.answer
+        # TODO: refactor this so it can be unit tested
+        # check if answer is correct
+        answer_check = self.fuzz_answer(user_answer, correct_answer)
+        # respond to user
+        if answer_check is 'close':
+            self.say(
+            self.channel_id,
+            user_address + ' ' + \
+            self.check_closeness(user_answer, correct_answer)
+            )
+            return 'close'
+        # right answer
+        elif answer_check is True:
+            self.say(self.channel_id, user_address+ ' :white_check_mark: That is correct. The answer is ' +correct_answer)
+            # award points to user
+            if question.daily_double:
+                self.user_db.update_score(self.user_db.connection, user, wager)
+            else:
+                self.user_db.update_score(self.user_db.connection, user, question.value)
+            return 'right'
+        # wrong answer
+        elif answer_check is False:
+            self.say(self.channel_id, user_address+ ' :x: Sorry, that is incorrect.')
+            # take away points from user
+            if question.daily_double and wager:
+                self.user_db.update_score(self.user_db.connection, user, -wager)
+            else:
+                self.user_db.update_score(self.user_db.connection, user, -question.value)
 
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod

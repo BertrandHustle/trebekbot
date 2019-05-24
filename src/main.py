@@ -69,7 +69,8 @@ timer = Timer(time_limit, reset_timer)
 def ask():
     payload = {
     'text' : question_asked.slack_text,
-    'response_type' : 'in_channel'}
+    'response_type' : 'in_channel'
+    }
     payload = jsonify(payload)
     payload.status_code = 200
     # start question timer
@@ -80,9 +81,11 @@ def ask():
 @app.route('/hello', methods=['POST'])
 def hello():
     user = request.form['user_name']
+    user_id = request.form['user_id']
     payload = {
-    'text' : 'Hello ' + user,
-    'response_type' : 'in_channel'}
+    'text' : 'Hello ' + user + ' ' + user_id,
+    'response_type' : 'in_channel'
+    }
     payload = jsonify(payload)
     payload.status_code = 200
     return payload
@@ -94,7 +97,21 @@ host = host.Host(slack_client, user_db)
 def help():
     payload = {
     'text' : host.help_text,
-    'response_type' : 'in_channel'}
+    'response_type' : 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+# answer the current question
+@app.route('/whatis', methods=['POST'])
+def whatis():
+    user = request.form['user_name']
+    answer = request.form['text']
+    payload = {
+    'text' = host.check_answer(question_asked, answer, user),
+    'response_type' : 'in_channel'
+    }
     payload = jsonify(payload)
     payload.status_code = 200
     return payload

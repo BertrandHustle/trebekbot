@@ -49,8 +49,6 @@ time_limit = 60
 wager = 0
 # this is who asked the daily double
 daily_double_answerer = None
-# init so we can declare these later in main and not break heroku
-host = None
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -88,6 +86,8 @@ def hello():
     payload.status_code = 200
     return payload
 
+host = host.Host(slack_client, user_db)
+
 # display help text
 @app.route('/help', methods=['POST'])
 def help():
@@ -103,6 +103,4 @@ if __name__=='__main__':
     # start main game
     # app.run(debug=False, use_reloader=False)
     app.run()
-    # create host object
-    # host = host.Host(slack_client, user_db)
     # question timer, has to be created after reset_timer

@@ -101,9 +101,9 @@ def help():
 if __name__=='__main__':
 
     # start main game
+    timer = Timer(time_limit, reset_timer)
     # app.run(debug=False, use_reloader=False)
     app.run()
     # create host object
     # host = host.Host(slack_client, user_db)
     # question timer, has to be created after reset_timer
-    timer = Timer(time_limit, reset_timer)

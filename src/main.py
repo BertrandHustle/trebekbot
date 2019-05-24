@@ -51,7 +51,7 @@ wager = 0
 daily_double_answerer = None
 # init so we can declare these later in main and not break heroku
 host = None
-time = None
+timer = None
 
 # resets timer and removes active question and answer
 def reset_timer():

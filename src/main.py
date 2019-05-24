@@ -51,7 +51,6 @@ wager = 0
 daily_double_answerer = None
 # init so we can declare these later in main and not break heroku
 host = None
-timer = Timer(time_limit, reset_timer)
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -63,6 +62,8 @@ def reset_timer():
     # generate new question
     question_asked = question.Question()
     answer_given = None
+
+timer = Timer(time_limit, reset_timer)
 
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])

@@ -376,12 +376,12 @@ class Host:
             closeness = 'less'
         return 'Please be {} specific.'.format(closeness)
 
-    def check_answer(self, question, answer, user_name, user_id, wager=None):
+    def check_answer(self, question, user_answer, user_name, user_id, wager=None):
         '''
         checks if the answer to a question is correct and updates score accordingly
         :param slack_output: the output we hear coming from slack_output
         :param question: the question object
-        :param answer: the answer given by user
+        :param user_answer: the answer given by user
         :param user_name: name of user answering question
         :param user_id: id of user answering question
         :param wager: optional, the wager if the question is a Daily Double

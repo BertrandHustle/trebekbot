@@ -42,7 +42,6 @@ channel = 'trivia'
 os.environ['SLACK_CHANNEL'] = channel
 # this needs to be outside the loop so it stays persistant
 question_asked = question.Question()
-answer_given = None
 # time limit for questions
 time_limit = 60
 # vars for daily doubles
@@ -54,13 +53,11 @@ daily_double_answerer = None
 def reset_timer():
     global question_asked
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
-    # we want to take points away if it's a daily double
-    if question_asked.is_daily_double and wager:
-        user_db.update_score(user_db.connection, \
-        daily_double_answerer, -wager)
     # generate new question
     question_asked = question.Question()
-    answer_given = None
+    # timers can only be started once so we need to make a new one
+    timer = Timer(time_limit, reset_timer)
+    timer.start()
 
 timer = Timer(time_limit, reset_timer)
 
@@ -73,10 +70,8 @@ def ask():
     }
     payload = jsonify(payload)
     payload.status_code = 200
-    print(question_asked.text)
     # start question timer
     timer.start()
-    print(question_asked.text)
     return payload
 
 # say hello to a user
@@ -112,12 +107,17 @@ def whatis():
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
+    answer_check = host.check_answer(question_asked, answer, user_name, user_id)
     payload = {
-    'text' : host.check_answer(question_asked, answer, user_name, user_id),
+    'text' : answer_check,
     'response_type' : 'in_channel'
     }
     payload = jsonify(payload)
     payload.status_code = 200
+    # if answer is correct we need to reset timer and make new questions
+    if ':white_check_mark:' in answer_check:
+        question_asked = question.Question()
+        reset_timer()
     return payload
 
 # TODO: get rid of all champion_score functions and db columns

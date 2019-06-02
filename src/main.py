@@ -104,6 +104,7 @@ def help():
 # answer the current question
 @app.route('/whatis', methods=['POST'])
 def whatis():
+    global question_asked
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']

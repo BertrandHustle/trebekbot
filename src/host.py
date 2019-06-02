@@ -390,6 +390,8 @@ class Host:
         correct_answer = question.answer
         # check if answer is correct
         answer_check = self.fuzz_answer(user_answer, correct_answer)
+        print(user_answer)
+        print(answer_check)
         # if answer is close but not wrong
         if answer_check is 'close':
             return user_address + ' ' + \

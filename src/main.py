@@ -57,7 +57,6 @@ def reset_timer():
     question_asked = question.Question()
     # timers can only be started once so we need to make a new one
     timer = Timer(time_limit, reset_timer)
-    timer.start()
 
 timer = Timer(time_limit, reset_timer)
 

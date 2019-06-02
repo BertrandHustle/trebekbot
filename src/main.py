@@ -110,7 +110,7 @@ def whatis():
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
-    print(request)
+    print(request.form)
     payload = {
     'text' : host.check_answer(question_asked, answer, user_name, user_id),
     'response_type' : 'in_channel'

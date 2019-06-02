@@ -73,8 +73,10 @@ def ask():
     }
     payload = jsonify(payload)
     payload.status_code = 200
+    print(question_asked)
     # start question timer
     timer.start()
+    print(question_asked)
     return payload
 
 # say hello to a user

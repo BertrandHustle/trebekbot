@@ -15,8 +15,6 @@ from time import sleep
 
 app = Flask(__name__)
 
-# set to 1 for debug mode
-debug = 1
 # setup database (or connect to existing one)
 # thanks to joamag on stackoverflow
 result = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -52,6 +50,7 @@ daily_double_answerer = None
 # resets timer and removes active question and answer
 def reset_timer():
     global banked_question
+    global live_question
     global timer
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     # generate new question
@@ -135,9 +134,3 @@ if __name__=='__main__':
     # start main game
     # app.run(debug=False, use_reloader=False)
     app.run()
-    if debug:
-        while True:
-            print(live_question)
-            print(banked_question)
-            print(timer)
-            sleep(5)

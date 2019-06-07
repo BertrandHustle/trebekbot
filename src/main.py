@@ -51,6 +51,7 @@ daily_double_answerer = None
 # resets timer and removes active question and answer
 def reset_timer():
     global banked_question
+    global timer
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     # generate new question
     banked_question = question.Question()

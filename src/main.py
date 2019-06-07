@@ -55,25 +55,12 @@ def reset_timer():
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     # generate new question
     banked_question = question.Question()
+    # wipe out live question
+    live_question = None
     # timers can only be started once so we need to make a new one
     timer = Timer(time_limit, reset_timer)
 
 timer = Timer(time_limit, reset_timer)
-
-# trebekbot asks a question
-@app.route('/ask', methods=['POST'])
-def ask():
-    global live_question
-    live_question = banked_question
-    payload = {
-    'text' : live_question.slack_text,
-    'response_type' : 'in_channel'
-    }
-    payload = jsonify(payload)
-    payload.status_code = 200
-    # start question timer
-    timer.start()
-    return payload
 
 # say hello to a user
 @app.route('/hello', methods=['POST'])
@@ -101,7 +88,29 @@ def help():
     payload.status_code = 200
     return payload
 
-# TODO: figure out why this isn't taking the user answer
+# trebekbot asks a question
+@app.route('/ask', methods=['POST'])
+def ask():
+    global live_question
+    live_question = banked_question
+    payload = {}
+    # if we don't already have a live question
+    if not live_question:
+        payload = {
+        'text' : live_question.slack_text,
+        'response_type' : 'in_channel'
+        }
+        # start question timer
+        timer.start()
+    else:
+        payload = {
+        'text' : 'question is already in play!',
+        'response_type' : 'in_channel'
+        }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
 # answer the current question
 @app.route('/whatis', methods=['POST'])
 def whatis():

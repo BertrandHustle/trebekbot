@@ -7,12 +7,9 @@ import os
 import src.question as question
 import src.db as db
 import src.host as host
-import time
 import urllib.parse as urlparse
 from threading import Timer
-from datetime import datetime
 from slackclient import SlackClient
-from contextlib import suppress
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -40,8 +37,10 @@ slack_client = SlackClient(slack_token)
 channel = 'trivia'
 # export channel to env so host can grab it
 os.environ['SLACK_CHANNEL'] = channel
+# load this in the background to speed up response time
+banked_question = question.Question()
 # this needs to be outside the loop so it stays persistant
-question_asked = question.Question()
+live_question = None
 # time limit for questions
 time_limit = 60
 # vars for daily doubles
@@ -51,10 +50,10 @@ daily_double_answerer = None
 
 # resets timer and removes active question and answer
 def reset_timer():
-    global question_asked
-    host.say(channel, "Sorry, we're out of time. The correct answer is: " + question_asked.answer)
+    global banked_question
+    host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     # generate new question
-    question_asked = question.Question()
+    banked_question = question.Question()
     # timers can only be started once so we need to make a new one
     timer = Timer(time_limit, reset_timer)
 
@@ -63,8 +62,9 @@ timer = Timer(time_limit, reset_timer)
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
+    live_question = banked_question
     payload = {
-    'text' : question_asked.slack_text,
+    'text' : live_question.slack_text,
     'response_type' : 'in_channel'
     }
     payload = jsonify(payload)
@@ -107,7 +107,7 @@ def whatis():
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
-    answer_check = host.check_answer(question_asked, answer, user_name, user_id)
+    answer_check = host.check_answer(live_question, answer, user_name, user_id)
     payload = {
     'text' : answer_check,
     'response_type' : 'in_channel'
@@ -116,13 +116,10 @@ def whatis():
     payload.status_code = 200
     # if answer is correct we need to reset timer and make new questions
     if ':white_check_mark:' in answer_check:
-        question_asked = question.Question()
         reset_timer()
     return payload
 
-# TODO: get rid of all champion_score functions and db columns
 if __name__=='__main__':
     # start main game
     # app.run(debug=False, use_reloader=False)
     app.run()
-    # question timer, has to be created after reset_timer

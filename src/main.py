@@ -11,11 +11,12 @@ import urllib.parse as urlparse
 from threading import Timer
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
+from time import sleep
 
 app = Flask(__name__)
 
 # set to 1 for debug mode
-debug = 0
+debug = 1
 # setup database (or connect to existing one)
 # thanks to joamag on stackoverflow
 result = urlparse.urlparse(os.environ['DATABASE_URL'])
@@ -134,3 +135,9 @@ if __name__=='__main__':
     # start main game
     # app.run(debug=False, use_reloader=False)
     app.run()
+    if debug:
+        while True:
+            print(live_question)
+            print(banked_question)
+            print(timer)
+            sleep(5)

@@ -62,6 +62,7 @@ timer = Timer(time_limit, reset_timer)
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
+    global live_question
     live_question = banked_question
     payload = {
     'text' : live_question.slack_text,

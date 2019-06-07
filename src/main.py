@@ -92,10 +92,10 @@ def help():
 @app.route('/ask', methods=['POST'])
 def ask():
     global live_question
-    live_question = banked_question
     payload = {}
     # if we don't already have a live question
     if not live_question:
+        live_question = banked_question
         payload = {
         'text' : live_question.slack_text,
         'response_type' : 'in_channel'

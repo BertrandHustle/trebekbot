@@ -80,7 +80,6 @@ def help():
     payload.status_code = 200
     return payload
 
-# TODO: implement sleep here?
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -119,5 +118,5 @@ def whatis():
 
 if __name__=='__main__':
     # start main game
-    # app.run(debug=False, use_reloader=False)
-    app.run()
+    app.run(debug=False, use_reloader=False)
+    # app.run()

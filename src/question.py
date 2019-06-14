@@ -35,8 +35,6 @@ Holds details about questions and questions themselves
 class Question:
 
     # init
-    # jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
-    # question_list = json.loads(jeopardy_json_file)
     banned_categories = 'missing this category',
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 

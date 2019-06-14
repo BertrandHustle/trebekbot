@@ -46,6 +46,8 @@ time_limit = 60
 wager = 0
 # this is who asked the daily double
 daily_double_answerer = None
+# question timer
+timer = Timer(time_limit, reset_timer)
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -59,8 +61,6 @@ def reset_timer():
     live_question = None
     # timers can only be started once so we need to make a new one
     timer = Timer(time_limit, reset_timer)
-
-timer = Timer(time_limit, reset_timer)
 
 # say hello to a user
 @app.route('/hello', methods=['POST'])
@@ -88,25 +88,20 @@ def help():
     payload.status_code = 200
     return payload
 
+# TODO: implement sleep here?
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
     global live_question
-    payload = {}
+    payload = {'text': None, 'response_type': 'in_channel'}
     # if we don't already have a live question
     if not live_question:
         live_question = banked_question
-        payload = {
-        'text' : live_question.slack_text,
-        'response_type' : 'in_channel'
-        }
+        payload['text'] = live_question.slack_text
         # start question timer
         timer.start()
     else:
-        payload = {
-        'text' : 'question is already in play!',
-        'response_type' : 'in_channel'
-        }
+        payload['text'] = 'question is already in play!'
     payload = jsonify(payload)
     payload.status_code = 200
     return payload
@@ -127,7 +122,7 @@ def whatis():
     payload.status_code = 200
     # if answer is correct we need to reset timer and make new questions
     if ':white_check_mark:' in answer_check:
-        reset_timer()
+        timer.cancel()
     return payload
 
 if __name__=='__main__':

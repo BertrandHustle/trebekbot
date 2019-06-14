@@ -40,7 +40,7 @@ class Question:
     banned_categories = 'missing this category',
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    def __init__(self, daily_double_debug=None):
+    def __init__(self, daily_double_debug=None, timer):
         question = self.get_random_question()
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])
@@ -58,6 +58,7 @@ class Question:
         self.answer = question['answer']
         self.date = question['air_date']
         self.slack_text = Question.format_slack_text(self)
+        self.timer = timer
 
     # gets random question from given json file
     @staticmethod

@@ -36,10 +36,6 @@ slack_client = SlackClient(slack_token)
 channel = 'trivia'
 # export channel to env so host can grab it
 os.environ['SLACK_CHANNEL'] = channel
-# load this in the background to speed up response time
-banked_question = question.Question()
-# this needs to be outside the loop so it stays persistant
-live_question = None
 # time limit for questions
 time_limit = 60
 # vars for daily doubles
@@ -49,19 +45,14 @@ daily_double_answerer = None
 
 # resets timer and removes active question and answer
 def reset_timer():
-    global banked_question
     global live_question
     global timer
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     # generate new question
-    banked_question = question.Question()
-    # wipe out live question
-    live_question = None
-    # timers can only be started once so we need to make a new one
-    timer = Timer(time_limit, reset_timer)
+    live_question = question.Question(Timer(time_limit, reset_timer))
 
-# question timer
-timer = Timer(time_limit, reset_timer)
+# load this in the background to speed up response time
+live_question = question.Question(Timer(time_limit, reset_timer))
 
 # say hello to a user
 @app.route('/hello', methods=['POST'])
@@ -95,9 +86,8 @@ def help():
 def ask():
     global live_question
     payload = {'text': None, 'response_type': 'in_channel'}
-    # if we don't already have a live question
-    if not live_question:
-        live_question = banked_question
+    # check if question has active timer
+    if not live_question.timer.is_alive():
         payload['text'] = live_question.slack_text
         # start question timer
         timer.start()
@@ -110,7 +100,7 @@ def ask():
 # answer the current question
 @app.route('/whatis', methods=['POST'])
 def whatis():
-    global question_asked
+    global live_question
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
@@ -121,9 +111,10 @@ def whatis():
     }
     payload = jsonify(payload)
     payload.status_code = 200
-    # if answer is correct we need to reset timer and make new questions
+    # if answer is correct we need to reset timer and wipe out live question
     if ':white_check_mark:' in answer_check:
-        timer.cancel()
+        live_question.timer.cancel()
+        live_question = question.Question(Timer(time_limit, reset_timer))
     return payload
 
 if __name__=='__main__':

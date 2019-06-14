@@ -57,6 +57,7 @@ live_question = question.Question(Timer(time_limit, reset_timer))
 # say hello to a user
 @app.route('/hello', methods=['POST'])
 def hello():
+    # TODO: make decorator to get username/id
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     payload = {
@@ -116,7 +117,48 @@ def whatis():
         live_question = question.Question(Timer(time_limit, reset_timer))
     return payload
 
+# get user's score
+@app.route('/myscore', methods=['POST'])
+def myscore():
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    user_score = str(user_db.get_score(user_db.connection, user_name))
+    user_address = host.create_user_address(user_name, user_id)
+    payload = {
+    'text': user_address + ' your score is: ' + ' $' + user_score,
+    'response_type': 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+# get list of all users' scores
+@app.route('/topten', methods=['POST'])
+def topten():
+    top_ten_list = user_db.return_top_ten(user_db.connection)
+    slack_list = 'Here\'s our top scorers: \n'
+    count = 1
+    # TODO: improve/refactor this
+    for champ,name,score,champ_score,id,wins in top_ten_list:
+        # TODO: use host.create_user_address for this
+        # give crown for being champ
+        if host.current_champion_name and name == host.current_champion_name:
+            name = ':crown: ' + name
+        # format: 1. Morp - $501
+        slack_list += str(count) + '. ' + name + ' - ' + '$' \
+        + str(score) + '\n'
+        count += 1
+    payload = {
+    'text': slack_list,
+    'response_type': 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+
+# NOTE: set WEB_CONCURRENCY=1 to stop duplication problem
 if __name__=='__main__':
     # start main game
-    app.run(debug=False, use_reloader=False)
+    app.run_server(debug=False, use_reloader=False)
     # app.run()

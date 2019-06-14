@@ -90,7 +90,7 @@ def ask():
     if not live_question.timer.is_alive():
         payload['text'] = live_question.slack_text
         # start question timer
-        timer.start()
+        live_question.timer.start()
     else:
         payload['text'] = 'question is already in play!'
     payload = jsonify(payload)

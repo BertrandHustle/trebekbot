@@ -46,8 +46,6 @@ time_limit = 60
 wager = 0
 # this is who asked the daily double
 daily_double_answerer = None
-# question timer
-timer = Timer(time_limit, reset_timer)
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -61,6 +59,9 @@ def reset_timer():
     live_question = None
     # timers can only be started once so we need to make a new one
     timer = Timer(time_limit, reset_timer)
+
+# question timer
+timer = Timer(time_limit, reset_timer)
 
 # say hello to a user
 @app.route('/hello', methods=['POST'])

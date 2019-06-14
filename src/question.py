@@ -40,7 +40,7 @@ class Question:
     banned_categories = 'missing this category',
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    def __init__(self, daily_double_debug=None, timer):
+    def __init__(self, timer, daily_double_debug=None):
         question = self.get_random_question()
         # text with html links separated out
         scrubbed_text = Question.separate_html(question['question'])

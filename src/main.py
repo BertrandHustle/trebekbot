@@ -116,7 +116,7 @@ def whatis():
         live_question = question.Question(Timer(time_limit, reset_timer))
     return payload
 
-if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+if __name__=='__main__':
     # start main game
     app.run(debug=False, use_reloader=False)
     # app.run()

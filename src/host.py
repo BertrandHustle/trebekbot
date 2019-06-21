@@ -128,6 +128,18 @@ class Host:
         else:
             return '<@'+user_id+'>'
 
+    def create_daily_double_address(self, user_name, user_id):
+        '''
+        creates string to address user if a daily double is asked
+        :param: user_name
+        :param: user_id
+        '''
+        user_address = self.create_user_address(user_name, user_id)
+        user_score = self.my_score(user_name, user_id)
+        return 'It\'s a DAILY DOUBLE!\n' + user_address + \
+        ' [$' + user_score + '] ' + \
+        'Please enter a wager with the /wager command'
+
     '''
     [{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
     'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',

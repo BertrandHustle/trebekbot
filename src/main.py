@@ -46,7 +46,6 @@ daily_double_asker = None
 # resets timer and removes active question and answer
 def reset_timer():
     global live_question
-    global timer
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     # generate new question
     live_question = question.Question(Timer(time_limit, reset_timer))
@@ -104,6 +103,7 @@ def uptime():
     return payload
 
 # trebekbot asks a question
+# TODO: add response for when daily double is asked
 @app.route('/ask', methods=['POST'])
 def ask():
     global live_question
@@ -111,14 +111,23 @@ def ask():
     payload = {'text': None, 'response_type': 'in_channel'}
     # check if question has active timer
     if not live_question.timer.is_alive():
-        payload['text'] = live_question.slack_text
-        # start question timer
-        live_question.timer.start()
+        if live_question.is_daily_double:
+            user_name = request.form['user_name']
+            user_id = request.form['user_id']
+            payload['text'] = live_question.slack_text
+            payload['text'] += '\n' + host.create_daily_double_address(
+                user_name, user_id
+            )
+            daily_double_asker = request.form['user_name']
+            # TODO: add time to timer if daily double
+            live_question.timer.start()
+        else:
+            payload['text'] = live_question.slack_text
+            # start question timer
+            live_question.timer.start()
     else:
         payload['text'] = 'question is already in play!'
     # if question is daily double we need to track who received it
-    if live_question.is_daily_double:
-        daily_double_asker = request.form['user_name']
     payload = jsonify(payload)
     payload.status_code = 200
     return payload

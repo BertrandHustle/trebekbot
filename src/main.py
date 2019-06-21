@@ -40,8 +40,8 @@ os.environ['SLACK_CHANNEL'] = channel
 time_limit = 60
 # vars for daily doubles
 wager = 0
-# this is who asked the daily double
-daily_double_answerer = None
+# if question is daily double only this user can answer
+daily_double_asker = None
 
 # resets timer and removes active question and answer
 def reset_timer():
@@ -54,7 +54,7 @@ def reset_timer():
 # load this in the background to speed up response time
 live_question = question.Question(Timer(time_limit, reset_timer))
 
-# say hello to a user
+# say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
     # TODO: make decorator to get username/id
@@ -81,10 +81,33 @@ def help():
     payload.status_code = 200
     return payload
 
+# display latest changelog
+@app.route('/changelog', methods=['POST'])
+def changelog():
+    payload = {
+    'text' : host.get_latest_changelog('README.md'),
+    'response_type' : 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+# display uptime for trebekbot
+@app.route('/uptime', methods=['POST'])
+def uptime():
+    ayload = {
+    'text' : 'uptime: ' + host.uptime,
+    'response_type' : 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
     global live_question
+    global daily_double_asker
     payload = {'text': None, 'response_type': 'in_channel'}
     # check if question has active timer
     if not live_question.timer.is_alive():
@@ -93,39 +116,111 @@ def ask():
         live_question.timer.start()
     else:
         payload['text'] = 'question is already in play!'
+    # if question is daily double we need to track who received it
+    if live_question.is_daily_double:
+        daily_double_asker = request.form['user_name']
     payload = jsonify(payload)
     payload.status_code = 200
+    return payload
+
+# get wager for daily double
+@app.route('/wager', methods=['POST'])
+def wager():
+    global wager
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    wager = request.form['text']
+    payload = {
+    'text' : host.get_wager(wager, user_name, user_id),
+    'response_type' : 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+# pass daily double if user doesn't know answer
+@app.route('/nope', methods=['POST'])
+def nope():
+    global wager
+    payload = {
+    'text' : 'Coward. The correct answer is ' + live_question.answer,
+    'response_type' : 'in_channel'
+    }
+    if wager:
+        payload['text'] = 'You can\'t pass if you\'ve already wagered!'
+    payload = jsonify(payload)
+    payload.status_code = 200
+    live_question.timer.cancel()
+    live_question = question.Question(Timer(time_limit, reset_timer))
     return payload
 
 # answer the current question
 @app.route('/whatis', methods=['POST'])
 def whatis():
     global live_question
+    global daily_double_asker
+    global wager
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
-    answer_check = host.check_answer(live_question, answer, user_name, user_id)
-    payload = {
-    'text' : answer_check,
-    'response_type' : 'in_channel'
-    }
-    payload = jsonify(payload)
-    payload.status_code = 200
-    # if answer is correct we need to reset timer and wipe out live question
-    if ':white_check_mark:' in answer_check:
-        live_question.timer.cancel()
-        live_question = question.Question(Timer(time_limit, reset_timer))
-    return payload
+    # if someone else tries to answer daily double
+    if live_question.is_daily_double and user_name != daily_double_asker:
+        payload = {
+        'text' : 'Not your daily double!',
+        'response_type' : 'in_channel'
+        }
+        payload = jsonify(payload)
+        payload.status_code = 200
+        return payload
+    # if someone tries to answer daily double without wagering
+    elif live_question.is_daily_double and not wager:
+        payload = {
+        'text' : 'Please wager something first (not zero!).',
+        'response_type' : 'in_channel'
+        }
+        payload = jsonify(payload)
+        payload.status_code = 200
+        return payload
+    else:
+        answer_check = host.check_answer(
+            live_question,
+            answer,
+            user_name,
+            user_id,
+            wager=wager
+        )
+        payload = {
+        'text' : answer_check,
+        'response_type' : 'in_channel'
+        }
+        # if answer is correct we need to reset timer and wipe out live question
+        if ':white_check_mark:' in answer_check:
+            live_question.timer.cancel()
+            live_question = question.Question(Timer(time_limit, reset_timer))
+        payload = jsonify(payload)
+        payload.status_code = 200
+        return payload
 
 # get user's score
 @app.route('/myscore', methods=['POST'])
 def myscore():
     user_name = request.form['user_name']
     user_id = request.form['user_id']
-    user_score = str(user_db.get_score(user_db.connection, user_name))
-    user_address = host.create_user_address(user_name, user_id)
     payload = {
-    'text': user_address + ' your score is: ' + ' $' + user_score,
+    'text': host.my_score(user_name, user_id),
+    'response_type': 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+# get user's tally of all-time wins
+@app.route('/mywins', methods=['POST'])
+def mywins():
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+    'text': host.mywins(user_name, user_id),
     'response_type': 'in_channel'
     }
     payload = jsonify(payload)

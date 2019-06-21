@@ -104,27 +104,6 @@ class Host:
             if 'trebekbot' not in username:
                 self.user_db.add_user_to_db(self.user_db.connection, username)
 
-    def hear(self, slack_output, listen_for):
-        with suppress(IndexError, KeyError):
-            # for some reason slack's output is a dict within a list, this gives us just the list
-            slack_output = slack_output[0]
-            text = slack_output['text']
-            channel = slack_output['channel']
-            user = self.get_user(slack_output)
-            text_minus_prefix = text[2:].split(' ')[0]
-            # if the text starts with the command_prefix
-            # and the rest of the text minus the prefix matches what we're listening for
-            # and we're in the right channel
-            if text.startswith(self.command_prefix) \
-            and channel == self.channel_id \
-            and text_minus_prefix == listen_for:
-                answer = text.split(text_minus_prefix)[1]
-                if answer:
-                    # return the answer without the prefix if we 'hear' the command prefix
-                    return answer
-                else:
-                    return True
-
     # say things back to channel
     '''
     :param: channel: channel to which we are posting message
@@ -190,21 +169,6 @@ class Host:
                 if 'name' in user and user.get('name') == bot_name:
                     return user.get('id')
 
-    '''
-    get user by checking user id
-    :param slack_output: json of user message from slack
-    '''
-    def get_user(self, slack_output):
-        with suppress(decoder.JSONDecodeError):
-            user_id = slack_output['user']
-            user = self.slack_client.api_call(
-            'users.info',
-            user = user_id
-            )
-            # in case we don't locate a user
-            if user:
-                return user['user']['name']
-
     # returns bugfix/feature notes for latest version of trebekbot
     def get_latest_changelog(self, changelog_path):
         # the text from the latest changelog only, this is what we will return
@@ -228,14 +192,20 @@ class Host:
 
     '''
     gets wager value from output for daily doubles
-    :param: slack_output: json of user message from slack
-    :param: user_score: the current score of the user making the wager
+    :param: wager: user's raw wager (before we check against user score)
+    :param: user_name:
+    :param: user_id:
     '''
-    def get_wager(self, slack_output, user_score):
-        with suppress(ValueError):
-            slack_output = slack_output[0]
-            wager = int(slack_output['text'].split('wager')[1])
-            return self.calc_wager(wager, user_score)
+    def get_wager(self, wager, user_name, user_id):
+        user_score = str(
+            self.user_db.get_score(self.user_db.connection, user_name)
+        )
+        user_address = host.create_user_address(user_name, user_id)
+        user_wager = self.calc_wager(wager, self.my_score(user_name, user_id))
+        if user_wager:
+            return user_address + ' you\'ve wagered $' +  user_wager
+        else:
+            return user_address + ' please enter a real wager!'
 
     '''
     adjusts wager according to jeopardy rules, this is separate from get_wager
@@ -263,29 +233,17 @@ class Host:
 
     # COMMANDS
 
-    # lists trebekbot functions
-    def help(self, slack_output):
-        if self.hear(slack_output, 'help'):
-            self.say(self.channel_id, self.help_text)
-
-    # shows latest changelog
-    def changelog(self, slack_output):
-        if self.hear(slack_output, 'changelog'):
-            self.say(self.channel_id, self.get_latest_changelog('README.md'))
-
-    # shows time trebekbot was last booted up (uptime)
-    def say_uptime(self, slack_output):
-        if self.hear(slack_output, 'uptime'):
-            self.say(self.channel_id, self.uptime)
-
-    # say hi!
-    def hello(self, slack_output):
-        if self.hear(slack_output, 'hello'):
-            slack_output = slack_output[0]
-            user = self.get_user(slack_output)
-            if self.current_champion_name and user == self.current_champion_name:
-                user = ':crown:' + user
-            self.say(self.channel_id, 'Hello ' + user)
+    '''
+    gets user's current score
+    :param: user_name:
+    :param: user_id:
+    '''
+    def my_score(self, user_name, user_id):
+        user_score = str(
+            self.user_db.get_score(self.user_db.connection, user_name)
+        )
+        user_address = host.create_user_address(user_name, user_id)
+        return user_address + ' your score is: ' + ' $' + user_score
 
     # returns top ten scorers
     def top_ten(self):
@@ -305,15 +263,12 @@ class Host:
 
     # TODO: finish writing this
     # gets total all-time wins for user
-    def mywins(self, slack_output):
-        if self.hear(slack_output, 'mywins'):
-            slack_output = slack_output[0]
-            user = self.get_user(slack_output)
-            if self.current_champion_name and user == self.current_champion_name:
-                user = ':crown: ' + user
-            wins = str(self.user_db.get_user_wins(self.user_db.connection, user))
-            self.say(self.channel_id, user + ' wins: ' + wins)
-
+    def my_wins(self, user_name, user_id):
+        user_address = self.create_user_address(user_name, user_id)
+        wins = str(
+        self.user_db.get_user_wins(self.user_db.connection, user_name)
+        )
+        return user_address + ' wins: ' + wins)
 
     '''
     gets a random question from the jeopardy_json_file
@@ -327,14 +282,7 @@ class Host:
             self.say(self.channel_id, asked_question.slack_text)
             return asked_question
 
-    # DEBUG_COMMANDS
-
-    # crashes trebekbot to force a restart
-    def crash(self, slack_output):
-        if self.hear(slack_output, 'crash'):
-            slack_output = slack_output[0]
-            if self.get_user(slack_output) == 'bertrand_hustle':
-                raise Exception
+    # DEBUG COMMANDS
 
     # asks daily double, but only if it's bertrand_hustle
     def debug_daily_double(self, slack_output):

@@ -151,16 +151,6 @@ for db.get_champion()
 def test_no_champion(populate_db_all_scores_zero, scrub_test_users):
     assert test_db.get_champion(test_db.connection) == None
 
-def test_set_champion(populate_db, scrub_test_users):
-    test_db.set_champion(test_db.connection, 'Morp', 501)
-    test_cursor.execute(
-    '''
-    SELECT * FROM USERS WHERE CHAMPION = 1 AND CHAMPION_SCORE = 501
-    '''
-    )
-    test_result = test_cursor.fetchone()
-    assert (test_result[1], test_result[3]) == ('Morp', 501)
-
 # TODO: test if user doesn't exist
 def test_get_score(scrub_test_users):
     test_db.add_user_to_db(test_db.connection, 'Lucy')

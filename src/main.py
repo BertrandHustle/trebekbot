@@ -135,27 +135,13 @@ def myscore():
 # get list of all users' scores
 @app.route('/topten', methods=['POST'])
 def topten():
-    top_ten_list = user_db.return_top_ten(user_db.connection)
-    slack_list = 'Here\'s our top scorers: \n'
-    count = 1
-    # TODO: improve/refactor this
-    for champ,name,score,champ_score,id,wins in top_ten_list:
-        # TODO: use host.create_user_address for this
-        # give crown for being champ
-        if host.current_champion_name and name == host.current_champion_name:
-            name = ':crown: ' + name
-        # format: 1. Morp - $501
-        slack_list += str(count) + '. ' + name + ' - ' + '$' \
-        + str(score) + '\n'
-        count += 1
     payload = {
-    'text': slack_list,
+    'text': host.top_ten(),
     'response_type': 'in_channel'
     }
     payload = jsonify(payload)
     payload.status_code = 200
     return payload
-
 
 # NOTE: set WEB_CONCURRENCY=1 to stop duplication problem
 if __name__=='__main__':

@@ -287,35 +287,21 @@ class Host:
                 user = ':crown:' + user
             self.say(self.channel_id, 'Hello ' + user)
 
-    # returns user's current score
-    def myscore(self, slack_output, db):
-        if self.hear(slack_output, 'myscore'):
-            slack_output = slack_output[0]
-            user = self.get_user(slack_output)
-            # needed to avoid querying db for name with crown in it
-            user_address = user
-            if self.current_champion_name and user == self.current_champion_name:
-                user_address = ':crown: ' + user
-            self.say(self.channel_id, user_address + ', your score is: '+ ' $' + \
-            str(db.get_score(db.connection, user)))
-
     # returns top ten scorers
-    # if force flag is active, ignore slack and say the top ten regardless (for testing)
-    def top_ten(self, slack_output, force=None):
-        if self.hear(slack_output, 'topten') or force:
-            top_ten_list = self.user_db.return_top_ten(self.user_db.connection)
-            slack_list = 'Here\'s our top scorers: \n'
-            count = 1
-            # TODO: improve/refactor this
-            for champ,name,score,champ_score,id,wins in top_ten_list:
-                # give crown for being champ
-                if self.current_champion_name and name == self.current_champion_name:
-                    name = ':crown: ' + name
-                # format: 1. Morp - $501
-                slack_list += str(count) + '. ' + name + ' - ' + '$' \
-                + str(score) + '\n'
-                count += 1
-            self.say(self.channel_id, slack_list)
+    def top_ten(self):
+        top_ten_list = self.user_db.return_top_ten(self.user_db.connection)
+        slack_list = 'Here\'s our top scorers: \n'
+        count = 1
+        # TODO: improve/refactor this
+        for champ,name,score,champ_score,id,wins in top_ten_list:
+            # give crown for being champ
+            if self.current_champion_name and name == self.current_champion_name:
+                name = ':crown: ' + name
+            # format: 1. Morp - $501
+            slack_list += str(count) + '. ' + name + ' - ' + '$' \
+            + str(score) + '\n'
+            count += 1
+        return slack_list
 
     # TODO: finish writing this
     # gets total all-time wins for user

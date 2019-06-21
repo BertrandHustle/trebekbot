@@ -26,8 +26,6 @@ class db(object):
         :param connection: connection to the sql database
         :sql_param name: name of user
         :sql_param score: current money value of user
-        :sql_param champion_score: leader's score (for persistence between resets)
-        :sql_param champion: flag if user was the champion before reboot
         :sql_param wins: total all-time wins
         '''
         cursor = connection.cursor()
@@ -116,24 +114,6 @@ class db(object):
         champion_score = champion_search[0][1]
         if champion_score > 0:
             return champion_name, champion_score
-
-    # sets champion before nightly reset
-    # TODO: this needs to store score as well as username
-    def set_champion(self, connection, user, score):
-        cursor = connection.cursor()
-        # set all champions to 0 first to ensure we don't have multiple champs
-        cursor.execute(
-        '''
-        UPDATE USERS SET CHAMPION = 0
-        '''
-        )
-        cursor.execute(
-        '''
-        UPDATE USERS SET CHAMPION = 1, CHAMPION_SCORE = %s WHERE NAME = %s
-        ''',
-        (score, user)
-        )
-        self.connection.commit()
 
     '''
     updates the score of a given user

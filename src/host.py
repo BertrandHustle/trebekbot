@@ -3,8 +3,6 @@ import src.question as question
 import src.db as db
 import difflib
 import editdistance
-import gevent
-from gevent.pool import Pool
 from time import time, ctime
 from re import sub, findall, match, IGNORECASE
 from os import path, environ
@@ -534,7 +532,6 @@ class Host:
                 paren_answer = ''.join(list(filter(lambda x: x not in ['(', ')'], correct_answer)))
                 paren_answer = Host.strip_answer(paren_answer)
                 paren_pair_list = Host.pair_off_answers(Host.strip_answer(given_answer), paren_answer)
-                # TODO: add async here too
                 for pair in paren_pair_list:
                     # check equality first for performance boost
                     result = pair[0] == pair[1] or Host.fuzz_word(pair[0], pair[1])
@@ -545,36 +542,19 @@ class Host:
             # remove casing, punctuation, and articles
             given_answer = Host.strip_answer(given_answer)
             correct_answer = Host.strip_answer(correct_answer)
+            pair_list = Host.pair_off_answers(given_answer, correct_answer)
+            # if 'wells' in given_answer:
+                # pdb.set_trace()
             if given_answer == correct_answer or given_answer == paren_answer:
                 return True
-            pair_list = Host.pair_off_answers(given_answer, correct_answer)
-            pair_pool = Pool(len(pair_list))
-
-            # yes it's a function def within a function,
-            # but we need it for gevent
-            def pair_comp(pair):
-                """
-                compare word pairs with fuzz_word and update result totals.
-                :param tuple pair: pair of strings to compare with fuzz_word
-                :return: None (updates close/right totals as side effect)
-                """
-                nonlocal close
-                nonlocal right
-                result = Host.fuzz_word(pair[0], pair[1])
+            # compare pairs and adjust totals accordingly
+            for pair in pair_list:
+                # check equality first for performance boost
+                result = pair[0] == pair[1] or Host.fuzz_word(pair[0], pair[1])
                 if result == 'close':
                     close += 1
                 elif result == True:
                     right += 1
-                return
-
-            # add fuzz_words to pool
-            for pair in pair_list:
-                gevent.spawn(pair_comp, pair)
-            # run all pair comps
-            pair_pool.join()
-
-            # import pdb; pdb.set_trace()
-
             # use whichever answer copy has the higher score
             if parentheses:
                 close = max(paren_close, close)

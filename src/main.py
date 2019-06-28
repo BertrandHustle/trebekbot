@@ -177,21 +177,16 @@ def whatis():
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
+    payload = {'text' : None, 'response_type' : 'in_channel'}
     # if someone else tries to answer daily double
     if live_question.is_daily_double and user_name != daily_double_asker:
-        payload = {
-        'text' : 'Not your daily double!',
-        'response_type' : 'in_channel'
-        }
+        payload['text'] = 'Not your daily double!'
         payload = jsonify(payload)
         payload.status_code = 200
         return payload
     # if someone tries to answer daily double without wagering
     elif live_question.is_daily_double and not wager:
-        payload = {
-        'text' : 'Please wager something first (not zero!).',
-        'response_type' : 'in_channel'
-        }
+        payload['text'] = 'Please wager something first (not zero!).'
         payload = jsonify(payload)
         payload.status_code = 200
         return payload
@@ -203,18 +198,15 @@ def whatis():
             user_id,
             wager=wager
         )
-        payload = {
-        'text' : answer_check,
-        'response_type' : 'in_channel'
-        }
+        payload['text'] = answer_check
         # if answer is correct we need to reset timer and wipe out live question
         if ':white_check_mark:' in answer_check:
             live_question.timer.cancel()
-            question_is_live = False
             live_question = question.Question(Timer(time_limit, reset_timer))
         payload = jsonify(payload)
         payload.status_code = 200
         return payload
+
 
 # get user's score
 @app.route('/myscore', methods=['POST'])

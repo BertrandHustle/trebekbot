@@ -280,7 +280,7 @@ class Host:
         wins = str(
         self.user_db.get_user_wins(self.user_db.connection, user_name)
         )
-        return user_address + ' wins: ' + wins)
+        return user_address + ' wins: ' + wins
 
     '''
     gets a random question from the jeopardy_json_file

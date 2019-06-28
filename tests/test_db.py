@@ -6,7 +6,6 @@ from os import path, remove
 import pytest
 import db
 import testing.postgresql
-import pdb
 
 # set up test db
 postgresql = testing.postgresql.Postgresql()

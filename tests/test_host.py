@@ -16,9 +16,17 @@ import testing.postgresql
 sc = slackclient.SlackClient('slack_token')
 
 # set up test db
+'''
 postgresql = testing.postgresql.Postgresql()
 engine = create_engine(postgresql.url())
 test_db = db.db(**postgresql.dsn)
+'''
+postgresql = testing.postgresql.Postgresql()
+engine = create_engine(postgresql.url())
+dsn = postgresql.dsn()
+conn_string = 'dbname=' + dsn['database'] + ' ' +'user=' + dsn['user'] + ' ' +\
+'host=' + dsn['host'] + ' ' + 'port=' + str(dsn['port'])
+test_db = db.db(conn_string)
 
 # TODO: find a way to make this not duplicate code from test_db
 def populate_db(database):
@@ -33,15 +41,9 @@ def populate_db(database):
     # check to make sure negative numbers work too
     test_cursor.execute(
     '''
-    UPDATE USERS SET SCORE = ? WHERE NAME = ?
+    UPDATE USERS SET SCORE = %s WHERE NAME = %s
     ''',
     (-156, 'Eve')
-    )
-    test_cursor.execute(
-    '''
-    UPDATE USERS SET CHAMPION_SCORE = ? WHERE NAME = ?
-    ''',
-    (5000, 'Morp')
     )
 
 populate_db(test_db)

@@ -1,5 +1,4 @@
 import psycopg2
-import pdb
 from os import path, environ
 
 '''

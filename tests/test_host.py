@@ -13,14 +13,9 @@ import slackclient
 import testing.postgresql
 
 # set up test objects
-sc = slackclient.SlackClient('slack_token')
+sc = slackclient.SlackClient(os.environ['TREBEKBOT_API_TOKEN'])
 
 # set up test db
-'''
-postgresql = testing.postgresql.Postgresql()
-engine = create_engine(postgresql.url())
-test_db = db.db(**postgresql.dsn)
-'''
 postgresql = testing.postgresql.Postgresql()
 engine = create_engine(postgresql.url())
 dsn = postgresql.dsn()
@@ -47,7 +42,7 @@ def populate_db(database):
     )
 
 populate_db(test_db)
-test_host = host.Host(sc)
+test_host = host.Host(sc, test_db)
 
 def test_get_channel_id():
     fail_test_json = {"ok": False, "error": "invalid_auth"}
@@ -135,6 +130,7 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
 "show_number": "3242"}
 '''
 
+# time before async: 27.27 seconds
 @pytest.mark.parametrize("given_answer, expected_answer, expected_value", [
  ('Bath', 'Borth', False),
  ('Bath', 'beth', True),

@@ -253,6 +253,46 @@ def topten():
     payload.status_code = 200
     return payload
 
+# DEBUG Routes
+
+# used to force a daily double for testing
+@app.route('/dd', methods=['POST'])
+def dd():
+    global live_question
+    global daily_double_asker
+    payload = {'text': None, 'response_type': 'in_channel'}
+    if request.form['user_name'] == 'bertrand_hustle':
+        live_question = question.Question(Timer(time_limit, reset_timer), daily_double_debug=True)
+        user_name = request.form['user_name']
+        user_id = request.form['user_id']
+        payload['text'] = live_question.slack_text
+        payload['text'] += '\n' + host.create_daily_double_address(
+            user_name, user_id
+        )
+        daily_double_asker = user_name
+        # TODO: add time to timer if daily double
+        live_question.start_timer()
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+# force crash/restart trebekbot
+@app.route('/crash', methods=['POST'])
+def crash():
+    return 1/0
+
+# shows what the live question is
+@app.route('/livequestion', methods=['POST'])
+def livequestion():
+    global live_question
+    payload = {
+        'text': live_question.slack_text,
+        'response_type': 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
 # NOTE: set WEB_CONCURRENCY=1 to stop duplication problem
 if __name__=='__main__':
     # start main game

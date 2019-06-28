@@ -79,7 +79,7 @@ class Host:
             '$' + str(self.current_champion_score) + '!')
         # show yesterday's leaderboard
         self.say(self.channel, 'Here\'s yesterday\'s top scores:')
-        self.top_ten(slack_output='', force=1)
+        self.top_ten(force=1)
         # reset champion_scores here
         user_db.wipe_scores(user_db.connection)
 
@@ -526,6 +526,7 @@ class Host:
                 paren_answer = ''.join(list(filter(lambda x: x not in ['(', ')'], correct_answer)))
                 paren_answer = Host.strip_answer(paren_answer)
                 paren_pair_list = Host.pair_off_answers(Host.strip_answer(given_answer), paren_answer)
+                # TODO: reconfig this to use gevent
                 for pair in paren_pair_list:
                     # check equality first for performance boost
                     result = pair[0] == pair[1] or Host.fuzz_word(pair[0], pair[1])

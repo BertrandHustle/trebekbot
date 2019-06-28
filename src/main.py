@@ -42,11 +42,13 @@ time_limit = 60
 wager = 0
 # if question is daily double only this user can answer
 daily_double_asker = None
+# check if we have a live question
+question_is_live = False
 
 # resets timer and removes active question and answer
 def reset_timer():
-    global live_question
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
+    question_is_live = False
     # generate new question
     live_question = question.Question(Timer(time_limit, reset_timer))
 
@@ -102,15 +104,15 @@ def uptime():
     payload.status_code = 200
     return payload
 
+# TODO: clean up global refs
 # trebekbot asks a question
-# TODO: add response for when daily double is asked
 @app.route('/ask', methods=['POST'])
 def ask():
     global live_question
     global daily_double_asker
     payload = {'text': None, 'response_type': 'in_channel'}
     # check if question has active timer
-    if not live_question.timer.is_alive():
+    if not question_is_live:
         if live_question.is_daily_double:
             user_name = request.form['user_name']
             user_id = request.form['user_id']
@@ -121,10 +123,12 @@ def ask():
             daily_double_asker = request.form['user_name']
             # TODO: add time to timer if daily double
             live_question.timer.start()
+            question_is_live = True
         else:
             payload['text'] = live_question.slack_text
             # start question timer
             live_question.timer.start()
+            question_is_live = True
     else:
         payload['text'] = 'question is already in play!'
     # if question is daily double we need to track who received it
@@ -161,6 +165,7 @@ def nope():
     payload.status_code = 200
     live_question.timer.cancel()
     live_question = question.Question(Timer(time_limit, reset_timer))
+    question_is_live = False
     return payload
 
 # answer the current question
@@ -205,6 +210,7 @@ def whatis():
         # if answer is correct we need to reset timer and wipe out live question
         if ':white_check_mark:' in answer_check:
             live_question.timer.cancel()
+            question_is_live = False
             live_question = question.Question(Timer(time_limit, reset_timer))
         payload = jsonify(payload)
         payload.status_code = 200

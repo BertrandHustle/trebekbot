@@ -5,12 +5,13 @@ os.path.abspath(
 os.path.join(
 os.path.dirname(__file__), os.path.pardir)))
 from src import question
+from threading import Timer
 import pytest
-import pdb
 import json
 
-test_question = question.Question()
-pdb.set_trace()
+
+test_timer = Timer(1, None)
+test_question = question.Question(test_timer)
 # tests question constructor
 def test_question_constructor():
     assert type(test_question.answer) == str
@@ -25,18 +26,18 @@ def test_question_constructor():
         for link in test_question.valid_links:
             assert link.startswith('http://')
 
+# TODO: speed this up!
 def test_daily_double_debug_flag():
-    dd_question = question.Question(daily_double_debug=1)
-    non_dd_question = question.Question()
-    assert dd_question.daily_double == True
-    assert non_dd_question.daily_double == False
+    for q in range(10):
+        dd_question = question.Question(test_timer, daily_double_debug=1)
+        assert dd_question.daily_double == True
 
 def test_get_value():
     '''
     we want to make sure that it's a valid Jeopardy point value,
     so it has to be in an increment of $100
     '''
-    value_no_dollar_sign = test_question.get_value()[2:]
+    value_no_dollar_sign = test_question.get_value()[1:]
     assert int(value_no_dollar_sign) % 100 == 0
 
 @pytest.mark.parametrize("test_text, expected_output", [

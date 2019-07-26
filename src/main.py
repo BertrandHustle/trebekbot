@@ -120,18 +120,43 @@ def ask():
             payload['text'] += '\n' + host.create_daily_double_address(
                 user_name, user_id
             )
+            # if question is daily double we need to track who received it
             daily_double_asker = request.form['user_name']
-            # TODO: add time to timer if daily double
-            live_question.timer.start()
-            question_is_live = True
         else:
             payload['text'] = live_question.slack_text
-            # start question timer
-            live_question.timer.start()
-            question_is_live = True
+        # TODO: add time to timer if daily double
+        # start question timer
+        live_question.timer.start()
+        question_is_live = True
     else:
         payload['text'] = 'question is already in play!'
-    # if question is daily double we need to track who received it
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+# forces skip on current question and generates new question
+@app.route('/skip', methods=['POST'])
+def skip():
+    global live_question
+    global daily_double_asker
+    # cancel current timer and instantiate new question
+    live_question.timer.cancel()
+    live_question = question.Question(Timer(time_limit, reset_timer))
+    payload = {'text': None, 'response_type': 'in_channel'}
+    if live_question.is_daily_double:
+        user_name = request.form['user_name']
+        user_id = request.form['user_id']
+        payload['text'] = live_question.slack_text
+        payload['text'] += '\n' + host.create_daily_double_address(
+            user_name, user_id
+        )
+        # if question is daily double we need to track who received it
+        daily_double_asker = request.form['user_name']
+    else:
+        payload['text'] = live_question.slack_text
+    # TODO: add time to timer if daily double
+    # start question timer
+    live_question.timer.start()
     payload = jsonify(payload)
     payload.status_code = 200
     return payload

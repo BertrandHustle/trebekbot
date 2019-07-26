@@ -37,6 +37,7 @@ class Host:
     '''+command_prefix+'''help: bring up this help list
     '''+command_prefix+'''hello: say hello to trebekbot
     '''+command_prefix+'''ask: trebekbot will ask you a question
+    '''+command_prefix+'''skip: skip current question
     '''+command_prefix+'''whatis: use this to provide an answer to the question
     '''+command_prefix+'''myscore: find out what your current score is
     '''+command_prefix+'''mywins: find out your all-time win count

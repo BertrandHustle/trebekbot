@@ -176,10 +176,11 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('R&D', 'R&D', True),
  ('L', 'Y', False),
  ('8', '4 pounds', False),
- # make sure we arent' too lenient for longer words
+ # make sure we aren't too lenient for longer words
  ('featherweight', 'welterweight', False),
  # slashes
  ('istanbul', 'istanbul/constantinople', True)
+ # check spelling response
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

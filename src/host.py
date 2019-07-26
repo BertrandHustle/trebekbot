@@ -324,6 +324,10 @@ class Host:
         # if user answer has equal or less words than correct answer
         if len(user_answer.split(' ')) <= len(correct_answer.split(' ')):
             closeness = 'more'
+        # if both answers have the same number of words we know it's a
+        # spelling issue
+        elif len(user_answer.split(' ')) == len(correct_answer.split(' ')):
+            return 'Please fix your spelling.'
         # if user answer has more words than correct answer
         else:
             closeness = 'less'

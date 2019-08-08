@@ -9,7 +9,7 @@ This will primarily serve to store users and track their scores/money totals
 :param connection: connection object to database
 '''
 
-class db(object):
+class db():
     def __init__(self, conn_string):
         '''
         db object for interacing with psql database

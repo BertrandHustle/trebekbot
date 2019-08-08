@@ -99,7 +99,9 @@ def test_return_top_ten(populate_db, scrub_test_users):
     'Eve',
     'boop'
     ]
-    top_ten_names = [x[1] for x in test_db.return_top_ten(test_db.connection)]
+    test_top_ten = test_db.return_top_ten(test_db.connection)
+    top_ten_names = [x[1] for x in test_top_ten]
+    assert len(test_top_ten) == 4
     assert top_ten_names == expected_names
 
 def test_increment_win(populate_db, scrub_test_users):

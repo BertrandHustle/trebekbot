@@ -46,14 +46,14 @@ test_host = host.Host(sc, test_db)
 
 def test_get_channel_id():
     fail_test_json = {"ok": False, "error": "invalid_auth"}
-    test_json = json.load(open(path.join('support_files', 'json', 'test_get_channel_id.json')))
+    test_json = json.load(open(os.path.join('support_files', 'json', 'test_get_channel_id.json')))
     expected_id = 'C600FK4T1'
     assert test_host.get_channel_id_from_json('trivia', test_json) == expected_id
     assert test_host.get_channel_id_from_json('trivia', fail_test_json) == None
     assert test_host.get_channel_id_from_json('trivia', None) == None
 
 def test_get_bot_id():
-    expected_id = "0"
+    expected_id = "U5YKR45PB"
     assert test_host.get_bot_id('trebekbot') == expected_id
 
 @pytest.mark.parametrize("wager, user_score, expected_value", [
@@ -180,7 +180,6 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('featherweight', 'welterweight', False),
  # slashes
  ('istanbul', 'istanbul/constantinople', True)
- # check spelling response
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_host.fuzz_answer(given_answer, expected_answer) == expected_value

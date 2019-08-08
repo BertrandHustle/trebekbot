@@ -265,7 +265,7 @@ class Host:
         slack_list = 'Here\'s our top scorers: \n'
         count = 1
         # TODO: improve/refactor this
-        for name,score,id,wins in top_ten_list:
+        for id,name,score,wins in top_ten_list:
             # give crown for being champ
             if self.current_champion_name and name == self.current_champion_name:
                 name = ':crown: ' + name
@@ -425,7 +425,8 @@ class Host:
         matrix = []
         for word in answer1:
             for comp_word in answer2:
-                # convert to set so order doesn't matter in pairs
+                # convert to set so order doesn't matter in pairs and ignore
+                # exact matches
                 if not set([word, comp_word]) in [set(m) for m in matrix]:
                     matrix.append((word, comp_word))
         return matrix

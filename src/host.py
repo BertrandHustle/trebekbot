@@ -262,6 +262,7 @@ class Host:
     # returns top ten scorers
     def top_ten(self):
         top_ten_list = self.user_db.return_top_ten(self.user_db.connection)
+        print(top_ten_list)
         slack_list = 'Here\'s our top scorers: \n'
         count = 1
         # TODO: improve/refactor this

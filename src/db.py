@@ -1,5 +1,6 @@
 import psycopg2
 from os import path, environ
+from contextlib import suppress
 
 '''
 Class for database setup/functions
@@ -109,10 +110,11 @@ class db():
         '''
         )
         champion_search = cursor.fetchall()
-        champion_name = champion_search[0][0]
-        champion_score = champion_search[0][1]
-        if champion_score > 0:
-            return champion_name, champion_score
+        with suppress(IndexError):
+            champion_name = champion_search[0][0]
+            champion_score = champion_search[0][1]
+            if champion_score > 0:
+                return champion_name, champion_score
 
     '''
     updates the score of a given user

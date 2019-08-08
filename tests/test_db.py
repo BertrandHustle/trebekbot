@@ -149,7 +149,7 @@ def test_get_champion(populate_db, scrub_test_users):
 not a real unit test, but used to test the edge case where there is no champ
 for db.get_champion()
 '''
-def test_no_champion(populate_db_all_scores_zero, scrub_test_users):
+def test_no_champion(scrub_test_users):
     assert test_db.get_champion(test_db.connection) == None
 
 # TODO: test if user doesn't exist

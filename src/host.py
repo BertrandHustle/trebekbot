@@ -214,7 +214,7 @@ class Host:
         user_score = str(
             self.user_db.get_score(self.user_db.connection, user_name)
         )
-        user_address = host.create_user_address(user_name, user_id)
+        user_address = self.create_user_address(user_name, user_id)
         user_wager = self.calc_wager(wager, self.my_score(user_name, user_id))
         if user_wager:
             return user_address + ' you\'ve wagered $' +  user_wager

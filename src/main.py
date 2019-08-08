@@ -72,8 +72,8 @@ def hello():
 host = host.Host(slack_client, user_db)
 
 # display help text
-@app.route('/help', methods=['POST'])
-def help():
+@app.route('/howtoplay', methods=['POST'])
+def howtoplay():
     payload = {
     'text' : host.help_text,
     'response_type' : 'in_channel'
@@ -110,6 +110,7 @@ def uptime():
 def ask():
     global live_question
     global daily_double_asker
+    global question_is_live
     payload = {'text': None, 'response_type': 'in_channel'}
     # check if question has active timer
     if not question_is_live:

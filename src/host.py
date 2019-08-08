@@ -256,7 +256,7 @@ class Host:
         user_score = str(
             self.user_db.get_score(self.user_db.connection, user_name)
         )
-        user_address = host.create_user_address(user_name, user_id)
+        user_address = self.create_user_address(user_name, user_id)
         return user_address + ' your score is: ' + ' $' + user_score
 
     # returns top ten scorers

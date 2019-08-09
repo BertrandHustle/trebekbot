@@ -205,6 +205,7 @@ def test_check_closeness(given_answer, correct_answer, expected_reply):
  (1000, 'Scott', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $1000")
 ])
 def test_get_wager(wager, user_name, user_id, expected_value):
+    print(test_db.get_score(test_db.connection, user_name))
     assert test_host.get_wager(wager, user_name, user_id) == expected_value
 
 def test_get_latest_changelog():

@@ -32,6 +32,8 @@ def populate_db(database):
         database.add_user_to_db(database.connection, user)
         database.update_score(database.connection, user, test_score)
         test_score += 100
+    # guarantee user with 0 score
+    database.add_user_to_db(database.connection, 'Scott')
     test_cursor = database.connection.cursor()
     # check to make sure negative numbers work too
     test_cursor.execute(
@@ -199,7 +201,8 @@ def test_check_closeness(given_answer, correct_answer, expected_reply):
  (20000, 'Bob', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $1000"),
  (10000, 'Carol', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $1000"),
  (400, 'Eve', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $400"),
- (0, 'Jim', 'U1UU5ARJ6', '<@U1UU5ARJ6> please enter a real wager!')
+ (0, 'Jim', 'U1UU5ARJ6', "<@U1UU5ARJ6> please enter a real wager!"),
+ (1000, 'Scott', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $1000")
 ])
 def test_get_wager(wager, user_name, user_id, expected_value):
     assert test_host.get_wager(wager, user_name, user_id) == expected_value

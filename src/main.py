@@ -47,6 +47,8 @@ question_is_live = False
 
 # resets timer and removes active question and answer
 def reset_timer():
+    global live_question
+    global question_is_live
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     question_is_live = False
     # generate new question

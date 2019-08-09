@@ -211,13 +211,12 @@ class Host:
     :param: user_id:
     '''
     def get_wager(self, wager, user_name, user_id):
-        user_score = str(
-            self.user_db.get_score(self.user_db.connection, user_name)
-        )
+        # import pdb; pdb.set_trace()
+        user_score = self.user_db.get_score(self.user_db.connection, user_name)
         user_address = self.create_user_address(user_name, user_id)
-        user_wager = self.calc_wager(wager, self.my_score(user_name, user_id))
+        user_wager = self.calc_wager(wager, user_score)
         if user_wager:
-            return user_address + ' you\'ve wagered $' +  user_wager
+            return user_address + ' you\'ve wagered $' +  str(user_wager)
         else:
             return user_address + ' please enter a real wager!'
 
@@ -226,7 +225,7 @@ class Host:
     to bypass slack api for unit testing
     '''
     @staticmethod
-    def calc_wager(wager, user_score):
+    def calc_wager(wager, user_score: int):
         # we want this to return a None if we get a TypeError, that way
         # trebekbot will re-prompt for a wager
         with suppress(TypeError):

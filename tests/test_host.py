@@ -195,19 +195,14 @@ def test_check_closeness(given_answer, correct_answer, expected_reply):
     assert test_host.check_closeness(given_answer, correct_answer) == \
     expected_reply
 
-@pytest.mark.parametrize("slack_output, user_score, expected_value", [
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
- '..wager 20000', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], -5000, 1000),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
- '..wager 10000', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], 10000, 10000),
- ([{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
- '..wager 0', 'type': 'message', 'ts': '1497097067.238474',
- 'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}], 10000, None)
+@pytest.mark.parametrize("wager, user_name, user_id, expected_value", [
+ (20000, 'Bob', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $1000"),
+ (10000, 'Carol', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $1000"),
+ (400, 'Eve', 'U1UU5ARJ6', "<@U1UU5ARJ6> you've wagered $400"),
+ (0, 'Jim', 'U1UU5ARJ6', '<@U1UU5ARJ6> please enter a real wager!')
 ])
-def test_get_wager(slack_output, user_score, expected_value):
-    assert test_host.get_wager(slack_output, user_score) == expected_value
+def test_get_wager(wager, user_name, user_id, expected_value):
+    assert test_host.get_wager(wager, user_name, user_id) == expected_value
 
 def test_get_latest_changelog():
     changelog = 'support_files/test_README.md'

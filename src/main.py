@@ -213,7 +213,7 @@ def whatis():
         payload.status_code = 200
         return payload
     # if someone tries to answer daily double without wagering
-elif live_question.is_daily_double and not current_wager:
+    elif live_question.is_daily_double and not current_wager:
         payload['text'] = 'Please wager something first (not zero!).'
         payload = jsonify(payload)
         payload.status_code = 200

@@ -218,6 +218,11 @@ def whatis():
         payload = jsonify(payload)
         payload.status_code = 200
         return payload
+    elif not answer:
+        payload['text'] = 'Please type an answer.'
+        payload = jsonify(payload)
+        payload.status_code = 200
+        return payload
     else:
         answer_check = host.check_answer(
             live_question,
@@ -322,7 +327,7 @@ def debug():
     wager
     )
     payload = {
-        'text': live_question.slack_text,
+        'text': debug_text,
         'response_type': 'in_channel'
     }
     payload = jsonify(payload)

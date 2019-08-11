@@ -45,12 +45,13 @@ daily_double_asker = None
 # check if we have a live question
 question_is_live = False
 
-# resets timer and removes active question and answer
+# resets timer/wager and removes active question and answer
 def reset_timer():
     global live_question
     global question_is_live
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     question_is_live = False
+    wager = 0
     # generate new question
     live_question = question.Question(Timer(time_limit, reset_timer))
 
@@ -227,10 +228,13 @@ def whatis():
             wager=wager
         )
         payload['text'] = answer_check
-        # if answer is correct we need to reset timer and wipe out live question
+        # if answer is correct we need to reset timer/wager and
+        # wipe out live question
         if ':white_check_mark:' in answer_check:
             live_question.timer.cancel()
+            wager = 0
             live_question = question.Question(Timer(time_limit, reset_timer))
+            question_is_live = False
         payload = jsonify(payload)
         payload.status_code = 200
         return payload
@@ -299,7 +303,7 @@ def dd():
 # force crash/restart trebekbot
 @app.route('/crash', methods=['POST'])
 def crash():
-    return 1/0
+    raise Exception
 
 # shows what the live question is
 @app.route('/livequestion', methods=['POST'])

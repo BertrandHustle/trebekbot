@@ -38,7 +38,7 @@ os.environ['SLACK_CHANNEL'] = channel
 # time limit for questions
 time_limit = 60
 # vars for daily doubles
-wager = 0
+current_wager = 0
 # if question is daily double only this user can answer
 daily_double_asker = None
 # check if we have a live question
@@ -50,7 +50,7 @@ def reset_timer():
     global question_is_live
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     question_is_live = False
-    wager = 0
+    current_wager = 0
     # generate new question
     live_question = question.Question(Timer(time_limit, reset_timer))
 
@@ -98,7 +98,7 @@ def changelog():
 # display uptime for trebekbot
 @app.route('/uptime', methods=['POST'])
 def uptime():
-    ayload = {
+    payload = {
     'text' : 'uptime: ' + host.uptime,
     'response_type' : 'in_channel'
     }
@@ -167,12 +167,12 @@ def skip():
 # get wager for daily double
 @app.route('/wager', methods=['POST'])
 def wager():
-    global wager
+    global current_wager
     user_name = request.form['user_name']
     user_id = request.form['user_id']
-    wager = request.form['text']
+    current_wager = request.form['text']
     payload = {
-    'text' : host.get_wager(wager, user_name, user_id),
+    'text' : host.get_wager(current_wager, user_name, user_id),
     'response_type' : 'in_channel'
     }
     payload = jsonify(payload)
@@ -182,12 +182,12 @@ def wager():
 # pass daily double if user doesn't know answer
 @app.route('/nope', methods=['POST'])
 def nope():
-    global wager
+    global current_wager
     payload = {
     'text' : 'Coward. The correct answer is ' + live_question.answer,
     'response_type' : 'in_channel'
     }
-    if wager:
+    if current_wager:
         payload['text'] = 'You can\'t pass if you\'ve already wagered!'
     payload = jsonify(payload)
     payload.status_code = 200
@@ -201,7 +201,7 @@ def nope():
 def whatis():
     global live_question
     global daily_double_asker
-    global wager
+    global current_wager
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
@@ -213,7 +213,7 @@ def whatis():
         payload.status_code = 200
         return payload
     # if someone tries to answer daily double without wagering
-    elif live_question.is_daily_double and not wager:
+elif live_question.is_daily_double and not current_wager:
         payload['text'] = 'Please wager something first (not zero!).'
         payload = jsonify(payload)
         payload.status_code = 200
@@ -229,14 +229,14 @@ def whatis():
             answer,
             user_name,
             user_id,
-            wager=wager
+            wager=current_wager
         )
         payload['text'] = answer_check
         # if answer is correct we need to reset timer/wager and
         # wipe out live question
         if ':white_check_mark:' in answer_check:
             live_question.timer.cancel()
-            wager = 0
+            current_wager = 0
             live_question = question.Question(Timer(time_limit, reset_timer))
             question_is_live = False
         payload = jsonify(payload)
@@ -314,17 +314,17 @@ def crash():
 def debug():
     global live_question
     global question_is_live
-    global wager
+    global current_wager
     debug_text = '''
     question = {}
     question is_alive = {}
     question live = {}
-    wager = {}
+    current_wager = {}
     '''.format(
     live_question.slack_text,
-    live_question.timer.is_alive,
+    live_question.timer.is_alive(),
     question_is_live,
-    wager
+    current_wager
     )
     payload = {
         'text': debug_text,

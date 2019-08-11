@@ -230,19 +230,17 @@ class Host:
     def calc_wager(wager, user_score: int):
         # we want this to return a None if we get a TypeError, that way
         # trebekbot will re-prompt for a wager
-        with suppress(TypeError):
+        with suppress(TypeError, ValueError):
+            wager = int(wager)
             # jeopardy rules: users below $1000 get up to $1000 to bet
             if user_score < 1000:
                 user_score = 1000
             # we don't want to let users bet more than they have
             if wager > user_score:
                 return user_score
-            # a 0 wager is not a wager
-            if not wager:
+            # a 0 or below wager is not a valid wager
+            if not wager or wager < 0:
                 return None
-            # prevent negative bets
-            if wager < 0:
-                return 0
             else:
                 return wager
 

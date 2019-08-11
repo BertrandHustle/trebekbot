@@ -11,7 +11,6 @@ import urllib.parse as urlparse
 from threading import Timer
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
-from time import sleep
 
 app = Flask(__name__)
 
@@ -305,10 +304,23 @@ def dd():
 def crash():
     raise Exception
 
-# shows what the live question is
-@app.route('/livequestion', methods=['POST'])
-def livequestion():
+# shows debug info
+@app.route('/debug', methods=['POST'])
+def debug():
     global live_question
+    global question_is_live
+    global wager
+    debug_text = '''
+    question = {}
+    question is_alive = {}
+    question live = {}
+    wager = {}
+    '''.format(
+    live_question.slack_text,
+    live_question.timer.is_alive,
+    question_is_live,
+    wager
+    )
     payload = {
         'text': live_question.slack_text,
         'response_type': 'in_channel'

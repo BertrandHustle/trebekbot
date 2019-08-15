@@ -234,6 +234,7 @@ def whatis():
         payload['text'] = answer_check
         # if answer is correct we need to reset timer/wager and
         # wipe out live question
+        # TODO: find out why this is not resetting live question timer
         if ':white_check_mark:' in answer_check:
             live_question.timer.cancel()
             current_wager = 0
@@ -302,12 +303,14 @@ def dd():
         live_question.start_timer()
     payload = jsonify(payload)
     payload.status_code = 200
-    return payload
+    if request.form['user_name'] == 'bertrand_hustle':
+        return payload
 
 # force crash/restart trebekbot
 @app.route('/crash', methods=['POST'])
 def crash():
-    raise Exception
+    if request.form['user_name'] == 'bertrand_hustle':
+        raise Exception
 
 # shows debug info
 @app.route('/debug', methods=['POST'])
@@ -317,11 +320,13 @@ def debug():
     global current_wager
     debug_text = '''
     question = {}
+    answer = {}
     question is_alive = {}
     question live = {}
     current_wager = {}
     '''.format(
     live_question.slack_text,
+    live_question.answer,
     live_question.timer.is_alive(),
     question_is_live,
     current_wager
@@ -332,7 +337,8 @@ def debug():
     }
     payload = jsonify(payload)
     payload.status_code = 200
-    return payload
+    if request.form['user_name'] == 'bertrand_hustle':
+        return payload
 
 # NOTE: set WEB_CONCURRENCY=1 to stop duplication problem
 if __name__=='__main__':

@@ -146,7 +146,7 @@ def skip():
     live_question.timer.cancel()
     live_question = question.Question(Timer(time_limit, reset_timer))
     payload = {'text': None, 'response_type': 'in_channel'}
-    if live_question.is_daily_double:
+    if live_question.daily_double:
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload['text'] = live_question.slack_text
@@ -208,13 +208,13 @@ def whatis():
     answer = request.form['text']
     payload = {'text' : None, 'response_type' : 'in_channel'}
     # if someone else tries to answer daily double
-    if live_question.is_daily_double and user_name != daily_double_asker:
+    if live_question.daily_double and user_name != daily_double_asker:
         payload['text'] = 'Not your daily double!'
         payload = jsonify(payload)
         payload.status_code = 200
         return payload
     # if someone tries to answer daily double without wagering
-    elif live_question.is_daily_double and not current_wager:
+    elif live_question.daily_double and not current_wager:
         payload['text'] = 'Please wager something first (not zero!).'
         payload = jsonify(payload)
         payload.status_code = 200

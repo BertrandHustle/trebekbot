@@ -202,6 +202,7 @@ def whatis():
     global live_question
     global daily_double_asker
     global current_wager
+    global question_is_live
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']

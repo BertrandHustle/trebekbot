@@ -116,7 +116,7 @@ def ask():
     payload = {'text': None, 'response_type': 'in_channel'}
     # check if question has active timer
     if not question_is_live:
-        if live_question.is_daily_double:
+        if live_question.daily_double:
             user_name = request.form['user_name']
             user_id = request.form['user_id']
             payload['text'] = live_question.slack_text
@@ -235,7 +235,6 @@ def whatis():
         payload['text'] = answer_check
         # if answer is correct we need to reset timer/wager and
         # wipe out live question
-        # TODO: find out why this is not resetting live question timer
         if ':white_check_mark:' in answer_check:
             live_question.timer.cancel()
             current_wager = 0

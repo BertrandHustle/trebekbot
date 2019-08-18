@@ -63,7 +63,6 @@ class Question:
     def get_random_question(daily_double=None):
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
         question_list = json.loads(jeopardy_json_file)
-        # pdb.set_trace()
         question_list = Question.filter_questions(
         question_list,
         daily_double=daily_double,
@@ -205,3 +204,17 @@ class Question:
                 return True
             else:
                 return False
+
+    @staticmethod
+    def get_questions_by_category(question):
+        """returns all questions for a given category
+        :param type question: question object with category we want
+        :return: list of questions
+        """
+        return_questions = []
+        search_category = question.category
+        jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
+        question_list = json.loads(jeopardy_json_file)
+        categorized_question_list = list(
+        filter(lambda x: search_category == x['category'], question_list)
+        )

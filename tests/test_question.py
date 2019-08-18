@@ -136,3 +136,11 @@ def test_filter_questions():
 ])
 def test_convert_value_to_int(test_value, expected_value):
     assert test_question.convert_value_to_int(test_value) == expected_value
+
+def test_get_questions_by_category():
+    categorized_question_list = test_question.get_questions_by_category(test_question)
+    import pdb; pdb.set_trace()
+    assert len(categorized_question_list) >= 5
+    # check that all categories are the same
+    assert list(set([q.category for q in categorized_question_list])) == \
+    test_question.category

@@ -200,10 +200,10 @@ def nope():
 def send_keep_alive_message():
     slack_client.api_call(
     'chat.postEphemeral',
-    'attachments':[{'text':'null'}],
-    'channel': 'C600FK4T1',
-    'text': 'null',
-    'user': 'U5YKR45PB'
+    'attachments' = [{'text':'null'}],
+    'channel' = 'C600FK4T1',
+    'text' = 'null',
+    'user' = 'U5YKR45PB'
     )
     return None
 

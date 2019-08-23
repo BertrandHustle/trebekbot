@@ -348,6 +348,7 @@ def debug():
     }
     payload = jsonify(payload)
     payload.status_code = 200
+    print(request.form)
     if request.form['user_name'] == 'bertrand_hustle':
         return payload
 

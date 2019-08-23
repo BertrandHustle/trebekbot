@@ -60,13 +60,12 @@ class Question:
 
     # gets random question from given json file
     @staticmethod
-    def get_random_question(daily_double=None):
+    def get_random_question():
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
         question_list = json.loads(jeopardy_json_file)
         # pdb.set_trace()
         question_list = Question.filter_questions(
         question_list,
-        daily_double=daily_double,
         banned_categories=Question.banned_categories,
         banned_phrases=Question.banned_phrases
         )

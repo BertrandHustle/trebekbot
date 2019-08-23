@@ -1,5 +1,14 @@
 # trebekbot
 
+version 0.7.0 changelog (8-22-19):
+
+Features:
+  - trebekbot now uses slash commands
+
+Bugs:
+  - fixed question filtering for 'heard/seen here'
+  - fixed 'be less specific' bug
+
 version 0.6.5 changelog (4-18-19):
 
 Features:

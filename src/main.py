@@ -196,6 +196,17 @@ def nope():
     question_is_live = False
     return payload
 
+# pings self to avoid timeout for whatis route
+def send_keep_alive_message():
+    slack_client.api_call(
+    'chat.postEphemeral',
+    'attachments':[{'text':'null'}],
+    'channel': 'C600FK4T1',
+    'text': 'null',
+    'user': 'U5YKR45PB'
+    )
+    return None
+
 # answer the current question
 @app.route('/whatis', methods=['POST'])
 def whatis():
@@ -207,6 +218,7 @@ def whatis():
     user_id = request.form['user_id']
     answer = request.form['text']
     payload = {'text' : None, 'response_type' : 'in_channel'}
+    send_keep_alive_message()
     # if someone else tries to answer daily double
     if live_question.daily_double and user_name != daily_double_asker:
         payload['text'] = 'Not your daily double!'
@@ -243,7 +255,6 @@ def whatis():
         payload = jsonify(payload)
         payload.status_code = 200
         return payload
-
 
 # get user's score
 @app.route('/myscore', methods=['POST'])

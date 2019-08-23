@@ -96,20 +96,14 @@ class Question:
     '''
     filters list of questions and returns filtered list
     :param question_list: list of questions we pass in (in json form)
-    :param daily_double: if this is passed in we filter for only daily doubles
-    (for testing purposes)
     :param banned_categories: list of categories to filter out, can be a single
     str category instead
     :param banned_phrases: filters questions by key phrases, such as
     "seen here" or "heard here"
     '''
     @staticmethod
-    def filter_questions(question_list, daily_double=None,
+    def filter_questions(question_list,
     banned_categories=None, banned_phrases=None):
-        # if we want to filter for only daily doubles
-        if daily_double:
-            question_list = list(filter(lambda x: \
-            Question.is_daily_double(x['value']), question_list))
         # if list of phrases is passed in as arg
         if banned_phrases and type(banned_phrases) is list:
             for phrase in banned_phrases:

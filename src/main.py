@@ -303,7 +303,8 @@ def dd():
     global daily_double_asker
     payload = {'text': None, 'response_type': 'in_channel'}
     if request.form['user_name'] == 'bertrand_hustle':
-        live_question = question.Question(Timer(time_limit, reset_timer), daily_double_debug=True)
+        live_question = question.Question(Timer(time_limit, reset_timer))
+        live_question.daily_double = True
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload['text'] = live_question.slack_text

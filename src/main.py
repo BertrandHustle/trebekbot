@@ -183,6 +183,7 @@ def wager():
 @app.route('/nope', methods=['POST'])
 def nope():
     global current_wager
+    global live_question
     payload = {
     'text' : 'Coward. The correct answer is ' + live_question.answer,
     'response_type' : 'in_channel'

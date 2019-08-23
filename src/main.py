@@ -313,7 +313,7 @@ def dd():
         )
         daily_double_asker = user_name
         # TODO: add time to timer if daily double
-        live_question.start_timer()
+        live_question.timer.start()
     payload = jsonify(payload)
     payload.status_code = 200
     if request.form['user_name'] == 'bertrand_hustle':

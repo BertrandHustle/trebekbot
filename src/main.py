@@ -44,6 +44,22 @@ daily_double_asker = None
 # check if we have a live question
 question_is_live = False
 
+# decorators
+
+# checks if slash commands are being made in #trivia
+@decorator
+def check_for_trivia_channel(func):
+    def inner():
+        if request.form['channel'] == '#trivia':
+            func()
+    return inner
+
+# handles 500 errors
+@app.errorhandler(500)
+def handle_500_errors(error, response, payload):
+    if response.status_code == 500:
+        return payload
+
 # resets timer/wager and removes active question and answer
 def reset_timer():
     global live_question
@@ -197,17 +213,6 @@ def nope():
     question_is_live = False
     return payload
 
-# pings self to avoid timeout for whatis route
-def send_keep_alive_message():
-    slack_client.api_call(
-        'chat.postEphemeral',
-        attachments = [{'text':'null'}],
-        channel = 'C600FK4T1',
-        text = 'null',
-        user = 'U5YKR45PB'
-    )
-    return None
-
 # answer the current question
 @app.route('/whatis', methods=['POST'])
 def whatis():
@@ -219,7 +224,6 @@ def whatis():
     user_id = request.form['user_id']
     answer = request.form['text']
     payload = {'text' : None, 'response_type' : 'in_channel'}
-    send_keep_alive_message()
     # if someone else tries to answer daily double
     if live_question.daily_double and user_name != daily_double_asker:
         payload['text'] = 'Not your daily double!'
@@ -296,6 +300,15 @@ def topten():
 
 # DEBUG Routes
 
+# re-prints current question
+@app.route('/current_question', methods=['POST'])
+def current_question():
+    global live_question
+    payload = {'text': live_question.slack_text, 'response_type': 'in_channel'}
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
 # used to force a daily double for testing
 @app.route('/dd', methods=['POST'])
 def dd():
@@ -320,6 +333,7 @@ def dd():
         return payload
 
 # force crash/restart trebekbot
+# TODO: make this cause a restart, right now it just throws a 500 error
 @app.route('/crash', methods=['POST'])
 def crash():
     if request.form['user_name'] == 'bertrand_hustle':
@@ -351,8 +365,8 @@ def debug():
     payload = jsonify(payload)
     payload.status_code = 200
     print(request.form)
-    if request.form['user_name'] == 'bertrand_hustle':
-        return payload
+    # if request.form['user_name'] == 'bertrand_hustle':
+    return payload
 
 # NOTE: set WEB_CONCURRENCY=1 to stop duplication problem
 if __name__=='__main__':

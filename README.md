@@ -1,5 +1,14 @@
 # trebekbot
 
+version 0.7.1 changelog (8-25-19):
+
+Features:
+  - anyone can use /debug
+  - added /current_question
+
+Bugs:
+  - added retry for /whatis on 500 timeout errors (to be tested)
+
 version 0.7.0 changelog (8-22-19):
 
 Features:

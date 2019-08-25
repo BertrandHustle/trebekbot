@@ -11,6 +11,7 @@ import urllib.parse as urlparse
 from threading import Timer
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
+from decorator import decorator
 
 app = Flask(__name__)
 
@@ -44,21 +45,11 @@ daily_double_asker = None
 # check if we have a live question
 question_is_live = False
 
-# decorators
-
-# checks if slash commands are being made in #trivia
+# decorator that checks if slash commands are being made in #trivia
 @decorator
 def check_for_trivia_channel(func):
-    def inner():
-        if request.form['channel'] == '#trivia':
-            func()
-    return inner
-
-# handles 500 errors
-@app.errorhandler(500)
-def handle_500_errors(error, response, payload):
-    if response.status_code == 500:
-        return payload
+    if request.form['channel'] == 'trivia':
+        return func
 
 # resets timer/wager and removes active question and answer
 def reset_timer():
@@ -74,6 +65,7 @@ def reset_timer():
 live_question = question.Question(Timer(time_limit, reset_timer))
 
 # say hi!
+@check_for_trivia_channel
 @app.route('/hello', methods=['POST'])
 def hello():
     # TODO: make decorator to get username/id
@@ -252,11 +244,20 @@ def whatis():
         payload['text'] = answer_check
         # if answer is correct we need to reset timer/wager and
         # wipe out live question
-        if ':white_check_mark:' in answer_check:
+        if ':white_check_mark:' in answer_check and request.status_code != 500:
             live_question.timer.cancel()
             current_wager = 0
             live_question = question.Question(Timer(time_limit, reset_timer))
             question_is_live = False
+        elif request.status_code == 500:
+            """
+            this is usually a timeout error from check_answer processing taking
+            too long, a retry should fix this since we've already completed the
+            answer check
+            """
+            payload = jsonify(payload)
+            payload.status_code = 200
+            return payload
         payload = jsonify(payload)
         payload.status_code = 200
         return payload

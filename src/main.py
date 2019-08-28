@@ -2,7 +2,6 @@ author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 
 # Main file for trebekbot
-import sys
 import os
 import src.question as question
 import src.db as db
@@ -192,6 +191,7 @@ def wager():
 def nope():
     global current_wager
     global live_question
+    global question_is_live
     payload = {
     'text' : 'Coward. The correct answer is ' + live_question.answer,
     'response_type' : 'in_channel'
@@ -244,12 +244,12 @@ def whatis():
         payload['text'] = answer_check
         # if answer is correct we need to reset timer/wager and
         # wipe out live question
-        if ':white_check_mark:' in answer_check and request.status_code != 500:
+        if ':white_check_mark:' in answer_check and response.status_code != 500:
             live_question.timer.cancel()
             current_wager = 0
             live_question = question.Question(Timer(time_limit, reset_timer))
             question_is_live = False
-        elif request.status_code == 500:
+        elif response.status_code == 500:
             """
             this is usually a timeout error from check_answer processing taking
             too long, a retry should fix this since we've already completed the

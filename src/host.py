@@ -1,14 +1,13 @@
 # import pdb
+
 import src.question as question
-import src.db as db
 import difflib
 import editdistance
 from time import time, ctime
-from re import sub, findall, match, IGNORECASE
+from re import sub, match, IGNORECASE
 from os import path, environ
 from contextlib import suppress
 from unidecode import unidecode
-from json import decoder
 
 
 # initialize dictionary
@@ -17,7 +16,7 @@ if path.isfile('/usr/share/dict/words'):
     words_file = open('/usr/share/dict/words', 'r')
     eng_dict = words_file.readlines()
 else:
-    eng_dict = open('./support_files/words.txt').read().splitlines()
+    eng_dict = open('../support_files/words.txt').read().splitlines()
 
 class Host:
     '''

@@ -74,8 +74,7 @@ def hello():
     }
     payload = jsonify(payload)
     payload.status_code = 200
-    if request.form['channel'] == 'trivia':
-        return payload
+    return payload
 
 host = host.Host(slack_client, user_db)
 

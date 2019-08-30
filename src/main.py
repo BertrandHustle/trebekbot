@@ -46,11 +46,12 @@ question_is_live = False
 
 
 # formats and sends payload
-# TODO: have this check for request.channel
+# TODO: have this check for request.channel (could be #<channel> or the channel id)
 def handle_payload(payload, request):
     payload = jsonify(payload)
     payload.status_code = 200
-    return payload
+    if request.form['channel_name'] == 'trivia':
+        return payload
 
 @app.errorhandler(500)
 def retry_on_timeout(payload):

@@ -70,7 +70,6 @@ def reset_timer():
 live_question = question.Question(Timer(time_limit, reset_timer))
 
 # say hi!
-@check_for_trivia_channel
 @app.route('/hello', methods=['POST'])
 def hello():
     # TODO: make decorator to get username/id

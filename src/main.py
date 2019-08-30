@@ -45,10 +45,16 @@ daily_double_asker = None
 question_is_live = False
 
 # decorator that checks if slash commands are being made in #trivia
+# TODO: fix this
 @decorator
 def check_for_trivia_channel(func):
     if request.form['channel'] == 'trivia':
         return func
+
+
+@app.errorhandler(500)
+def retry_on_timeout(payload):
+    return payload
 
 # resets timer/wager and removes active question and answer
 def reset_timer():

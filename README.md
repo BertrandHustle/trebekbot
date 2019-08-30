@@ -7,7 +7,8 @@ Features:
   - added /current_question
 
 Bugs:
-  - added retry for /whatis on 500 timeout errors (to be tested)
+  - added retry for 500 timeout errors (to be tested)
+  - nope bug is fixed
 
 version 0.7.0 changelog (8-22-19):
 

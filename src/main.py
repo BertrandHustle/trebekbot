@@ -46,7 +46,7 @@ question_is_live = False
 
 
 # formats and sends payload
-def return handle_payload(payload, request):
+def handle_payload(payload, request):
     payload = jsonify(payload)
     payload.status_code = 200
     if request.form['channel'] == 'trivia':

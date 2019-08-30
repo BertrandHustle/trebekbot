@@ -250,20 +250,11 @@ def whatis():
         payload['text'] = answer_check
         # if answer is correct we need to reset timer/wager and
         # wipe out live question
-        if ':white_check_mark:' in answer_check and response.status_code != 500:
+        if ':white_check_mark:' in answer_check:
             live_question.timer.cancel()
             current_wager = 0
             live_question = question.Question(Timer(time_limit, reset_timer))
             question_is_live = False
-        elif response.status_code == 500:
-            """
-            this is usually a timeout error from check_answer processing taking
-            too long, a retry should fix this since we've already completed the
-            answer check
-            """
-            payload = jsonify(payload)
-            payload.status_code = 200
-            return payload
         payload = jsonify(payload)
         payload.status_code = 200
         return payload

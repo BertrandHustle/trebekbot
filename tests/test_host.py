@@ -46,9 +46,10 @@ def populate_db(database):
 populate_db(test_db)
 test_host = host.Host(sc, test_db)
 
+# TODO: fix this to work without API
 def test_get_channel_id():
     fail_test_json = {"ok": False, "error": "invalid_auth"}
-    test_json = json.load(open(os.path.join('support_files', 'json', 'test_get_channel_id.json')))
+    test_json = json.load(open(os.path.join('..', 'support_files', 'test_get_channel_id.json')))
     expected_id = 'C600FK4T1'
     assert test_host.get_channel_id_from_json('trivia', test_json) == expected_id
     assert test_host.get_channel_id_from_json('trivia', fail_test_json) == None
@@ -64,7 +65,7 @@ def test_get_bot_id():
  ('bees', 1500, None),
  # this will prompt trebekbot to re-ask for a wager
  (0, 0, None),
- (-500, 2500, 0),
+ (-500, 2500, None),
  # test jeopardy minimum of 1000 rule
  (1000, 100, 1000),
  (10000, 100, 1000)
@@ -210,8 +211,8 @@ def test_get_wager(wager, user_name, user_id, expected_value):
     assert test_host.get_wager(wager, user_name, user_id) == expected_value
 
 def test_get_latest_changelog():
-    changelog = 'support_files/test_README.md'
-    test_latest_changelog = ['version 0.5.3 changelog (4-5-18):',
+    changelog = '../support_files/test_README.md'
+    expected_changelog = ['version 0.5.3 changelog (4-5-18):',
     '',
     'Bugs:',
     '  - fixed crash from querying slack api for channel',
@@ -219,9 +220,7 @@ def test_get_latest_changelog():
     '  - parentheses in answers now treated as optional to the answer',
     '',
     'Features:',
-    '  - trebekbot now gives a top ten list of scorers before nightly restarts',
-    '  - increased daily double timer to 90 seconds',
+    '  - trebekbot now announces latest changes on startup',
     '']
-    print(test_host.get_latest_changelog(changelog).split('\n'))
-    assert test_host.get_latest_changelog(changelog).split('\n')[:-1] \
-    == test_latest_changelog
+    test_changelog = test_host.get_latest_changelog(changelog).split('\n')[:-1]
+    assert test_changelog == expected_changelog

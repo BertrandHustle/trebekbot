@@ -46,16 +46,18 @@ question_is_live = False
 
 
 # formats and sends payload
-# TODO: have this check for request.channel (could be #<channel> or the channel id)
+# TODO: have this return a private error message to the person executing slash command
 def handle_payload(payload, request):
     payload = jsonify(payload)
     payload.status_code = 200
     if request.form['channel_name'] == 'trivia':
         return payload
 
+
 @app.errorhandler(500)
 def retry_on_timeout(payload):
     return payload
+
 
 # resets timer/wager and removes active question and answer
 def reset_timer():

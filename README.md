@@ -9,6 +9,7 @@ Features:
 Bugs:
   - added retry for 500 timeout errors (to be tested)
   - nope bug is fixed
+  - trebekbot no longer responds in channels other than #trivia
 
 version 0.7.0 changelog (8-22-19):
 

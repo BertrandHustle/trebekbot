@@ -74,7 +74,12 @@ def answer_check_worker(response_url, answer, user_name, user_id):
             live_question = question.Question(Timer(time_limit, reset_timer))
             question_is_live = False
         payload = {'text': answer_check, 'channel': channel}
-        post(response_url, data=json_dumps(payload))
+        slack_client.api_call(
+            'chat.postMessage',
+            channel=channel,
+            text=answer_check,
+            as_user=True
+        )
 
 
 # resets timer/wager and removes active question and answer
@@ -239,7 +244,6 @@ def whatis():
     elif not answer:
         payload['text'] = 'Please type an answer.'
     else:
-        print(request.form.get("response_url"))
         # delegate answer check to background worker
         answer_thread = Thread(target=answer_check_worker, args=[
             request.form['response_url'],

@@ -57,12 +57,12 @@ def handle_payload(payload, request):
 
 
 # checks answer in background as thread
-def answer_check_worker(response_url, question, answer, user_name, user_id, wager):
+def answer_check_worker(response_url, answer, user_name, user_id):
     global live_question
     global daily_double_asker
     global current_wager
     global question_is_live
-    answer_check = host.check_answer(question, answer, user_name, user_id, wager=wager)
+    answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
     # if answer is correct we need to reset timer/wager and
     # wipe out live question
     if ':white_check_mark:' in answer_check:
@@ -235,14 +235,13 @@ def whatis():
     elif not answer:
         payload['text'] = 'Please type an answer.'
     else:
+        print(request.form.get("response_url"))
         # delegate answer check to background worker
         answer_thread = Thread(target=answer_check_worker, args=[
-            request.form['response_url'],
-            live_question,
+            request.form.get("response_url"),
             answer,
             user_name,
-            user_id,
-            current_wager
+            user_id
         ])
         answer_thread.start()
         payload['text'] = 'Judges?'

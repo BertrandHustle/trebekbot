@@ -331,7 +331,6 @@ class Host:
             closeness = 'less'
         return 'Please be {} specific.'.format(closeness)
 
-    # TODO: find out why dd scores are updated with question value instead of wager
     def check_answer(self, question, user_answer, user_name, user_id, wager=None):
         '''
         checks if the answer to a question is correct and updates score accordingly

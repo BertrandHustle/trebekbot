@@ -7,10 +7,10 @@ import src.question as question
 import src.db as db
 import src.host as host
 import urllib.parse as urlparse
-from threading import Timer
+from threading import Timer, Thread
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
-from decorator import decorator
+from requests import post
 
 app = Flask(__name__)
 
@@ -44,6 +44,8 @@ daily_double_asker = None
 # check if we have a live question
 question_is_live = False
 
+# TODO: add 500 error handler
+
 
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command
@@ -54,9 +56,21 @@ def handle_payload(payload, request):
         return payload
 
 
-@app.errorhandler(500)
-def retry_on_timeout(payload):
-    return payload
+# checks answer in background as thread
+def answer_check_worker(response_url, question, answer, user_name, user_id, wager):
+    global live_question
+    global daily_double_asker
+    global current_wager
+    global question_is_live
+    answer_check = host.check_answer(question, answer, user_name, user_id, wager=wager)
+    # if answer is correct we need to reset timer/wager and
+    # wipe out live question
+    if ':white_check_mark:' in answer_check:
+        live_question.timer.cancel()
+        current_wager = 0
+        live_question = question.Question(Timer(time_limit, reset_timer))
+        question_is_live = False
+    post(response_url, {'text': jsonify(answer_check)})
 
 
 # resets timer/wager and removes active question and answer
@@ -69,8 +83,10 @@ def reset_timer():
     # generate new question
     live_question = question.Question(Timer(time_limit, reset_timer))
 
+
 # load this in the background to speed up response time
 live_question = question.Question(Timer(time_limit, reset_timer))
+
 
 # say hi!
 @app.route('/hello', methods=['POST'])
@@ -84,7 +100,9 @@ def hello():
     }
     return handle_payload(payload, request)
 
+
 host = host.Host(slack_client, user_db)
+
 
 # display help text
 @app.route('/howtoplay', methods=['POST'])
@@ -207,7 +225,7 @@ def whatis():
     user_name = request.form['user_name']
     user_id = request.form['user_id']
     answer = request.form['text']
-    payload = {'text' : None, 'response_type' : 'in_channel'}
+    payload = {'text': None, 'response_type': 'in_channel'}
     # if someone else tries to answer daily double
     if live_question.daily_double and user_name != daily_double_asker:
         payload['text'] = 'Not your daily double!'
@@ -217,21 +235,17 @@ def whatis():
     elif not answer:
         payload['text'] = 'Please type an answer.'
     else:
-        answer_check = host.check_answer(
+        # delegate answer check to background worker
+        answer_thread = Thread(target=answer_check_worker, args=[
+            request.form['response_url'],
             live_question,
             answer,
             user_name,
             user_id,
-            wager=current_wager
-        )
-        payload['text'] = answer_check
-        # if answer is correct we need to reset timer/wager and
-        # wipe out live question
-        if ':white_check_mark:' in answer_check:
-            live_question.timer.cancel()
-            current_wager = 0
-            live_question = question.Question(Timer(time_limit, reset_timer))
-            question_is_live = False
+            current_wager
+        ])
+        answer_thread.start()
+        payload['text'] = 'Judges?'
     return handle_payload(payload, request)
 
 # get user's score

@@ -11,6 +11,7 @@ from threading import Timer, Thread
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
 from requests import post
+from json import dumps as json_dumps
 
 app = Flask(__name__)
 
@@ -71,7 +72,7 @@ def answer_check_worker(response_url, answer, user_name, user_id):
             current_wager = 0
             live_question = question.Question(Timer(time_limit, reset_timer))
             question_is_live = False
-        post(response_url, data=jsonify({'text': answer_check}))
+        post(response_url, data=json_dumps({'text': answer_check}))
 
 
 # resets timer/wager and removes active question and answer

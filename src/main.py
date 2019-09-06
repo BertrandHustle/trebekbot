@@ -70,7 +70,7 @@ def answer_check_worker(response_url, question, answer, user_name, user_id, wage
         current_wager = 0
         live_question = question.Question(Timer(time_limit, reset_timer))
         question_is_live = False
-    post(response_url, {'text': jsonify(answer_check)})
+    post(response_url, data=jsonify({'text': answer_check}))
 
 
 # resets timer/wager and removes active question and answer

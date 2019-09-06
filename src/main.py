@@ -62,15 +62,16 @@ def answer_check_worker(response_url, answer, user_name, user_id):
     global daily_double_asker
     global current_wager
     global question_is_live
-    answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
-    # if answer is correct we need to reset timer/wager and
-    # wipe out live question
-    if ':white_check_mark:' in answer_check:
-        live_question.timer.cancel()
-        current_wager = 0
-        live_question = question.Question(Timer(time_limit, reset_timer))
-        question_is_live = False
-    post(response_url, data=jsonify({'text': answer_check}))
+    with app.app_context():
+        answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
+        # if answer is correct we need to reset timer/wager and
+        # wipe out live question
+        if ':white_check_mark:' in answer_check:
+            live_question.timer.cancel()
+            current_wager = 0
+            live_question = question.Question(Timer(time_limit, reset_timer))
+            question_is_live = False
+        post(response_url, data=jsonify({'text': answer_check}))
 
 
 # resets timer/wager and removes active question and answer
@@ -238,7 +239,7 @@ def whatis():
         print(request.form.get("response_url"))
         # delegate answer check to background worker
         answer_thread = Thread(target=answer_check_worker, args=[
-            request.form.get("response_url"),
+            request.form['response_url'],
             answer,
             user_name,
             user_id

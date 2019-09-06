@@ -63,6 +63,7 @@ def answer_check_worker(response_url, answer, user_name, user_id):
     global daily_double_asker
     global current_wager
     global question_is_live
+    # necessary to keep flask from complaining about being out of scope for threading
     with app.app_context():
         answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
         # if answer is correct we need to reset timer/wager and
@@ -72,7 +73,8 @@ def answer_check_worker(response_url, answer, user_name, user_id):
             current_wager = 0
             live_question = question.Question(Timer(time_limit, reset_timer))
             question_is_live = False
-        post(response_url, data=json_dumps({'text': answer_check}))
+        payload = {'text': answer_check, 'channel': channel}
+        post(response_url, data=json_dumps(payload))
 
 
 # resets timer/wager and removes active question and answer

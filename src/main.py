@@ -219,6 +219,8 @@ def nope():
     }
     if current_wager:
         payload['text'] = 'You can\'t pass if you\'ve already wagered!'
+    if not live_question.daily_double:
+        payload['text'] = 'Question must be a daily double!'
     else:
         live_question.timer.cancel()
         live_question = question.Question(Timer(time_limit, reset_timer))

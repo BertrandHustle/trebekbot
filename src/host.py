@@ -217,7 +217,7 @@ class Host:
         # broken values: 1000 None 0
         print(wager, user_wager, user_score)
         if user_wager:
-            return user_address + ' you\'ve wagered $' +  str(user_wager)
+            return user_address + ' you\'ve wagered $' + str(user_wager)
         else:
             return user_address + ' please enter a real wager!'
 
@@ -360,7 +360,7 @@ class Host:
                 self.user_db.update_score(
                 self.user_db.connection, user_name, question.value
                 )
-            return user_address+ \
+            return user_address + \
             ' :white_check_mark: That is correct. The answer is ' \
             +correct_answer
         # wrong answer
@@ -374,7 +374,7 @@ class Host:
                 self.user_db.update_score(
                 self.user_db.connection, user_name, -question.value
                 )
-            return user_address+ ' :x: Sorry, that is incorrect.'
+            return user_address + ' :x: Sorry, that is incorrect.'
 
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod

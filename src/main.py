@@ -200,7 +200,7 @@ def wager():
     global current_wager
     user_name = request.form['user_name']
     user_id = request.form['user_id']
-    current_wager = request.form['text']
+    current_wager = int(request.form['text'])
     payload = {
     'text' : host.get_wager(current_wager, user_name, user_id),
     'response_type' : 'in_channel'

@@ -219,9 +219,10 @@ def nope():
     }
     if current_wager:
         payload['text'] = 'You can\'t pass if you\'ve already wagered!'
-    live_question.timer.cancel()
-    live_question = question.Question(Timer(time_limit, reset_timer))
-    question_is_live = False
+    else:
+        live_question.timer.cancel()
+        live_question = question.Question(Timer(time_limit, reset_timer))
+        question_is_live = False
     return handle_payload(payload, request)
 
 # answer the current question

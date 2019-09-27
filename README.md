@@ -1,5 +1,10 @@
 # trebekbot
 
+version 0.7.2 changelog (9-26-19):
+
+Bugs:
+  - fixed issue with daily double wrong answers not returning
+
 version 0.7.1 changelog (8-25-19):
 
 Features:

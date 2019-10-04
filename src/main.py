@@ -65,7 +65,7 @@ def channel_check(user_channel):
     if user_channel != channel:
         slack_client.api_call(
             'chat.postMessage',
-            channel=channel,
+            channel=user_channel,
             text='Wrong channel!',
             as_user=True
         )
@@ -129,6 +129,7 @@ live_question = question.Question(Timer(time_limit, reset_timer))
 # say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
+    print(request.form['channel'])
     if channel_check(request.form['channel']):
         user_name = request.form['user_name']
         user_id = request.form['user_id']

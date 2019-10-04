@@ -1,5 +1,13 @@
 # trebekbot
 
+version 0.7.3 changelog (10-3-19):
+
+Bugs:
+  - prevent multiple users from answering at once
+  
+Features:
+    
+
 version 0.7.2 changelog (9-26-19):
 
 Bugs:

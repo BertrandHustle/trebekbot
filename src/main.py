@@ -45,15 +45,33 @@ question_is_live = False
 
 # TODO: add 500 error handler
 
+# Utility Functions
+
 
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command
 def handle_payload(payload, request):
     payload = jsonify(payload)
     payload.status_code = 200
-    if request.form['channel_name'] == 'trivia':
-        return payload
+    return payload
 
+
+def channel_check(user_channel):
+    """
+    checks if user is in proper channel when making slash command
+    :param user_channel: slack channel where user is located when making slash command
+    :return bool: true if user is in global channel var (#trivia)
+    """
+    if user_channel != channel:
+        slack_client.api_call(
+            'chat.postMessage',
+            channel=channel,
+            text='Wrong channel!',
+            as_user=True
+        )
+        return False
+    else:
+        return True
 
 # checks answer in background as thread
 def answer_check_worker(response_url, answer, user_name, user_id):
@@ -106,17 +124,19 @@ def reset_timer():
 live_question = question.Question(Timer(time_limit, reset_timer))
 
 
+# Routes
+
 # say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
-    # TODO: make decorator to get username/id
-    user_name = request.form['user_name']
-    user_id = request.form['user_id']
-    payload = {
-    'text' : 'Hello ' + host.create_user_address(user_name, user_id),
-    'response_type' : 'in_channel'
-    }
-    return handle_payload(payload, request)
+    if channel_check(request.form['channel']):
+        user_name = request.form['user_name']
+        user_id = request.form['user_id']
+        payload = {
+        'text' : 'Hello ' + host.create_user_address(user_name, user_id),
+        'response_type' : 'in_channel'
+        }
+        return handle_payload(payload, request)
 
 
 host = host.Host(slack_client, user_db)

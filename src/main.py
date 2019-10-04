@@ -10,8 +10,6 @@ import urllib.parse as urlparse
 from threading import Timer, Thread
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
-from requests import post
-from json import dumps as json_dumps
 
 app = Flask(__name__)
 
@@ -65,22 +63,33 @@ def answer_check_worker(response_url, answer, user_name, user_id):
     global question_is_live
     # necessary to keep flask from complaining about being out of scope for threading
     with app.app_context():
-        answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
-        # if answer is correct we need to reset timer/wager and
-        # wipe out live question
-        if ':white_check_mark:' in answer_check:
-            live_question.timer.cancel()
-            current_wager = 0
-            live_question = question.Question(Timer(time_limit, reset_timer))
-            question_is_live = False
-        payload = {'text': answer_check, 'channel': channel}
-        slack_client.api_call(
-            'chat.postMessage',
-            channel=channel,
-            text=answer_check,
-            as_user=True
-        )
-
+        if os.path.exists('answer_lock'):
+            slack_client.api_call(
+                'chat.postMessage',
+                channel=channel,
+                text='Another user has already buzzed in!',
+                as_user=True
+            )
+        else:
+            # lock file to prevent multiple people answering at once
+            with open('answer_lock', 'w') as lock:
+                lock.write('locked')
+            answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
+            # if answer is correct we need to reset timer/wager and
+            # wipe out live question
+            if ':white_check_mark:' in answer_check:
+                live_question.timer.cancel()
+                current_wager = 0
+                live_question = question.Question(Timer(time_limit, reset_timer))
+                question_is_live = False
+            payload = {'text': answer_check, 'channel': channel}
+            slack_client.api_call(
+                'chat.postMessage',
+                channel=channel,
+                text=answer_check,
+                as_user=True
+            )
+            os.remove('answer_lock')
 
 # resets timer/wager and removes active question and answer
 def reset_timer():

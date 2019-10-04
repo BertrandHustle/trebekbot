@@ -129,7 +129,7 @@ live_question = question.Question(Timer(time_limit, reset_timer))
 # say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
-    print(request.form['channel'])
+    print(request.form)
     if channel_check(request.form['channel']):
         user_name = request.form['user_name']
         user_id = request.form['user_id']

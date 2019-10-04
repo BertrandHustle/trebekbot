@@ -138,7 +138,7 @@ def howtoplay():
     'text' : host.help_text,
     'response_type' : 'in_channel'
     }
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # display latest changelog
 @app.route('/changelog', methods=['POST'])
@@ -147,7 +147,7 @@ def changelog():
     'text' : host.get_latest_changelog('README.md'),
     'response_type' : 'in_channel'
     }
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # display uptime for trebekbot
 @app.route('/uptime', methods=['POST'])
@@ -156,7 +156,7 @@ def uptime():
     'text' : 'uptime: ' + host.uptime,
     'response_type' : 'in_channel'
     }
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # TODO: clean up global refs
 # trebekbot asks a question
@@ -185,7 +185,7 @@ def ask():
         question_is_live = True
     else:
         payload['text'] = 'question is already in play!'
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # forces skip on current question and generates new question
 @app.route('/skip', methods=['POST'])
@@ -210,7 +210,7 @@ def skip():
     # TODO: add time to timer if daily double
     # start question timer
     live_question.timer.start()
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # get wager for daily double
 @app.route('/wager', methods=['POST'])
@@ -223,7 +223,7 @@ def wager():
     'text' : host.get_wager(current_wager, user_name, user_id),
     'response_type' : 'in_channel'
     }
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # pass daily double if user doesn't know answer
 @app.route('/nope', methods=['POST'])
@@ -243,7 +243,7 @@ def nope():
         live_question.timer.cancel()
         live_question = question.Question(Timer(time_limit, reset_timer))
         question_is_live = False
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # answer the current question
 @app.route('/whatis', methods=['POST'])
@@ -273,7 +273,7 @@ def whatis():
         ])
         answer_thread.start()
         payload['text'] = 'Judges?'
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # get user's score
 @app.route('/myscore', methods=['POST'])
@@ -284,7 +284,7 @@ def myscore():
     'text': host.my_score(user_name, user_id),
     'response_type': 'in_channel'
     }
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # get user's tally of all-time wins
 @app.route('/mywins', methods=['POST'])
@@ -295,7 +295,7 @@ def mywins():
     'text': host.mywins(user_name, user_id),
     'response_type': 'in_channel'
     }
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # get list of all users' scores
 @app.route('/topten', methods=['POST'])
@@ -304,7 +304,7 @@ def topten():
     'text': host.top_ten(),
     'response_type': 'in_channel'
     }
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # DEBUG Routes
 
@@ -313,7 +313,7 @@ def topten():
 def current_question():
     global live_question
     payload = {'text': live_question.slack_text, 'response_type': 'in_channel'}
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # used to force a daily double for testing
 @app.route('/dd', methods=['POST'])
@@ -334,7 +334,7 @@ def dd():
         # TODO: add time to timer if daily double
         live_question.timer.start()
     if request.form['user_name'] == 'bertrand_hustle':
-        return handle_payload(payload, request)
+        return handle_payload(payload)
 
 # force crash/restart trebekbot
 # TODO: make this cause a restart, right now it just throws a 500 error
@@ -368,7 +368,7 @@ def debug():
     }
     print(request.form)
     # if request.form['user_name'] == 'bertrand_hustle':
-    return handle_payload(payload, request)
+    return handle_payload(payload)
 
 # NOTE: set WEB_CONCURRENCY=1 to stop duplication problem
 if __name__=='__main__':

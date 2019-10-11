@@ -1,5 +1,3 @@
-# import pdb
-
 import src.question as question
 import difflib
 import editdistance
@@ -141,20 +139,6 @@ class Host:
         return 'It\'s a DAILY DOUBLE!\n' + user_address + \
         ' [$' + user_score + '] ' + \
         'Please enter a wager with the /wager command'
-
-    '''
-    [{'source_team': 'T0LR9NXQQ', 'team': 'T0LR9NXQQ', 'text':
-    'aw, he restarted', 'type': 'message', 'ts': '1497097067.238474',
-    'user': 'U1UU5ARJ6', 'channel': 'C5LMQHV5W'}]
-    '''
-
-    def get_channel(self, slack_output):
-        channel_id = slack_output['channel']
-        channel = self.slack_client.api_call(
-        'channels.info',
-        channel = channel_id
-        )
-        return channel['channel']['name']
 
     # mostly here because we can't test the slack api methods
     def get_channel_id_from_json(self, channel_name, channel_json):

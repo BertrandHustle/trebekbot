@@ -60,6 +60,7 @@ def handle_payload(payload):
     payload.status_code = 200
     return payload
 
+
 # checks answer in background as thread
 def answer_check_worker(answer, user_name, user_id):
     global live_question

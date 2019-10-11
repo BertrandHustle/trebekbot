@@ -48,16 +48,6 @@ populate_db(test_db)
 test_host = host.Host(sc, test_db)
 
 
-# TODO: fix this to work without API
-def test_get_channel_id():
-    fail_test_json = {"ok": False, "error": "invalid_auth"}
-    test_json = json.load(open(os.path.join('..', 'support_files', 'test_get_channel_id.json')))
-    expected_id = 'C600FK4T1'
-    assert test_host.get_channel_id_from_json('trivia', test_json) == expected_id
-    assert test_host.get_channel_id_from_json('trivia', fail_test_json) == None
-    assert test_host.get_channel_id_from_json('trivia', None) == None
-
-
 def test_get_bot_id():
     expected_id = "U5YKR45PB"
     assert test_host.get_bot_id('trebekbot') == expected_id

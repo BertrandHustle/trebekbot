@@ -1,4 +1,3 @@
-import src.question as question
 import difflib
 import editdistance
 from time import time, ctime
@@ -24,7 +23,6 @@ class Host:
      think of this as the class that handles listening and talking to slack
      :param slack_client: slackclient object
      :param user_db: db object containing connection to user db
-     :param channel: slack channel to talk to
     """
 
     # what to type before we give trebekbot a command
@@ -53,8 +51,6 @@ class Host:
         slack_client.rtm_connect(auto_reconnect=True)
         # channel where trebekbot lives
         self.channel = environ.get('SLACK_CHANNEL')
-        # channel id of channel where host currently is
-        self.channel_id = self.get_channel_id(self.channel)
         # connect to user database
         self.user_db = user_db
         # get current champion info
@@ -139,20 +135,6 @@ class Host:
         return 'It\'s a DAILY DOUBLE!\n' + user_address + \
         ' [$' + user_score + '] ' + \
         'Please enter a wager with the /wager command'
-
-    # mostly here because we can't test the slack api methods
-    def get_channel_id_from_json(self, channel_name, channel_json):
-        with suppress(IndexError, KeyError, TypeError):
-            for channel in channel_json['channels']:
-                search_name = channel['name']
-                if channel_name == search_name:
-                    return channel['id']
-
-    def get_channel_id(self, channel_name):
-        channel_list = self.slack_client.api_call(
-        'channels.list',
-        )
-        return self.get_channel_id_from_json(channel_name, channel_list)
 
     '''
     get bot's slack id
@@ -270,30 +252,6 @@ class Host:
         self.user_db.get_user_wins(self.user_db.connection, user_name)
         )
         return user_address + ' wins: ' + wins
-
-    '''
-    gets a random question from the jeopardy_json_file
-    :param slack_output: the output we hear coming from slack_output
-    :param test_question: allows us to feed in a question for testing rather
-    than getting a random one from the json
-    '''
-    def ask_question(self, slack_output):
-        if self.hear(slack_output, 'ask'):
-            asked_question = question.Question()
-            self.say(self.channel_id, asked_question.slack_text)
-            return asked_question
-
-    # DEBUG COMMANDS
-
-    # asks daily double, but only if it's bertrand_hustle
-    def debug_daily_double(self, slack_output):
-        if self.hear(slack_output, 'dd'):
-            slack_output = slack_output[0]
-            # this can't be an 'and' because we need valid slack output first
-            if self.get_user(slack_output) == 'bertrand_hustle':
-                asked_question = question.Question(daily_double_debug=True)
-                self.say(self.channel_id, asked_question.slack_text)
-                return asked_question
 
     '''
     check if user needs to be more specific or less specific in their answer

@@ -6,6 +6,7 @@ import os
 import src.question as question
 import src.db as db
 import src.host as host
+import src.judge as judge
 import urllib.parse as urlparse
 from threading import Timer, Thread
 from slackclient import SlackClient
@@ -321,7 +322,7 @@ def mywins():
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload = {
-        'text': host.mywins(user_name, user_id),
+        'text': host.my_wins(user_name, user_id),
         'response_type': 'in_channel'
         }
         return handle_payload(payload)

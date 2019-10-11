@@ -23,6 +23,7 @@ conn_string = 'dbname=' + dsn['database'] + ' ' +'user=' + dsn['user'] + ' ' +\
 'host=' + dsn['host'] + ' ' + 'port=' + str(dsn['port'])
 test_db = db.db(conn_string)
 
+
 # TODO: find a way to make this not duplicate code from test_db
 def populate_db(database):
     test_users = ['Bob', 'Jim', 'Carol', 'Eve', 'Morp']
@@ -46,6 +47,7 @@ def populate_db(database):
 populate_db(test_db)
 test_host = host.Host(sc, test_db)
 
+
 # TODO: fix this to work without API
 def test_get_channel_id():
     fail_test_json = {"ok": False, "error": "invalid_auth"}
@@ -55,9 +57,11 @@ def test_get_channel_id():
     assert test_host.get_channel_id_from_json('trivia', fail_test_json) == None
     assert test_host.get_channel_id_from_json('trivia', None) == None
 
+
 def test_get_bot_id():
     expected_id = "U5YKR45PB"
     assert test_host.get_bot_id('trebekbot') == expected_id
+
 
 @pytest.mark.parametrize("wager, user_score, expected_value", [
  ('aw, he restarted', 1500, None),

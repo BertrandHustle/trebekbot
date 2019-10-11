@@ -18,15 +18,16 @@ if path.isfile('/usr/share/dict/words'):
 else:
     eng_dict = open('support_files/words.txt').read().splitlines()
 
+
 class Host:
-    '''
+    """
      Class that acts as the "host" of Jeopardy
      e.g. asks clues, gets point values, etc.
      think of this as the class that handles listening and talking to slack
      :param slack_client: slackclient object
      :param user_db: db object containing connection to user db
      :param channel: slack channel to talk to
-    '''
+    """
 
     # what to type before we give trebekbot a command
     command_prefix = '/'
@@ -278,9 +279,8 @@ class Host:
             count += 1
         return slack_list
 
-    # TODO: finish writing this
     # gets total all-time wins for user
-    def my_wins(self, user_name, user_id):
+    def mywins(self, user_name, user_id):
         user_address = self.create_user_address(user_name, user_id)
         wins = str(
         self.user_db.get_user_wins(self.user_db.connection, user_name)

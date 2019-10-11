@@ -7,7 +7,7 @@ Bugs:
   - non-debug slash commands now only work in #trivia
   
 Features:
-    
+  - win tracking is now fixed
 
 version 0.7.2 changelog (9-26-19):
 

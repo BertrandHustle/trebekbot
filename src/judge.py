@@ -9,16 +9,17 @@ class Judge:
     Class that checks and verifies user answers to Questions
     """
 
-    def __init__(self):
+    #def __init__(self):
         # initialize dictionary
-        self.eng_dict = open('support_files/words.txt').read().splitlines()
+    eng_dict = open('support_files/words.txt').read().splitlines()
 
-    '''
-    check if user needs to be more specific or less specific in their answer
-    :string user_answer: answer given by user
-    :string correct_answer: correct answer to question
-    '''
-    def check_closeness(self, user_answer, correct_answer):
+    @staticmethod
+    def check_closeness(user_answer, correct_answer):
+        """
+        check if user needs to be more specific or less specific in their answer
+        :string user_answer: answer given by user
+        :string correct_answer: correct answer to question
+        """
         # this will be either 'more' or 'less' depending on closeness to answer
         closeness = None
         # if user answer has equal or less words than correct answer
@@ -33,53 +34,9 @@ class Judge:
             closeness = 'less'
         return 'Please be {} specific.'.format(closeness)
 
-    def check_answer(self, question, user_answer, user_name, user_id, wager=None):
-        '''
-        checks if the answer to a question is correct and updates score accordingly
-        :param slack_output: the output we hear coming from slack_output
-        :param question: the question object
-        :param user_answer: the answer given by user
-        :param user_name: name of user answering question
-        :param user_id: id of user answering question
-        :param wager: optional, the wager if the question is a Daily Double
-        '''
-        user_address = self.create_user_address(user_name, user_id)
-        correct_answer = question.answer
-        # check if answer is correct
-        answer_check = self.fuzz_answer(user_answer, correct_answer)
-        # if answer is close but not wrong
-        if answer_check is 'close':
-            return user_address + ' ' + \
-            self.check_closeness(user_answer, correct_answer)
-        # right answer
-        elif answer_check is True:
-            # award points to user
-            if question.daily_double:
-                self.user_db.update_score(
-                self.user_db.connection, user_name, wager
-                )
-            else:
-                self.user_db.update_score(
-                self.user_db.connection, user_name, question.value
-                )
-            return user_address + \
-            ' :white_check_mark: That is correct. The answer is ' \
-            +correct_answer
-        # wrong answer
-        elif answer_check is False:
-            # take away points from user
-            if question.daily_double and wager:
-                self.user_db.update_score(
-                self.user_db.connection, user_name, -wager
-                )
-            else:
-                self.user_db.update_score(
-                self.user_db.connection, user_name, -question.value
-                )
-            return user_address + ' :x: Sorry, that is incorrect.'
-
     # strips answers of extraneous punctuation, whitespace, etc.
-    def strip_answer(self, answer):
+    @staticmethod
+    def strip_answer(answer):
         # ok, not technically ALL articles
         articles = ['and', 'the', 'an', 'a', 'of']
         '''
@@ -91,7 +48,6 @@ class Judge:
         # remove diacritical marks
         answer = unidecode(answer)
         # remove anything in parentheses
-        # https://stackoverflow.com/questions/17779744/regular-expression-to-get-a-string-between-parentheses-in-javascript
         answer = sub(r'\(([^)]+)\)', '', answer)
         '''
         remove articles and conjunctions that are alone, at the start of
@@ -100,8 +56,6 @@ class Judge:
         for a in articles:
             answer = sub(r'\s{}\s|\"{}\s|^{}\s'.format(a, a, a), ' ', answer)
         # exception for "spelling bee" answers e.g. S-P-E-L-L
-        # if ' s-p-e-l-l' in answer:
-             #pdb.set_trace()
         if not match(r'\s|\w-\w-.+', answer):
             # replace hyphens with whitespace
             answer = sub(r'-', ' ', answer)
@@ -119,13 +73,14 @@ class Judge:
 
     # makes list of word-pairs out of given/correct answer arrays (arrays of words)
     # these arrays will always be filtered through strip_answer() first
-    def pair_off_answers(self, answer1, answer2):
+    @staticmethod
+    def pair_off_answers(answer1, answer2):
         matrix = []
         for word in answer1:
             for comp_word in answer2:
                 # convert to set so order doesn't matter in pairs and ignore
                 # exact matches
-                if not set([word, comp_word]) in [set(m) for m in matrix]:
+                if not {word, comp_word} in [{m} for m in matrix]:
                     matrix.append((word, comp_word))
         return matrix
 
@@ -141,14 +96,14 @@ class Judge:
     - or vice versa (but we dont check if correct word is in given answer)
     then it's close enough
     '''
-
-    def fuzz_word(self, given_word, correct_word):
+    @staticmethod
+    def fuzz_word(given_word, correct_word):
         given_word, correct_word = given_word.lower(), correct_word.lower()
         if given_word == correct_word:
             return True
         else:
             # use lambda to pare down comparison dictionary
-            first_letter_eng_dict = list(filter(lambda x: x[:1] == given_word[:1], self.eng_dict))
+            first_letter_eng_dict = list(filter(lambda x: x[:1] == given_word[:1], Judge.eng_dict))
 
             # get lists of close words (spell check)
             check_given_word_closeness = difflib.get_close_matches \
@@ -187,11 +142,17 @@ class Judge:
             else:
                 return False
 
-    # checks if given answer is close enough to correct answer
     # TODO: rename this
     # TODO: make conjunctions/disjunctions behave as logical operators
-
-    def fuzz_answer(self, given_answer, correct_answer):
+    @staticmethod
+    def fuzz_answer(given_answer, correct_answer):
+        """
+        checks if given answer is close enough to correct answer
+        :param self:
+        :param given_answer: answer given by user
+        :param correct_answer: correct answer to the Question
+        :return: True, False, or 'close' (if answer is close enough but not correct)
+        """
         # we need a copy of the answer with the parenthesized words left in if the correct answer contains parentheses
         paren_answer = None
         paren_close = 0
@@ -232,19 +193,19 @@ class Judge:
             '''
             if parentheses:
                 paren_answer = ''.join(list(filter(lambda x: x not in ['(', ')'], correct_answer)))
-                paren_answer = self.strip_answer(paren_answer)
-                paren_pair_list = self.pair_off_answers(self.strip_answer(given_answer), paren_answer)
+                paren_answer = Judge.strip_answer(paren_answer)
+                paren_pair_list = Judge.pair_off_answers(Judge.strip_answer(given_answer), paren_answer)
                 for pair in paren_pair_list:
                     # check equality first for performance boost
-                    result = pair[0] == pair[1] or self.fuzz_word(pair[0], pair[1])
+                    result = pair[0] == pair[1] or Judge.fuzz_word(pair[0], pair[1])
                     if result == 'close':
                         paren_close += 1
                     elif result == True:
                         paren_right += 1
             # remove casing, punctuation, and articles
-            given_answer = self.strip_answer(given_answer)
-            correct_answer = self.strip_answer(correct_answer)
-            pair_list = self.pair_off_answers(given_answer, correct_answer)
+            given_answer = Judge.strip_answer(given_answer)
+            correct_answer = Judge.strip_answer(correct_answer)
+            pair_list = Judge.pair_off_answers(given_answer, correct_answer)
             # if 'wells' in given_answer:
                 # pdb.set_trace()
             if given_answer == correct_answer or given_answer == paren_answer:
@@ -252,7 +213,7 @@ class Judge:
             # compare pairs and adjust totals accordingly
             for pair in pair_list:
                 # check equality first for performance boost
-                result = pair[0] == pair[1] or self.fuzz_word(pair[0], pair[1])
+                result = pair[0] == pair[1] or Judge.fuzz_word(pair[0], pair[1])
                 if result == 'close':
                     close += 1
                 elif result == True:

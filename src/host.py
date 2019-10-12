@@ -1,3 +1,4 @@
+from src.judge import Judge
 from time import time, ctime
 from re import match, IGNORECASE
 from os import environ
@@ -197,6 +198,51 @@ class Host:
                 return None
             else:
                 return wager
+
+    def check_answer(self, question, user_answer, user_name, user_id, wager=None):
+        '''
+        checks if the answer to a question is correct and updates score accordingly
+        :param slack_output: the output we hear coming from slack_output
+        :param question: the question object
+        :param user_answer: the answer given by user
+        :param user_name: name of user answering question
+        :param user_id: id of user answering question
+        :param wager: optional, the wager if the question is a Daily Double
+        '''
+        user_address = self.create_user_address(user_name, user_id)
+        correct_answer = question.answer
+        # check if answer is correct
+        answer_check = Judge.fuzz_answer(user_answer, correct_answer)
+        # if answer is close but not wrong
+        if answer_check is 'close':
+            return user_address + ' ' + \
+            Judge.check_closeness(user_answer, correct_answer)
+        # right answer
+        elif answer_check is True:
+            # award points to user
+            if question.daily_double:
+                self.user_db.update_score(
+                self.user_db.connection, user_name, wager
+                )
+            else:
+                self.user_db.update_score(
+                self.user_db.connection, user_name, question.value
+                )
+            return user_address + \
+            ' :white_check_mark: That is correct. The answer is ' \
+            +correct_answer
+        # wrong answer
+        elif answer_check is False:
+            # take away points from user
+            if question.daily_double and wager:
+                self.user_db.update_score(
+                self.user_db.connection, user_name, -wager
+                )
+            else:
+                self.user_db.update_score(
+                self.user_db.connection, user_name, -question.value
+                )
+            return user_address + ' :x: Sorry, that is incorrect.'
 
     # COMMANDS
 

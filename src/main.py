@@ -81,7 +81,7 @@ def answer_check_worker(answer, user_name, user_id):
             # lock file to prevent multiple people answering at once
             with open('answer_lock', 'w') as lock:
                 lock.write('locked')
-            answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
+            answer_check = judge.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
             # if answer is correct we need to reset timer/wager and
             # wipe out live question
             if ':white_check_mark:' in answer_check:
@@ -131,6 +131,7 @@ def hello():
 
 
 host = host.Host(slack_client, user_db)
+judge = judge.Judge()
 
 
 # display help text

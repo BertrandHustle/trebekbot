@@ -134,3 +134,4 @@ def test_get_questions_from_random_category():
     test_category = test_category_group[0].category
     for q in test_category_group:
         assert q.category == test_category
+

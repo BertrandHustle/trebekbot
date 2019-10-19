@@ -98,6 +98,7 @@ def answer_check_worker(answer, user_name, user_id):
             )
             os.remove('answer_lock')
 
+
 # resets timer/wager and removes active question and answer
 def reset_timer():
     global live_question

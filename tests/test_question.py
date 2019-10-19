@@ -85,35 +85,39 @@ def test_is_daily_double(test_value, expected_value):
 
 def test_filter_questions():
     # set up
-    test_json = open('./tests/test_files/test_questions.json').read()
+    test_json = open('./test_files/test_questions.json').read()
     test_question_list = json.loads(test_json)
+    test_category = 'HISTORY'
 
     # act
-    dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
-    science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
+    science_filter = test_question.filter_questions(test_question_list, banned_categories=[
+        'science', 'biology', 'chemistry'
+    ])
     heard_seen_here_filter = test_question.filter_questions(
-    test_question_list,
-    banned_phrases=['heard here', 'seen here']
+        test_question_list,
+        banned_phrases=['heard here', 'seen here']
     )
     # tests filtering both, as we do when we init a Question instance
-    # pdb.set_trace()
     category_and_phrase_filter = test_question.filter_questions(
-    test_question_list,
-    banned_categories='missing this category',
-    banned_phrases=['heard here', 'seen here'],
+        test_question_list,
+        banned_categories='missing this category',
+        banned_phrases=['heard here', 'seen here'],
     )
+    category_filter = test_question.filter_questions(test_question_list, category=test_category)
 
     # assert
-    for c in dd_filter: assert test_question.is_daily_double(c['value'])
     for c in history_filter: assert c['category'] != 'HISTORY'
     for c in science_filter: assert c['category'] != 'SCIENCE'
     for q in heard_seen_here_filter: assert 'heard here' not in q['question']\
-    and 'seen here' not in q['question']
+        and 'seen here' not in q['question']
     for q in category_and_phrase_filter: \
-    assert 'heard here' not in q['question'] \
-    and 'seen here' not in q['question'] \
-    and q['category'] != 'missing this category'
+        assert 'heard here' not in q['question'] \
+        and 'seen here' not in q['question'] \
+        and q['category'] != 'missing this category'
+    assert len(category_filter) > 0
+    for q in category_filter:
+        assert q['category'].lower() == test_category.lower()
 
 
 @pytest.mark.parametrize("test_value, expected_value", [
@@ -127,11 +131,4 @@ def test_filter_questions():
 ])
 def test_convert_value_to_int(test_value, expected_value):
     assert test_question.convert_value_to_int(test_value) == expected_value
-
-
-def test_get_questions_from_random_category():
-    test_category_group = test_question.get_questions_from_random_category()
-    test_category = test_category_group[0].category
-    for q in test_category_group:
-        assert q.category == test_category
 

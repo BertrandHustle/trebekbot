@@ -12,25 +12,14 @@ import json
 
 test_timer = Timer(1, None)
 test_question = question.Question(test_timer)
-# tests question constructor
-def test_question_constructor():
-    assert type(test_question.answer) == str
-    assert type(test_question.category) == str
-    assert type(test_question.daily_double) == bool
-    assert type(test_question.text) == str and test_question.text != ''
-    assert type(test_question.value) == int
-    assert type(test_question.date) == str
-    assert type(test_question.slack_text) == str
-    if test_question.valid_links:
-        assert type(test_question.valid_links) == list
-        for link in test_question.valid_links:
-            assert link.startswith('http://')
+
 
 # TODO: speed this up!
 def test_daily_double_debug_flag():
     for q in range(10):
         dd_question = question.Question(test_timer, daily_double_debug=1)
         assert dd_question.daily_double == True
+
 
 def test_get_value():
     '''
@@ -93,6 +82,7 @@ def test_separate_html(test_text, expected_output):
 def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
 
+
 def test_filter_questions():
     # set up
     test_json = open('./tests/test_files/test_questions.json').read()
@@ -125,6 +115,7 @@ def test_filter_questions():
     and 'seen here' not in q['question'] \
     and q['category'] != 'missing this category'
 
+
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$2,500', 2500),
  ('asjdjasdj', 0),
@@ -136,3 +127,10 @@ def test_filter_questions():
 ])
 def test_convert_value_to_int(test_value, expected_value):
     assert test_question.convert_value_to_int(test_value) == expected_value
+
+
+def test_get_questions_from_random_category():
+    test_category_group = test_question.get_questions_from_random_category()
+    test_category = test_category_group[0].category
+    for q in test_category_group:
+        assert q.category == test_category

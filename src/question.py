@@ -32,6 +32,8 @@ Holds details about questions and questions themselves
 :str slack_text: The formatted text we push to slack when question is requested
 :list links: List of valid image/audio links associated with question
 '''
+
+
 class Question:
 
     # init
@@ -63,14 +65,30 @@ class Question:
     def get_random_question():
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
         question_list = json.loads(jeopardy_json_file)
-        # pdb.set_trace()
         question_list = Question.filter_questions(
-        question_list,
-        banned_categories=Question.banned_categories,
-        banned_phrases=Question.banned_phrases
+            question_list,
+            banned_categories=Question.banned_categories,
+            banned_phrases=Question.banned_phrases
         )
         question = question_list[randint(0, len(question_list))]
         return question
+
+    @staticmethod
+    def get_questions_from_random_category() -> list:
+        """
+        selects a random category and gets all questions from that category
+        :return: list
+        """
+        jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
+        question_list = json.loads(jeopardy_json_file)
+        question_list = Question.filter_questions(
+            question_list,
+            banned_categories=Question.banned_categories,
+            banned_phrases=Question.banned_phrases
+        )
+        rand_category = question_list[randint(0, len(question_list))].category
+        # get all available questions from our randomly selected category
+        return [question for question in rand_category if question.category == rand_category]
 
     # formats text to be pretty for slack
     @staticmethod
@@ -92,17 +110,17 @@ class Question:
     def get_value(self):
         return ('$' + str(self.value))
 
-    '''
-    filters list of questions and returns filtered list
-    :param question_list: list of questions we pass in (in json form)
-    :param banned_categories: list of categories to filter out, can be a single
-    str category instead
-    :param banned_phrases: filters questions by key phrases, such as
-    "seen here" or "heard here"
-    '''
     @staticmethod
-    def filter_questions(question_list,
-    banned_categories=None, banned_phrases=None):
+    def filter_questions(question_list, banned_categories=None, banned_phrases=None) -> list:
+        """
+        filters list of questions and returns filtered list
+        :param question_list: list of questions we pass in (in json form)
+        :param banned_categories: list of categories to filter out, can be a single
+        str category instead
+        :param banned_phrases: filters questions by key phrases, such as
+        "seen here" or "heard here"
+        :return list
+        """
         # if list of phrases is passed in as arg
         if banned_phrases and type(banned_phrases) is list:
             for phrase in banned_phrases:

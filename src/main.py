@@ -109,9 +109,7 @@ def answer_check_worker(answer, user_name, user_id):
                 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
                 question_is_live = False
             # prep for /next route if someone wants the same category for next question
-            categorized_questions = Question.get_questions_by_category(live_question.category)
-            # construct questions out of question_jsons
-            categorized_questions = [Question(q, reset_timer) for q in categorized_questions]
+            categorized_questions = Question.get_questions_by_category(live_question.category, reset_timer)
             say(answer_check)
             os.remove('answer_lock')
 
@@ -120,9 +118,13 @@ def answer_check_worker(answer, user_name, user_id):
 def reset_timer():
     global live_question
     global question_is_live
+    global categorized_questions
+    global current_wager
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     question_is_live = False
     current_wager = 0
+    # prep for /next route if someone wants the same category for next question
+    categorized_questions = Question.get_questions_by_category(live_question.category, reset_timer)
     # generate new question
     live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 

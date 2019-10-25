@@ -128,7 +128,7 @@ def test_convert_value_to_int(test_value, expected_value):
 
 
 def test_get_questions_by_category():
-    categorized_questions = Question.get_questions_by_category('history')
-    category_list = [q['category'] for q in categorized_questions]
+    categorized_questions = Question.get_questions_by_category('history', test_timer)
+    category_list = [q.category for q in categorized_questions]
     # if all categories are not the same the length of category_list set will be more than one
     assert len(set(category_list)) == 1

@@ -204,12 +204,15 @@ class Question:
                 return False
 
     @staticmethod
-    def get_questions_by_category(category: str) -> list:
+    def get_questions_by_category(category: str, timer) -> list:
         """returns all questions for a given category
         :param category
-        :return: list of questions in json form
+        :param timer: timer object used to construct Question
+        :return: list of questions
         """
         search_category = category.upper()
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
         question_list = json.loads(jeopardy_json_file)
-        return list(filter(lambda x: search_category == x['category'], question_list))
+        categorized_question_jsons = list(filter(lambda x: search_category == x['category'], question_list))
+        return [Question(q, timer) for q in categorized_question_jsons]
+

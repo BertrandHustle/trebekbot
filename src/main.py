@@ -13,7 +13,7 @@ from src.judge import Judge
 from src.question import Question
 # third-party libs
 from slackclient import SlackClient
-from flask import Flask, jsonify, request, redirect
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -106,10 +106,10 @@ def answer_check_worker(answer, user_name, user_id):
             if ':white_check_mark:' in answer_check:
                 live_question.timer.cancel()
                 current_wager = 0
-                # prep for /next route if someone wants the same category for next question
-                categorized_questions = Question.get_questions_by_category(live_question.category)
                 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
                 question_is_live = False
+            # prep for /next route if someone wants the same category for next question
+            categorized_questions = Question.get_questions_by_category(live_question.category)
             say(answer_check)
             os.remove('answer_lock')
 
@@ -223,10 +223,10 @@ def next():
     global categorized_questions
     if categorized_questions:
         live_question = categorized_questions.pop()
-        return redirect('/ask', code=200)
+        return ask()
     else:
         say('Out of that category! Here\'s a new question:')
-        return redirect('/ask', code=200)
+        return ask()
 
 # forces skip on current question and generates new question
 @app.route('/skip', methods=['POST'])

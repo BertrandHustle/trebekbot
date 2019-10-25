@@ -110,6 +110,8 @@ def answer_check_worker(answer, user_name, user_id):
                 question_is_live = False
             # prep for /next route if someone wants the same category for next question
             categorized_questions = Question.get_questions_by_category(live_question.category)
+            # construct questions out of question_jsons
+            categorized_questions = [Question(q, reset_timer) for q in categorized_questions]
             say(answer_check)
             os.remove('answer_lock')
 

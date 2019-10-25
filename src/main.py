@@ -59,20 +59,6 @@ categorized_questions = []
 
 # Utility Functions
 
-
-def say(message):
-    """
-    says message to slack channel without having to return a payload via flask
-    :return: None
-    """
-    slack_client.api_call(
-        'chat.postMessage',
-        channel=channel,
-        text=message,
-        as_user=True
-    )
-
-
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command
 def handle_payload(payload):
@@ -112,8 +98,7 @@ def answer_check_worker(answer, user_name, user_id):
             categorized_questions = Question.get_questions_by_category(
                 live_question.category, Timer(time_limit, reset_timer)
             )
-            print(categorized_questions)
-            say(answer_check)
+            host.say(channel, answer_check)
             os.remove('answer_lock')
 
 
@@ -128,7 +113,6 @@ def reset_timer():
     current_wager = 0
     # prep for /next route if someone wants the same category for next question
     categorized_questions = Question.get_questions_by_category(live_question.category, Timer(time_limit, reset_timer))
-    print(categorized_questions)
     # generate new question
     live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
@@ -233,7 +217,7 @@ def next():
         live_question = categorized_questions.pop()
         return ask()
     else:
-        say('Out of that category! Here\'s a new question:')
+        say(channel, 'Out of that category! Here\'s a new question:')
         return ask()
 
 # forces skip on current question and generates new question

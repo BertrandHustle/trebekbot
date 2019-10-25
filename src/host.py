@@ -65,7 +65,7 @@ class Host:
             '$' + str(self.current_champion_score) + '!')
         # show yesterday's leaderboard
         self.say(self.channel, 'Here\'s yesterday\'s top scores:')
-        self.top_ten()
+        self.say(self.channel, self.top_ten())
         # reset champion_scores here
         user_db.wipe_scores(user_db.connection)
 

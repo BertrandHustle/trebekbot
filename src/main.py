@@ -2,13 +2,18 @@ author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 
 # Main file for trebekbot
+# built-ins
 import os
-import src.question as question
+import urllib.parse as urlparse
+from threading import Timer, Thread
+
+# trebekbot classes
 import src.db as db
 import src.host as host
 import src.judge as judge
-import urllib.parse as urlparse
-from threading import Timer, Thread
+from src.question import Question
+
+# third-party libs
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
 
@@ -49,6 +54,7 @@ wrong_channel_payload = {
     'response_type': 'in_channel'
 }
 
+
 # TODO: add 500 error handler
 
 # Utility Functions
@@ -87,7 +93,7 @@ def answer_check_worker(answer, user_name, user_id):
             if ':white_check_mark:' in answer_check:
                 live_question.timer.cancel()
                 current_wager = 0
-                live_question = question.Question(Timer(time_limit, reset_timer))
+                live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
                 question_is_live = False
             payload = {'text': answer_check, 'channel': channel}
             slack_client.api_call(
@@ -107,11 +113,23 @@ def reset_timer():
     question_is_live = False
     current_wager = 0
     # generate new question
-    live_question = question.Question(Timer(time_limit, reset_timer))
+    live_question = question.Question(
+        Question.get_random_question(),
+        Timer(time_limit, reset_timer)
+    )
 
 
 # load this in the background to speed up response time
 live_question = question.Question(Timer(time_limit, reset_timer))
+
+
+def get_all_category_questions(category: string) -> list:
+    """
+    get all questions from a given category
+    :param category:
+    :return: list of Question objects
+    """
+
 
 
 # Routes
@@ -202,6 +220,9 @@ def ask():
         return handle_payload(payload)
     else:
         return handle_payload(wrong_channel_payload)
+
+# get a new question from the last question's category
+
 
 # forces skip on current question and generates new question
 @app.route('/skip', methods=['POST'])

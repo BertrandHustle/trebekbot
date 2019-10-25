@@ -6,16 +6,14 @@ bot_name = 'trebekbot'
 import os
 import urllib.parse as urlparse
 from threading import Timer, Thread
-
 # trebekbot classes
-import src.db as db
-import src.host as host
-import src.judge as judge
+from src.db import db
+from src.host import Host
+from src.judge import Judge
 from src.question import Question
-
 # third-party libs
 from slackclient import SlackClient
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect
 
 app = Flask(__name__)
 
@@ -26,7 +24,7 @@ dbuser = result.username
 password = result.password
 dbname = result.path[1:]
 dbhost = result.hostname
-user_db = db.db(
+user_db = db(
     'dbname=' + dbname + ' ' +
     'user=' + dbuser + ' ' +
     'password=' + password + ' ' +
@@ -53,11 +51,26 @@ wrong_channel_payload = {
     'text': 'Wrong channel!',
     'response_type': 'in_channel'
 }
+# hold all questions of the same category for /next route
+categorized_questions = []
 
 
 # TODO: add 500 error handler
 
 # Utility Functions
+
+
+def say(message):
+    """
+    says message to slack channel without having to return a payload via flask
+    :return: None
+    """
+    slack_client.api_call(
+        'chat.postMessage',
+        channel=channel,
+        text=message,
+        as_user=True
+    )
 
 
 # formats and sends payload
@@ -74,6 +87,7 @@ def answer_check_worker(answer, user_name, user_id):
     global daily_double_asker
     global current_wager
     global question_is_live
+    global categorized_questions
     # necessary to keep flask from complaining about being out of scope for threading
     with app.app_context():
         if os.path.exists('answer_lock'):
@@ -88,20 +102,15 @@ def answer_check_worker(answer, user_name, user_id):
             with open('answer_lock', 'w') as lock:
                 lock.write('locked')
             answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
-            # if answer is correct we need to reset timer/wager and
-            # wipe out live question
+            # answer is correct: reset timer/wager and wipe out live question
             if ':white_check_mark:' in answer_check:
                 live_question.timer.cancel()
                 current_wager = 0
+                # prep for /next route if someone wants the same category for next question
+                categorized_questions = Question.get_questions_by_category(live_question.category)
                 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
                 question_is_live = False
-            payload = {'text': answer_check, 'channel': channel}
-            slack_client.api_call(
-                'chat.postMessage',
-                channel=channel,
-                text=answer_check,
-                as_user=True
-            )
+            say(answer_check)
             os.remove('answer_lock')
 
 
@@ -113,24 +122,11 @@ def reset_timer():
     question_is_live = False
     current_wager = 0
     # generate new question
-    live_question = question.Question(
-        Question.get_random_question(),
-        Timer(time_limit, reset_timer)
-    )
+    live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
 
 # load this in the background to speed up response time
-live_question = question.Question(Timer(time_limit, reset_timer))
-
-
-def get_all_category_questions(category: string) -> list:
-    """
-    get all questions from a given category
-    :param category:
-    :return: list of Question objects
-    """
-
-
+live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
 # Routes
 
@@ -149,8 +145,8 @@ def hello():
         return handle_payload(wrong_channel_payload)
 
 
-host = host.Host(slack_client, user_db)
-judge = judge.Judge()
+host = Host(slack_client, user_db)
+judge = Judge()
 
 
 # display help text
@@ -189,7 +185,6 @@ def uptime():
     else:
         return handle_payload(wrong_channel_payload)
 
-# TODO: clean up global refs
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -222,7 +217,16 @@ def ask():
         return handle_payload(wrong_channel_payload)
 
 # get a new question from the last question's category
-
+@app.route('/next', methods=['POST'])
+def next():
+    global live_question
+    global categorized_questions
+    if categorized_questions:
+        live_question = categorized_questions.pop()
+        return redirect('/ask', code=200)
+    else:
+        say('Out of that category! Here\'s a new question:')
+        return redirect('/ask', code=200)
 
 # forces skip on current question and generates new question
 @app.route('/skip', methods=['POST'])
@@ -232,7 +236,7 @@ def skip():
     # cancel current timer and instantiate new question
     if request.form['channel_name'] == channel:
         live_question.timer.cancel()
-        live_question = question.Question(Timer(time_limit, reset_timer))
+        live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
         payload = {'text': None, 'response_type': 'in_channel'}
         if live_question.daily_double:
             user_name = request.form['user_name']
@@ -285,7 +289,7 @@ def nope():
             payload['text'] = 'Question must be a daily double!'
         else:
             live_question.timer.cancel()
-            live_question = question.Question(Timer(time_limit, reset_timer))
+            live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
             question_is_live = False
         return handle_payload(payload)
     else:
@@ -380,7 +384,7 @@ def dd():
     global daily_double_asker
     payload = {'text': None, 'response_type': 'in_channel'}
     if request.form['user_name'] == 'bertrand_hustle':
-        live_question = question.Question(Timer(time_limit, reset_timer))
+        live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
         live_question.daily_double = True
         user_name = request.form['user_name']
         user_id = request.form['user_id']

@@ -109,7 +109,9 @@ def answer_check_worker(answer, user_name, user_id):
                 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
                 question_is_live = False
             # prep for /next route if someone wants the same category for next question
-            categorized_questions = Question.get_questions_by_category(live_question.category, reset_timer)
+            categorized_questions = Question.get_questions_by_category(
+                live_question.category, Timer(time_limit, reset_timer)
+            )
             print(categorized_questions)
             say(answer_check)
             os.remove('answer_lock')
@@ -125,7 +127,7 @@ def reset_timer():
     question_is_live = False
     current_wager = 0
     # prep for /next route if someone wants the same category for next question
-    categorized_questions = Question.get_questions_by_category(live_question.category, reset_timer)
+    categorized_questions = Question.get_questions_by_category(live_question.category, Timer(time_limit, reset_timer))
     print(categorized_questions)
     # generate new question
     live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))

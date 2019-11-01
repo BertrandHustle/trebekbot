@@ -23,11 +23,7 @@ class SlackFormatter:
                                 "name": "continue_category",
                                 "text": "Continue Category",
                                 "type": "button",
-<<<<<<< Updated upstream
-                                "value": True
-=======
                                 "value": "continue_category"
->>>>>>> Stashed changes
                             }
                         ]
                     }

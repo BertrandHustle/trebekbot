@@ -91,11 +91,11 @@ class Host:
                 self.user_db.add_user_to_db(self.user_db.connection, username)
 
     # say things back to channel
-    '''
-    :param: channel: channel to which we are posting message
-    :param: message: message to post or 'say'
-    '''
     def say(self, channel, message):
+        """
+        :param: channel: channel to which we are posting message
+        :param: message: message to post or 'say'
+        """
         self.slack_client.api_call(
             'chat.postMessage',
             channel=channel,
@@ -104,33 +104,34 @@ class Host:
         )
 
     def create_user_address(self, user_name, user_id):
-        '''
+        """
         creates string to address user and adds crown if user is current champ
         :param: user_name
         :param: user_id
-        '''
+        """
         if self.current_champion_name == user_name:
             return ':crown: <@'+user_id+'>'
         else:
             return '<@'+user_id+'>'
 
     def create_daily_double_address(self, user_name, user_id):
-        '''
+        """
         creates string to address user if a daily double is asked
         :param: user_name
         :param: user_id
-        '''
+        """
         user_address = self.create_user_address(user_name, user_id)
         user_score = self.my_score(user_name, user_id)
         return 'It\'s a DAILY DOUBLE!\n' + user_address + \
         ' [$' + user_score + '] ' + \
         'Please enter a wager with the /wager command'
 
-    '''
-    get bot's slack id
-    :param bot_name:
-    '''
+
     def get_bot_id(self, bot_name):
+        """
+        get bot's slack id
+        :param bot_name:
+        """
         api_call = self.slack_client.api_call("users.list")
         if api_call.get('ok'):
             # retrieve all users so we can find our bot
@@ -143,11 +144,11 @@ class Host:
     def get_latest_changelog(self, changelog_path):
         # the text from the latest changelog only, this is what we will return
         latest_changelog = ''
-        '''
+        """
         flag that trips when the latest changelog has been found,
         because we'll be returning a paragraph this stays tripped until we hit
         a blank line
-        '''
+        """
         found_latest = False
         with open(changelog_path, 'r', encoding='utf8') as changelog:
             for line in changelog.readlines():

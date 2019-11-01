@@ -11,6 +11,7 @@ from src.db import db
 from src.host import Host
 from src.judge import Judge
 from src.question import Question
+from src.slack_formatter import SlackFormatter
 # third-party libs
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
@@ -199,8 +200,9 @@ def ask():
             else:
                 payload['text'] = live_question.slack_text
             # TODO: add time to timer if daily double
-            # start question timer
-            live_question.timer.start()
+            # start question timer and double check that timer hasn't been started already
+            if not live_question.timer.is_alive():
+                live_question.timer.start()
             question_is_live = True
         else:
             payload['text'] = 'question is already in play!'
@@ -213,12 +215,13 @@ def ask():
 def next():
     global live_question
     global categorized_questions
-    if categorized_questions:
-        live_question = categorized_questions.pop()
-        return ask()
-    else:
-        say(channel, 'Out of that category! Here\'s a new question:')
-        return ask()
+    if request.form['channel_name'] == channel:
+        if categorized_questions:
+            live_question = categorized_questions.pop()
+            return ask()
+        else:
+            say(channel, 'Out of that category! Here\'s a new question:')
+            return ask()
 
 # forces skip on current question and generates new question
 @app.route('/skip', methods=['POST'])

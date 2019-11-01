@@ -11,7 +11,7 @@ class SlackFormatter:
         :return: json of button message to send to slack
         """
         button_json = {
-            "text": text
+            "text": text,
             "attachments": [
                 {
                     "fallback": "Out of questions in this category!",
@@ -23,7 +23,11 @@ class SlackFormatter:
                                 "name": "continue_category",
                                 "text": "Continue Category",
                                 "type": "button",
+<<<<<<< Updated upstream
                                 "value": True
+=======
+                                "value": "continue_category"
+>>>>>>> Stashed changes
                             }
                         ]
                     }

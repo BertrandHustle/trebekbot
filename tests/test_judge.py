@@ -106,7 +106,9 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('featherweight', 'welterweight', False),
  # slashes
  ('istanbul', 'istanbul/constantinople', True),
- ('hag', 'hag tag', False)
+ ('hag', 'hag tag', False),
+ # before and after questions
+ ('soup nazi dictator', 'Talk Soup Nazi', False)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_judge.fuzz_answer(given_answer, expected_answer) == expected_value

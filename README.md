@@ -1,5 +1,12 @@
 # trebekbot
 
+version 0.7.4 changelog (10-24-19):
+Bugs:
+  - single letter answer bug is fixed
+  
+Features:
+  - added /next route to get more questions from same category
+
 version 0.7.3 changelog (10-3-19):
 
 Bugs:

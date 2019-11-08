@@ -1,4 +1,3 @@
-import pdb
 import json
 import re
 from os import path, pardir
@@ -32,16 +31,18 @@ Holds details about questions and questions themselves
 :str slack_text: The formatted text we push to slack when question is requested
 :list links: List of valid image/audio links associated with question
 '''
+
+
 class Question:
 
     # init
     banned_categories = 'missing this category',
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    def __init__(self, timer):
-        question = self.get_random_question()
+    # TODO: refactor this to be a true constructor (e.g. not always a random question)
+    def __init__(self, question_json, timer):
         # text with html links separated out
-        scrubbed_text = Question.separate_html(question['question'])
+        scrubbed_text = Question.separate_html(question_json['question'])
         self.text = ''
         self.valid_links = []
         if type(scrubbed_text) == str:
@@ -50,24 +51,24 @@ class Question:
         elif type(scrubbed_text) == list:
             self.text = scrubbed_text[0]
             self.valid_links = scrubbed_text[1:]
-        self.value = Question.convert_value_to_int(question['value'])
-        self.category = question['category']
+        self.value = Question.convert_value_to_int(question_json['value'])
+        self.category = question_json['category']
         self.daily_double = Question.is_daily_double(self.value)
-        self.answer = question['answer']
-        self.date = question['air_date']
+        self.answer = question_json['answer']
+        self.date = question_json['air_date']
         self.slack_text = Question.format_slack_text(self)
         self.timer = timer
 
     # gets random question from given json file
     @staticmethod
-    def get_random_question():
+    def get_random_question(category=None):
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
         question_list = json.loads(jeopardy_json_file)
-        # pdb.set_trace()
         question_list = Question.filter_questions(
-        question_list,
-        banned_categories=Question.banned_categories,
-        banned_phrases=Question.banned_phrases
+            question_list,
+            banned_categories=Question.banned_categories,
+            banned_phrases=Question.banned_phrases,
+            category=category
         )
         question = question_list[randint(0, len(question_list))]
         return question
@@ -90,19 +91,22 @@ class Question:
         return question_text
 
     def get_value(self):
-        return ('$' + str(self.value))
+        return '$' + str(self.value)
 
-    '''
-    filters list of questions and returns filtered list
-    :param question_list: list of questions we pass in (in json form)
-    :param banned_categories: list of categories to filter out, can be a single
-    str category instead
-    :param banned_phrases: filters questions by key phrases, such as
-    "seen here" or "heard here"
-    '''
     @staticmethod
-    def filter_questions(question_list,
-    banned_categories=None, banned_phrases=None):
+    def filter_questions(question_list, banned_categories=None, banned_phrases=None, category=None) -> list:
+        """
+        filters list of questions and returns filtered list
+        :param question_list: list of questions we pass in (in json form)
+        :param banned_categories: list of categories to filter out, can be a single
+        str category instead
+        :param banned_phrases: filters questions by key phrases, such as
+        "seen here" or "heard here"
+        :param category: filters list to questions from the given category
+        :return list
+        """
+        if category:
+            question_list = list(filter(lambda x: category.lower() == x['category'].lower(), question_list))
         # if list of phrases is passed in as arg
         if banned_phrases and type(banned_phrases) is list:
             for phrase in banned_phrases:
@@ -198,3 +202,17 @@ class Question:
                 return True
             else:
                 return False
+
+    @staticmethod
+    def get_questions_by_category(category: str, timer) -> list:
+        """returns all questions for a given category
+        :param category
+        :param timer: timer object used to construct Question
+        :return: list of questions
+        """
+        search_category = category.upper()
+        jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
+        question_list = json.loads(jeopardy_json_file)
+        categorized_question_jsons = list(filter(lambda x: search_category == x['category'], question_list))
+        return [Question(q, timer) for q in categorized_question_jsons]
+

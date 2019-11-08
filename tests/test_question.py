@@ -4,33 +4,15 @@ syspath.append(
 os.path.abspath(
 os.path.join(
 os.path.dirname(__file__), os.path.pardir)))
-from src import question
+from src.question import Question
 from threading import Timer
 import pytest
 import json
 
 
 test_timer = Timer(1, None)
-test_question = question.Question(test_timer)
-# tests question constructor
-def test_question_constructor():
-    assert type(test_question.answer) == str
-    assert type(test_question.category) == str
-    assert type(test_question.daily_double) == bool
-    assert type(test_question.text) == str and test_question.text != ''
-    assert type(test_question.value) == int
-    assert type(test_question.date) == str
-    assert type(test_question.slack_text) == str
-    if test_question.valid_links:
-        assert type(test_question.valid_links) == list
-        for link in test_question.valid_links:
-            assert link.startswith('http://')
+test_question = Question(Question.get_random_question(), test_timer)
 
-# TODO: speed this up!
-def test_daily_double_debug_flag():
-    for q in range(10):
-        dd_question = question.Question(test_timer, daily_double_debug=1)
-        assert dd_question.daily_double == True
 
 def test_get_value():
     '''
@@ -78,6 +60,7 @@ def test_get_value():
 def test_separate_html(test_text, expected_output):
     assert test_question.separate_html(test_text) == expected_output
 
+
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$100', False),
  ('$5578', True),
@@ -93,37 +76,43 @@ def test_separate_html(test_text, expected_output):
 def test_is_daily_double(test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
 
+
 def test_filter_questions():
     # set up
-    test_json = open('./tests/test_files/test_questions.json').read()
+    test_json = open('./test_files/test_questions.json').read()
     test_question_list = json.loads(test_json)
+    test_category = 'HISTORY'
 
     # act
-    dd_filter = test_question.filter_questions(test_question_list, daily_double=1)
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
-    science_filter = test_question.filter_questions(test_question_list, banned_categories=['science', 'biology', 'chemistry'])
+    science_filter = test_question.filter_questions(test_question_list, banned_categories=[
+        'science', 'biology', 'chemistry'
+    ])
     heard_seen_here_filter = test_question.filter_questions(
-    test_question_list,
-    banned_phrases=['heard here', 'seen here']
+        test_question_list,
+        banned_phrases=['heard here', 'seen here']
     )
     # tests filtering both, as we do when we init a Question instance
-    # pdb.set_trace()
     category_and_phrase_filter = test_question.filter_questions(
-    test_question_list,
-    banned_categories='missing this category',
-    banned_phrases=['heard here', 'seen here'],
+        test_question_list,
+        banned_categories='missing this category',
+        banned_phrases=['heard here', 'seen here'],
     )
+    category_filter = test_question.filter_questions(test_question_list, category=test_category)
 
     # assert
-    for c in dd_filter: assert test_question.is_daily_double(c['value'])
     for c in history_filter: assert c['category'] != 'HISTORY'
     for c in science_filter: assert c['category'] != 'SCIENCE'
     for q in heard_seen_here_filter: assert 'heard here' not in q['question']\
-    and 'seen here' not in q['question']
+        and 'seen here' not in q['question']
     for q in category_and_phrase_filter: \
-    assert 'heard here' not in q['question'] \
-    and 'seen here' not in q['question'] \
-    and q['category'] != 'missing this category'
+        assert 'heard here' not in q['question'] \
+        and 'seen here' not in q['question'] \
+        and q['category'] != 'missing this category'
+    assert len(category_filter) > 0
+    for q in category_filter:
+        assert q['category'].lower() == test_category.lower()
+
 
 @pytest.mark.parametrize("test_value, expected_value", [
  ('$2,500', 2500),
@@ -136,3 +125,10 @@ def test_filter_questions():
 ])
 def test_convert_value_to_int(test_value, expected_value):
     assert test_question.convert_value_to_int(test_value) == expected_value
+
+
+def test_get_questions_by_category():
+    categorized_questions = Question.get_questions_by_category('history', test_timer)
+    category_list = [q.category for q in categorized_questions]
+    # if all categories are not the same the length of category_list set will be more than one
+    assert len(set(category_list)) == 1

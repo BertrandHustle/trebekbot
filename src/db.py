@@ -11,11 +11,11 @@ This will primarily serve to store users and track their scores/money totals
 
 
 class db:
+    """
+    db object for interacing with psql database
+    :param conn_string: psql connection string of comma-separated options
+    """
     def __init__(self, conn_string):
-        '''
-        db object for interacing with psql database
-        :param conn_string: psql connection string of comma-separated options
-        '''
         self.conn_string = conn_string
         self.connection = psycopg2.connect(self.conn_string)
         self.create_table_users(self.connection)

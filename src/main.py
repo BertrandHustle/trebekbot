@@ -2,26 +2,29 @@ author = 'bertrand_hustle'
 bot_name = 'trebekbot'
 
 # Main file for trebekbot
+# built-ins
 import os
-import src.question as question
-import src.db as db
-import src.host as host
-import src.judge as judge
 import urllib.parse as urlparse
 from threading import Timer, Thread
+# trebekbot classes
+from src.db import db
+from src.host import Host
+from src.judge import Judge
+from src.question import Question
+from src.slack_formatter import SlackFormatter
+# third-party libs
 from slackclient import SlackClient
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
 # setup database (or connect to existing one)
-# thanks to joamag on stackoverflow
 result = urlparse.urlparse(os.environ['DATABASE_URL'])
 dbuser = result.username
 password = result.password
 dbname = result.path[1:]
 dbhost = result.hostname
-user_db = db.db(
+user_db = db(
     'dbname=' + dbname + ' ' +
     'user=' + dbuser + ' ' +
     'password=' + password + ' ' +
@@ -48,11 +51,14 @@ wrong_channel_payload = {
     'text': 'Wrong channel!',
     'response_type': 'in_channel'
 }
+# hold all questions of the same category for /next route
+categorized_questions = []
+
 
 # TODO: add 500 error handler
+# TODO: turn channel check into decorator
 
 # Utility Functions
-
 
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command
@@ -68,6 +74,7 @@ def answer_check_worker(answer, user_name, user_id):
     global daily_double_asker
     global current_wager
     global question_is_live
+    global categorized_questions
     # necessary to keep flask from complaining about being out of scope for threading
     with app.app_context():
         if os.path.exists('answer_lock'):
@@ -82,36 +89,37 @@ def answer_check_worker(answer, user_name, user_id):
             with open('answer_lock', 'w') as lock:
                 lock.write('locked')
             answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
-            # if answer is correct we need to reset timer/wager and
-            # wipe out live question
+            # answer is correct: reset timer/wager and wipe out live question
             if ':white_check_mark:' in answer_check:
                 live_question.timer.cancel()
                 current_wager = 0
-                live_question = question.Question(Timer(time_limit, reset_timer))
+                live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
                 question_is_live = False
-            payload = {'text': answer_check, 'channel': channel}
-            slack_client.api_call(
-                'chat.postMessage',
-                channel=channel,
-                text=answer_check,
-                as_user=True
+            # prep for /next route if someone wants the same category for next question
+            categorized_questions = Question.get_questions_by_category(
+                live_question.category, Timer(time_limit, reset_timer)
             )
+            host.say(channel, answer_check)
             os.remove('answer_lock')
+
 
 # resets timer/wager and removes active question and answer
 def reset_timer():
     global live_question
     global question_is_live
+    global categorized_questions
+    global current_wager
     host.say(channel, "Sorry, we're out of time. The correct answer is: " + live_question.answer)
     question_is_live = False
     current_wager = 0
+    # prep for /next route if someone wants the same category for next question
+    categorized_questions = Question.get_questions_by_category(live_question.category, Timer(time_limit, reset_timer))
     # generate new question
-    live_question = question.Question(Timer(time_limit, reset_timer))
+    live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
 
 # load this in the background to speed up response time
-live_question = question.Question(Timer(time_limit, reset_timer))
-
+live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
 # Routes
 
@@ -130,8 +138,8 @@ def hello():
         return handle_payload(wrong_channel_payload)
 
 
-host = host.Host(slack_client, user_db)
-judge = judge.Judge()
+host = Host(slack_client, user_db)
+judge = Judge()
 
 
 # display help text
@@ -170,7 +178,6 @@ def uptime():
     else:
         return handle_payload(wrong_channel_payload)
 
-# TODO: clean up global refs
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
 def ask():
@@ -193,14 +200,29 @@ def ask():
             else:
                 payload['text'] = live_question.slack_text
             # TODO: add time to timer if daily double
-            # start question timer
-            live_question.timer.start()
+            # start question timer and double check that timer hasn't been started already
+            if not live_question.timer.is_alive():
+                live_question.timer.start()
             question_is_live = True
         else:
             payload['text'] = 'question is already in play!'
         return handle_payload(payload)
     else:
         return handle_payload(wrong_channel_payload)
+
+# get a new question from the last question's category
+@app.route('/next', methods=['POST'])
+def next_question():
+    global live_question
+    global categorized_questions
+    if request.form['channel_name'] == channel:
+        # make sure that the next question isn't the same as the one we just asked
+        if categorized_questions and live_question.slack_text != categorized_questions[0].slack_text:
+            live_question = categorized_questions.pop()
+            return ask()
+        else:
+            say(channel, 'Out of that category! Here\'s a new question:')
+            return ask()
 
 # forces skip on current question and generates new question
 @app.route('/skip', methods=['POST'])
@@ -210,7 +232,7 @@ def skip():
     # cancel current timer and instantiate new question
     if request.form['channel_name'] == channel:
         live_question.timer.cancel()
-        live_question = question.Question(Timer(time_limit, reset_timer))
+        live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
         payload = {'text': None, 'response_type': 'in_channel'}
         if live_question.daily_double:
             user_name = request.form['user_name']
@@ -263,7 +285,7 @@ def nope():
             payload['text'] = 'Question must be a daily double!'
         else:
             live_question.timer.cancel()
-            live_question = question.Question(Timer(time_limit, reset_timer))
+            live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
             question_is_live = False
         return handle_payload(payload)
     else:
@@ -358,7 +380,7 @@ def dd():
     global daily_double_asker
     payload = {'text': None, 'response_type': 'in_channel'}
     if request.form['user_name'] == 'bertrand_hustle':
-        live_question = question.Question(Timer(time_limit, reset_timer))
+        live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
         live_question.daily_double = True
         user_name = request.form['user_name']
         user_id = request.form['user_id']

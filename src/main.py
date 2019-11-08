@@ -89,16 +89,16 @@ def answer_check_worker(answer, user_name, user_id):
             with open('answer_lock', 'w') as lock:
                 lock.write('locked')
             answer_check = host.check_answer(live_question, answer, user_name, user_id, wager=current_wager)
+            # prep for /next route if someone wants the same category for next question
+            categorized_questions = Question.get_questions_by_category(
+                live_question.category, Timer(time_limit, reset_timer)
+            )
             # answer is correct: reset timer/wager and wipe out live question
             if ':white_check_mark:' in answer_check:
                 live_question.timer.cancel()
                 current_wager = 0
                 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
                 question_is_live = False
-            # prep for /next route if someone wants the same category for next question
-            categorized_questions = Question.get_questions_by_category(
-                live_question.category, Timer(time_limit, reset_timer)
-            )
             host.say(channel, answer_check)
             os.remove('answer_lock')
 

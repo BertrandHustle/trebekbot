@@ -19,7 +19,6 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 # setup database (or connect to existing one)
-# thanks to joamag on stackoverflow
 result = urlparse.urlparse(os.environ['DATABASE_URL'])
 dbuser = result.username
 password = result.password
@@ -57,6 +56,7 @@ categorized_questions = []
 
 
 # TODO: add 500 error handler
+# TODO: turn channel check into decorator
 
 # Utility Functions
 
@@ -212,11 +212,12 @@ def ask():
 
 # get a new question from the last question's category
 @app.route('/next', methods=['POST'])
-def next():
+def next_question():
     global live_question
     global categorized_questions
     if request.form['channel_name'] == channel:
-        if categorized_questions:
+        # make sure that the next question isn't the same as the one we just asked
+        if categorized_questions and live_question.slack_text != categorized_questions[0].slack_text:
             live_question = categorized_questions.pop()
             return ask()
         else:

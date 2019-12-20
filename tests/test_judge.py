@@ -13,7 +13,7 @@ def test_strip_answer(test_value, expected_value):
     assert test_judge.strip_answer(test_value) == expected_value
 
 @pytest.mark.parametrize("given_answer, expected_answer, expected_list", [
- ('Bath' , 'Borth', [('bath', 'borth')]),
+ ('Bath', 'Borth', [('bath', 'borth')]),
  ('the dover cliffs', 'The White Cliffs of Dover', \
  [('dover', 'white'), ('dover', 'cliffs'), ('cliffs', 'white'), \
  ('dover', 'dover'), ('cliffs', 'cliffs')]),
@@ -96,6 +96,7 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('32', '32', True),
  ('the absolute density of a dying star', 'star', False),
  ('star', 'the absolute density of a dying star', False),
+ # roman numerals
  ('world war 2', 'World War II', True),
  # special case for spelling bee questions, may need to filter those out
  ('Rorschach', 'R-O-R-S-C-H-A-C-H', True),
@@ -108,7 +109,9 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('istanbul', 'istanbul/constantinople', True),
  ('hag', 'hag tag', False),
  # before and after questions
- ('soup nazi dictator', 'Talk Soup Nazi', False)
+ ('soup nazi dictator', 'Talk Soup Nazi', False),
+ # hyphens
+ ('100 meter dash', '100-meter dash', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_judge.fuzz_answer(given_answer, expected_answer) == expected_value

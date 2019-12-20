@@ -1,3 +1,6 @@
+import os
+#TODO: fix this so the pathing is right everywhere
+project_root = os.path.abspath(os.pardir)
 import difflib
 import editdistance
 from re import sub, match
@@ -9,9 +12,8 @@ class Judge:
     Class that checks and verifies user answers to Questions
     """
 
-    #def __init__(self):
-        # initialize dictionary
-    eng_dict = open('support_files/words.txt').read().splitlines()
+    # initialize dictionary
+    eng_dict = open(os.path.join(project_root, 'support_files', 'words.txt')).read().splitlines()
 
     @staticmethod
     def check_closeness(user_answer, correct_answer):
@@ -153,6 +155,8 @@ class Judge:
         :param correct_answer: correct answer to the Question
         :return: True, False, or 'close' (if answer is close enough but not correct)
         """
+        # allows for variations on answers with hyphens, slashes, etc
+        possible_answers = [correct_answer]
         # we need a copy of the answer with the parenthesized words left in if the correct answer contains parentheses
         paren_answer = None
         paren_close = 0
@@ -180,53 +184,41 @@ class Judge:
                 return False
             elif int(given_answer) == int(correct_answer):
                 return True
-        except (ValueError):
-            # flag if the answer contains parentheses
-            parentheses = '(' and ')' in correct_answer
-            # total up how many word pair comparisons are right, wrong, etc.
+        except ValueError:
+            # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
-            right = 0
-            close = 0
+            right, close = 0, 0
             '''
-            this gives us two copies of the right answer: one with parentheses and one without
-            we check both and use the copy with the higher score
+            account for hyphens by providing two versions, one with a space for the hyphen and one without
+            e.g: two-toned turns into ('two toned', 'twotoned')
             '''
-            if parentheses:
-                paren_answer = ''.join(list(filter(lambda x: x not in ['(', ')'], correct_answer)))
-                paren_answer = Judge.strip_answer(paren_answer)
-                paren_pair_list = Judge.pair_off_answers(Judge.strip_answer(given_answer), paren_answer)
-                for pair in paren_pair_list:
+            if '-' in correct_answer:
+                possible_answers.append(''.join(correct_answer.split('-')))
+                possible_answers.append(' '.join(correct_answer.split('-')))
+            # answers with parentheses
+            elif '(' and ')' in correct_answer:
+                possible_answers.append(''.join(list(filter(lambda x: x not in ['(', ')'], correct_answer))))
+            # remove casing, punctuation, and articles
+            given_answer = Judge.strip_answer(given_answer)
+            possible_answers = [Judge.strip_answer(answer) for answer in possible_answers]
+            for answer in possible_answers:
+                pair_list = Judge.pair_off_answers(given_answer, answer)
+                if given_answer == answer:
+                    return True
+                # compare pairs and adjust totals accordingly
+                for pair in pair_list:
                     # check equality first for performance boost
                     result = pair[0] == pair[1] or Judge.fuzz_word(pair[0], pair[1])
                     if result == 'close':
-                        paren_close += 1
+                        close += 1
                     elif result == True:
-                        paren_right += 1
-            # remove casing, punctuation, and articles
-            given_answer = Judge.strip_answer(given_answer)
-            correct_answer = Judge.strip_answer(correct_answer)
-            pair_list = Judge.pair_off_answers(given_answer, correct_answer)
-            # if 'wells' in given_answer:
-                # pdb.set_trace()
-            if given_answer == correct_answer or given_answer == paren_answer:
-                return True
-            # compare pairs and adjust totals accordingly
-            for pair in pair_list:
-                # check equality first for performance boost
-                result = pair[0] == pair[1] or Judge.fuzz_word(pair[0], pair[1])
-                if result == 'close':
-                    close += 1
-                elif result == True:
-                    right += 1
-            # use whichever answer copy has the higher score
-            if parentheses:
-                close = max(paren_close, close)
-                right = max(paren_right, right)
-            # check if the answer is close enough
-            if right >= round(0.75 * max(len(correct_answer), len(given_answer))):
-                return True
-            # prevents rounding down to 0
-            elif right + close >= max(round(0.5 * max(len(correct_answer), len(given_answer))), 1):
-                return 'close'
-            else:
-                return False
+                        right += 1
+                # check if the answer is close enough
+                if right >= round(0.75 * max(len(correct_answer), len(given_answer))):
+                    return True
+                # prevents rounding down to 0
+                elif right + close >= max(round(0.5 * max(len(correct_answer), len(given_answer))), 1):
+                    return 'close'
+                else:
+                    right, close = 0, 0
+            return False

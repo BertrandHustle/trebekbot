@@ -185,6 +185,9 @@ class Judge:
             elif int(given_answer) == int(correct_answer):
                 return True
         except ValueError:
+            # single word answers
+            if len(given_answer.split(' ')) == len(correct_answer.split(' ')):
+                return Judge.fuzz_word(correct_answer, given_answer)
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
             right, close = 0, 0

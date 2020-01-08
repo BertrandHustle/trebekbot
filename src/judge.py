@@ -186,7 +186,7 @@ class Judge:
                 return True
         except ValueError:
             # single word answers
-            if len(given_answer.split(' ')) == len(correct_answer.split(' ')):
+            if len(given_answer.split(' ')) == 1 and len(correct_answer.split(' ')) == 1:
                 return Judge.fuzz_word(correct_answer, given_answer)
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
@@ -216,6 +216,8 @@ class Judge:
                         close += 1
                     elif result == True:
                         right += 1
+                # this lets us get len() by number of words in answer
+                correct_answer = correct_answer.split()
                 # check if the answer is close enough
                 if right >= round(0.75 * max(len(correct_answer), len(given_answer))):
                     return True

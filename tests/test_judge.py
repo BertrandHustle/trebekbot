@@ -9,6 +9,9 @@ import src.judge as judge
 
 test_judge = judge.Judge()
 
+@pytest.mark.parametrize("test_value, expected_value", [
+ ('Hello!', ['hello'])
+])
 def test_strip_answer(test_value, expected_value):
     assert test_judge.strip_answer(test_value) == expected_value
 
@@ -61,7 +64,7 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('Bath', 'Borth', False),
  ('Bath', 'beth', True),
  (None, 'Borth', False),
- ('mary queen of scotts','Mary, Queen of Scots', True),
+ ('mary queen of scotts', 'Mary, Queen of Scots', True),
  ('','Mary, Queen of Scots', False),
  ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
  ('borp', 'Henry James', False),

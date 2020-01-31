@@ -189,6 +189,7 @@ class Judge:
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
             right, close = 0, 0
+            answer_is_close = False
             '''
             account for hyphens by providing two versions, one with a space for the hyphen and one without
             e.g: two-toned turns into ('two toned', 'twotoned')
@@ -225,7 +226,10 @@ class Judge:
                     return True
                 # prevents rounding down to 0
                 elif right + close >= max(round(0.5 * max(len(correct_answer), len(given_answer))), 1):
-                    return 'close'
+                    answer_is_close = True
                 else:
                     right, close = 0, 0
-            return False
+            if answer_is_close:
+                return 'close'
+            else:
+                return False

@@ -157,13 +157,6 @@ class Judge:
         """
         #TODO: sanitize answers with strip_answer first
 
-
-        # allows for variations on answers with hyphens, slashes, etc
-        possible_answers = [correct_answer]
-        # we need a copy of the answer with the parenthesized words left in if the correct answer contains parentheses
-        paren_answer = None
-        paren_close = 0
-        paren_right = 0
         # if we get an empty string, don't bother
         if not given_answer:
             return False
@@ -189,7 +182,9 @@ class Judge:
                 return True
         except ValueError:
             # single word answers
-            if len(given_answer.split(' ')) == 1 and len(correct_answer.split(' ')) == 1:
+            if len(given_answer.split(' ')) == 1 and \
+               len(correct_answer.split(' ')) == 1 and \
+               (given_answer + correct_answer).isalnum():
                 return Judge.fuzz_word(correct_answer, given_answer)
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
@@ -198,12 +193,15 @@ class Judge:
             account for hyphens by providing two versions, one with a space for the hyphen and one without
             e.g: two-toned turns into ('two toned', 'twotoned')
             '''
+            possible_answers = []
             if '-' in correct_answer:
                 possible_answers.append(''.join(correct_answer.split('-')))
                 possible_answers.append(' '.join(correct_answer.split('-')))
             # answers with parentheses
             elif '(' and ')' in correct_answer:
                 possible_answers.append(''.join(list(filter(lambda x: x not in ['(', ')'], correct_answer))))
+            else:
+                possible_answers.append(correct_answer)
             # remove casing, punctuation, and articles
             given_answer = Judge.strip_answer(given_answer)
             possible_answers = [Judge.strip_answer(answer) for answer in possible_answers]
@@ -223,11 +221,10 @@ class Judge:
                 correct_answer = correct_answer.split()
                 # check if the answer is close enough
                 # we split correct_answer only because it's a string and given_answer is a list
-                if right >= round(0.75 * max(len(correct_answer.split(' ')), len(given_answer))):
+                if right >= round(0.75 * max(len(correct_answer), len(given_answer))):
                     return True
                 # prevents rounding down to 0
-                elif right + close >= max(round(0.5 * max(len(correct_answer.split(' ')),
-                                                          len(given_answer))), 1):
+                elif right + close >= max(round(0.5 * max(len(correct_answer), len(given_answer))), 1):
                     return 'close'
                 else:
                     right, close = 0, 0

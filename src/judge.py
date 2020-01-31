@@ -155,6 +155,9 @@ class Judge:
         :param correct_answer: correct answer to the Question
         :return: True, False, or 'close' (if answer is close enough but not correct)
         """
+        #TODO: sanitize answers with strip_answer first
+
+
         # allows for variations on answers with hyphens, slashes, etc
         possible_answers = [correct_answer]
         # we need a copy of the answer with the parenthesized words left in if the correct answer contains parentheses
@@ -186,7 +189,7 @@ class Judge:
                 return True
         except ValueError:
             # single word answers
-            if len(given_answer.split(' ')) == len(correct_answer.split(' ')):
+            if len(given_answer.split(' ')) == 1 and len(correct_answer.split(' ')) == 1:
                 return Judge.fuzz_word(correct_answer, given_answer)
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
@@ -217,10 +220,12 @@ class Judge:
                     elif result == True:
                         right += 1
                 # check if the answer is close enough
-                if right >= round(0.75 * max(len(correct_answer), len(given_answer))):
+                # we split correct_answer only because it's a string and given_answer is a list
+                if right >= round(0.75 * max(len(correct_answer.split(' ')), len(given_answer))):
                     return True
                 # prevents rounding down to 0
-                elif right + close >= max(round(0.5 * max(len(correct_answer), len(given_answer))), 1):
+                elif right + close >= max(round(0.5 * max(len(correct_answer.split(' ')),
+                                                          len(given_answer))), 1):
                     return 'close'
                 else:
                     right, close = 0, 0

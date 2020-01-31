@@ -14,15 +14,28 @@ def test_strip_answer(test_value, expected_value):
 
 @pytest.mark.parametrize("given_answer, expected_answer, expected_list", [
  ('Bath', 'Borth', [('bath', 'borth')]),
- ('the dover cliffs', 'The White Cliffs of Dover', \
- [('dover', 'white'), ('dover', 'cliffs'), ('cliffs', 'white'), \
- ('dover', 'dover'), ('cliffs', 'cliffs')]),
- ('the dover cliffs', 'the cover dliffs', \
- [('dover', 'cover'), ('dover', 'dliffs'), ('cliffs', 'dliffs'), ('cliffs', 'cover')]),
- ('mary queen of scotts', 'Mary, Queen of Scots', \
- [('mary', 'mary'), ('mary', 'queen'), ('mary', 'scots'), \
- ('queen', 'queen'), ('queen', 'scots'), \
- ('scotts', 'mary'), ('scotts', 'queen'), ('scotts', 'scots')],
+ ('the dover cliffs', 'The White Cliffs of Dover',
+ [('cliffs', 'cliffs'),
+ ('cliffs', 'dover'),
+ ('cliffs', 'white'),
+ ('dover', 'cliffs'),
+ ('dover', 'dover'),
+ ('dover', 'white')]),
+ ('the dover cliffs', 'the cover dliffs',
+ [('dover', 'cover'),
+  ('dover', 'dliffs'),
+  ('cliffs', 'dliffs'),
+  ('cliffs', 'cover')]),
+ ('mary queen of scotts', 'Mary, Queen of Scots',
+ [('mary', 'mary'),
+ ('mary', 'queen'),
+ ('mary', 'scots'),
+ ('queen', 'mary'),
+ ('queen', 'queen'),
+ ('queen', 'scots'),
+ ('scotts', 'mary'),
+ ('scotts', 'queen'),
+ ('scotts', 'scots')],
  )
 ])
 def test_pair_off_answers(given_answer, expected_answer, expected_list):
@@ -61,8 +74,8 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('Bath', 'Borth', False),
  ('Bath', 'beth', True),
  (None, 'Borth', False),
- ('mary queen of scotts','Mary, Queen of Scots', True),
- ('','Mary, Queen of Scots', False),
+ ('mary queen of scotts', 'Mary, Queen of Scots', True),
+ ('', 'Mary, Queen of Scots', False),
  ('MAAAARYYYY QUEEN OF SCOOOOOOTTSSS','Mary, Queen of Scots', False),
  ('borp', 'Henry James', False),
  ('bagpipe', 'a bagpipe', True),

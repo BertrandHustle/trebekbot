@@ -9,6 +9,10 @@ import src.judge as judge
 
 test_judge = judge.Judge()
 
+#TODO: add more test cases here
+@pytest.mark.parametrize("test_value, expected_value", [
+ ('Hello!', ['hello'])
+])
 def test_strip_answer(test_value, expected_value):
     assert test_judge.strip_answer(test_value) == expected_value
 

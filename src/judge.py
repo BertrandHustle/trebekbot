@@ -219,6 +219,8 @@ class Judge:
                         close += 1
                     elif result == True:
                         right += 1
+                # this lets us get len() by number of words in answer
+                correct_answer = correct_answer.split()
                 # check if the answer is close enough
                 # we split correct_answer only because it's a string and given_answer is a list
                 if right >= round(0.75 * max(len(correct_answer.split(' ')), len(given_answer))):

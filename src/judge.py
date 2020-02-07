@@ -157,9 +157,9 @@ class Judge:
         """
 
         # words/symbols that signify that either answer is correct
-        or_words = ['or', '/']
+        or_words = [' or ', '/', ' / ']
         # words/symbols that signify that both answers are required
-        and_words = ['and', '&']
+        and_words = [' and ', '&', ' & ']
         # if we get an empty string, don't bother
         if not given_answer:
             return False

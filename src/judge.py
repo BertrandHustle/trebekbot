@@ -13,7 +13,7 @@ class Judge:
     """
 
     # initialize dictionary
-    print(os.curdir())
+    print(os.getcwd())
     print((os.path.join(project_root, 'support_files', 'words.txt')))
     eng_dict = open(os.path.join(project_root, 'support_files', 'words.txt')).read().splitlines()
 

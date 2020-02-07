@@ -13,7 +13,9 @@ class Judge:
     """
 
     # initialize dictionary
-    eng_dict = open(words_file).read().splitlines()
+    print(os.listdir('support_files'))
+    print((os.path.join('support_files', 'words.txt')))
+    eng_dict = open(os.path.join(project_root, 'support_files', 'words.txt')).read().splitlines()
 
     @staticmethod
     def check_closeness(user_answer, correct_answer):

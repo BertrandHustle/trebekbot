@@ -220,7 +220,9 @@ class Judge:
                         right += 1
                 # this lets us get len() by number of words in answer
                 print(correct_answer)
-                correct_answer = correct_answer.split()
+                # in case correct_answer is a list
+                if type(correct_answer) == str:
+                    correct_answer = correct_answer.split()
                 # check if the answer is close enough
                 # we split correct_answer only because it's a string and given_answer is a list
                 if right >= round(0.75 * max(len(correct_answer), len(given_answer))):

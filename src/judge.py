@@ -1,10 +1,10 @@
+import os
+#TODO: fix this so the pathing is right everywhere
+project_root = os.path.abspath(os.pardir)
 import difflib
 import editdistance
 from re import sub, match
 from unidecode import unidecode
-from pathlib import Path
-support_files = Path("../support_files")
-words_file = support_files / 'words.txt'
 
 
 class Judge:
@@ -13,9 +13,7 @@ class Judge:
     """
 
     # initialize dictionary
-    print(os.listdir('support_files'))
-    print((os.path.join('support_files', 'words.txt')))
-    eng_dict = open(os.path.join(project_root, 'support_files', 'words.txt')).read().splitlines()
+    eng_dict = open(os.path.join('support_files', 'words.txt')).read().splitlines()
 
     @staticmethod
     def check_closeness(user_answer, correct_answer):

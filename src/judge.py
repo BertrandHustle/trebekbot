@@ -155,22 +155,17 @@ class Judge:
         :param correct_answer: correct answer to the Question
         :return: True, False, or 'close' (if answer is close enough but not correct)
         """
-        #TODO: sanitize answers with strip_answer first
 
+        # words/symbols that signify that either answer is correct
+        or_words = ['or', '/']
+        # words/symbols that signify that both answers are required
+        and_words = ['and', '&']
         # if we get an empty string, don't bother
         if not given_answer:
             return False
         # exception for single letter answers
         if len(given_answer) == 1 and len(correct_answer) == 1:
             return given_answer == correct_answer
-        # TODO: make this handle ampersands, etc.
-        # account for slashes
-        '''
-        if '/' in correct_answer:
-            correct_answer = correct_answer.split('/')
-        correct_answer = list(correct_answer)
-        for answer in correct_answer:
-        '''
         # we only want exact matches if the answer is a number
         try:
             # prevents cases like '0' or '00'
@@ -190,11 +185,16 @@ class Judge:
             # that is: is the word close enough to the word we're comparing it to?
             right, close = 0, 0
             answer_is_close = False
+            possible_answers = []
             '''
             account for hyphens by providing two versions, one with a space for the hyphen and one without
             e.g: two-toned turns into ('two toned', 'twotoned')
             '''
-            possible_answers = []
+            # or/and answers
+            for w in [word for word in or_words if word in correct_answer]:
+                or_split = correct_answer.split(w)
+                possible_answers.extend(or_split)
+            # TODO: add and/& answers here
             if '-' in correct_answer:
                 possible_answers.append(''.join(correct_answer.split('-')))
                 possible_answers.append(' '.join(correct_answer.split('-')))
@@ -219,6 +219,7 @@ class Judge:
                     elif result == True:
                         right += 1
                 # this lets us get len() by number of words in answer
+                print(correct_answer)
                 correct_answer = correct_answer.split()
                 # check if the answer is close enough
                 # we split correct_answer only because it's a string and given_answer is a list

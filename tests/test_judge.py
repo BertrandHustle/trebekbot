@@ -100,7 +100,7 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('the dow jones', '(the) Dow (Jones)', True),
  ('dow', '(the) Dow (Jones)', True),
  ('Red and Green', 'Green and Red', True),
- ('Blue or green', 'Green', True),
+ ('Green', 'Blue or green', True),
  ('poker', 'a poker face', 'close'),
  ('the gay 90\'s', 'The Gay \'90s', True),
  ('REM', 'R.E.M.', True),
@@ -128,7 +128,9 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  # before and after questions
  ('soup nazi dictator', 'Talk Soup Nazi', False),
  # hyphens
- ('100 meter dash', '100-meter dash', True)
+ ('100 meter dash', '100-meter dash', True),
+ # testing multiple split flags
+ ('Jim Pete', 'Jim/Jim (Easy) Pete', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_judge.fuzz_answer(given_answer, expected_answer) == expected_value

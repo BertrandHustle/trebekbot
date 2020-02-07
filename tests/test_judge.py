@@ -1,9 +1,3 @@
-import os
-from sys import path as syspath
-syspath.append(
-os.path.abspath(
-os.path.join(
-os.path.dirname(__file__), os.path.pardir)))
 import pytest
 import src.judge as judge
 

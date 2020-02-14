@@ -98,12 +98,12 @@ class Host:
         :param: channel: channel to which we are posting message
         :param: message: message to post or 'say'
         """
-            webclient = payload['web_client']
-            webclient.chat.postMessage(
+        webclient = payload['web_client']
+        webclient.chat.postMessage(
             channel=channel,
             text=message,
             as_user=True
-            )
+        )
 
     def create_user_address(self, user_name, user_id):
         """

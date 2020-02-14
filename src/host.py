@@ -39,7 +39,7 @@ class Host:
         self.uptime = ctime(time())
         self.slack_client = RTMClient(token=slack_token)
         # connect to slack upon init
-        slack_client.start()
+        self.slack_client.start()
         # channel where trebekbot lives
         self.channel = environ.get('SLACK_CHANNEL')
         # connect to user database

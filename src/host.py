@@ -93,7 +93,7 @@ class Host:
 
     # say things back to channel
     @RTMClient.run_on(event="message")
-    def say(self, channel, message):
+    def say(self, channel, message, **kwargs):
         """
         :param: channel: channel to which we are posting message
         :param: message: message to post or 'say'

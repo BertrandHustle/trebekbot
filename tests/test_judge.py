@@ -1,6 +1,5 @@
 import pytest
 import src.judge as judge
-
 test_judge = judge.Judge()
 
 #TODO: add more test cases here

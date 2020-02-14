@@ -1,10 +1,8 @@
-import os
-#TODO: fix this so the pathing is right everywhere
-project_root = os.path.abspath(os.pardir)
 import difflib
 import editdistance
 from re import sub, match
 from unidecode import unidecode
+from paths import WORDS
 
 
 class Judge:
@@ -13,7 +11,7 @@ class Judge:
     """
 
     # initialize dictionary
-    eng_dict = open(os.path.join('support_files', 'words.txt')).read().splitlines()
+    eng_dict = open(WORDS).read().splitlines()
 
     @staticmethod
     def check_closeness(user_answer, correct_answer):
@@ -145,7 +143,6 @@ class Judge:
                 return False
 
     # TODO: rename this
-    # TODO: make conjunctions/disjunctions behave as logical operators
     @staticmethod
     def fuzz_answer(given_answer, correct_answer):
         """
@@ -158,8 +155,6 @@ class Judge:
 
         # words/symbols that signify that either answer is correct
         or_words = [' or ', '/', ' / ']
-        # words/symbols that signify that both answers are required
-        and_words = [' and ', '&', ' & ']
         # if we get an empty string, don't bother
         if not given_answer:
             return False
@@ -194,7 +189,6 @@ class Judge:
             for w in [word for word in or_words if word in correct_answer]:
                 or_split = correct_answer.split(w)
                 possible_answers.extend(or_split)
-            # TODO: add and/& answers here
             if '-' in correct_answer:
                 possible_answers.append(''.join(correct_answer.split('-')))
                 possible_answers.append(' '.join(correct_answer.split('-')))

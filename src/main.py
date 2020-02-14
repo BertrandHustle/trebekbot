@@ -13,7 +13,7 @@ from src.judge import Judge
 from src.question import Question
 from src.slack_formatter import SlackFormatter
 # third-party libs
-from slack import Webclient
+from slack import WebClient
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -33,7 +33,7 @@ user_db = db(
 )
 # retrieve id/token/etc. from env variables
 slack_token = os.environ['TREBEKBOT_API_TOKEN']
-slack_client = slack.WebClient(slack_token)
+slack_client = WebClient(slack_token)
 # NOTE: do not use # in the name, slack's api returns the channel name only
 channel = 'trivia'
 # export channel to env so host can grab it

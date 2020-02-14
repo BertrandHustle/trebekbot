@@ -3,6 +3,7 @@ from time import time, ctime
 from re import match, IGNORECASE
 from os import environ
 from contextlib import suppress
+from slack import RTMClient
 
 
 class Host:
@@ -34,11 +35,11 @@ class Host:
     '''+command_prefix+'''uptime: show start time of this trebekbot
     '''
 
-    def __init__(self, slack_client, user_db):
+    def __init__(self, slack_token, user_db):
         self.uptime = ctime(time())
-        self.slack_client = slack_client
+        self.slack_client = RTMClient(token=slack_token)
         # connect to slack upon init
-        slack_client.rtm_connect(auto_reconnect=True)
+        slack_client.start()
         # channel where trebekbot lives
         self.channel = environ.get('SLACK_CHANNEL')
         # connect to user database

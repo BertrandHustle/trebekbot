@@ -138,7 +138,7 @@ def hello():
         return handle_payload(wrong_channel_payload)
 
 
-host = Host(slack_client, user_db)
+host = Host(slack_token, user_db)
 judge = Judge()
 
 

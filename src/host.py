@@ -93,17 +93,17 @@ class Host:
 
     # say things back to channel
     @RTMClient.run_on(event="message")
-    def say(self, channel, message, **kwargs):
+    def say(self, channel, message, **payload):
         """
         :param: channel: channel to which we are posting message
         :param: message: message to post or 'say'
         """
-        self.slack_client.api_call(
-            'chat.postMessage',
+            webclient = payload['web_client']
+            webclient.chat.postMessage(
             channel=channel,
             text=message,
             as_user=True
-        )
+            )
 
     def create_user_address(self, user_name, user_id):
         """

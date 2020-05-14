@@ -220,11 +220,11 @@ class Host:
         # check if answer is correct
         answer_check = Judge.fuzz_answer(user_answer, correct_answer)
         # if answer is close but not wrong
-        if answer_check is 'close':
+        if answer_check == 'close':
             return user_address + ' ' + \
             Judge.check_closeness(user_answer, correct_answer)
         # right answer
-        elif answer_check is True:
+        elif answer_check == True:
             # award points to user
             if question.daily_double:
                 self.user_db.update_score(
@@ -238,7 +238,7 @@ class Host:
             ' :white_check_mark: That is correct. The answer is ' \
             +correct_answer
         # wrong answer
-        elif answer_check is False:
+        elif answer_check == False:
             # take away points from user
             if question.daily_double and wager:
                 self.user_db.update_score(

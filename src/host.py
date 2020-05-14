@@ -268,7 +268,7 @@ class Host:
         slack_list = 'Here\'s our top scorers: \n'
         count = 1
         # TODO: improve/refactor this
-        for id,name,score,wins in top_ten_list:
+        for id, name, score, wins in top_ten_list:
             # give crown for being champ
             if self.current_champion_name and name == self.current_champion_name:
                 name = ':crown: ' + name

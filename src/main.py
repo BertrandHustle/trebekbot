@@ -36,12 +36,6 @@ slack_token = os.environ['TREBEKBOT_API_TOKEN']
 slack_client = slack.WebClient(slack_token)
 # NOTE: do not use # in the name, slack's api returns the channel name only
 channel = 'trivia'
-# TEST
-slack_client.chat_postMessage(
-                channel=channel,
-                text='INIT TEST',
-                as_user=True
-            )
 # export channel to env so host can grab it
 os.environ['SLACK_CHANNEL'] = channel
 # time limit for questions
@@ -84,8 +78,7 @@ def answer_check_worker(answer, user_name, user_id):
     # necessary to keep flask from complaining about being out of scope for threading
     with app.app_context():
         if os.path.exists('answer_lock'):
-            slack_client.api_call(
-                'chat.postMessage',
+            slack_client.chat_postMessage(
                 channel=channel,
                 text='Another user has already buzzed in!',
                 as_user=True

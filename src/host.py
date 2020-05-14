@@ -95,7 +95,7 @@ class Host:
                 self.user_db.add_user_to_db(self.user_db.connection, username)
 
     # say things back to channel
-    @RTMClient.run_on(event="message")
+    @slack.RTMClient.run_on(event="message")
     def say(self, channel, message, **payload):
         """
         :param: channel: channel to which we are posting message

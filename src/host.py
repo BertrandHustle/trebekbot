@@ -131,7 +131,6 @@ class Host:
         ' [$' + user_score + '] ' + \
         'Please enter a wager with the /wager command'
 
-
     def get_bot_id(self, bot_name):
         """
         get bot's slack id

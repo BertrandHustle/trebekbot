@@ -40,9 +40,7 @@ class Host:
 
     def __init__(self, slack_token, user_db):
         self.uptime = ctime(time())
-        self.slack_client = slack.RTMClient(token=slack_token)
-        # connect to slack upon init
-        self.slack_client.start()
+        self.slack_client = slack.WebClient(slack_token)
         # channel where trebekbot lives
         self.channel = environ.get('SLACK_CHANNEL')
         # connect to user database
@@ -86,23 +84,21 @@ class Host:
     '''
 
     # create leaderboard of users
-    def init_leaderboard(self):
+    def init_leaderboard(self, **payload):
         # get list of users in channel
-        for user in self.slack_client.api_call('users.list')["members"]:
+        for user in self.slack_client.users_list():
             username = user["name"]
             # trebekbot isn't playing!
             if 'trebekbot' not in username:
                 self.user_db.add_user_to_db(self.user_db.connection, username)
 
     # say things back to channel
-    @slack.RTMClient.run_on(event="message")
     def say(self, channel, message, **payload):
         """
         :param: channel: channel to which we are posting message
         :param: message: message to post or 'say'
         """
-        webclient = payload['web_client']
-        webclient.chat.postMessage(
+        self.slack_client.chat_postMessage(
             channel=channel,
             text=message,
             as_user=True

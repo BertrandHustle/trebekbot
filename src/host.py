@@ -90,7 +90,7 @@ class Host:
             username = user['name']
             # trebekbot isn't playing!
             if 'trebekbot' not in username:
-                self.user_db.add_user_to_db(self.user_db.connection, name)
+                self.user_db.add_user_to_db(self.user_db.connection, username)
 
     # say things back to channel
     def say(self, channel, message, **payload):

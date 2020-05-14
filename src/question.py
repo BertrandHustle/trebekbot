@@ -190,7 +190,7 @@ class Question:
     @staticmethod
     def is_daily_double(value):
         # we need this edge case in case the value passed in is 0
-        if value is 0:
+        if value == 0:
             return True
         # check if we have a value at all
         if value:

@@ -6,7 +6,7 @@ from contextlib import suppress
 # project
 from src.judge import Judge
 # thirdparty
-import slack
+from slack import WebClient
 
 
 class Host:
@@ -40,7 +40,7 @@ class Host:
 
     def __init__(self, slack_token, user_db):
         self.uptime = ctime(time())
-        self.slack_client = slack.WebClient(slack_token)
+        self.slack_client = WebClient(slack_token)
         # channel where trebekbot lives
         self.channel = environ.get('SLACK_CHANNEL')
         # connect to user database

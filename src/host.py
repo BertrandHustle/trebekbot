@@ -86,10 +86,11 @@ class Host:
     # create leaderboard of users
     def init_leaderboard(self, **payload):
         # get list of users in channel
-        for user in self.slack_client.users_list():
+        for user in self.slack_client.users_list()['members']:
+            username = user['name']
             # trebekbot isn't playing!
-            if 'trebekbot' not in user:
-                self.user_db.add_user_to_db(self.user_db.connection, user)
+            if 'trebekbot' not in username:
+                self.user_db.add_user_to_db(self.user_db.connection, name)
 
     # say things back to channel
     def say(self, channel, message, **payload):

@@ -60,6 +60,20 @@ categorized_questions = []
 
 # Utility Functions
 
+def quick_respond(func):
+    """
+    Decorator that responds with a generic 200 before running route to avoid timeout
+    :param func: function to wrap
+    :return func:
+    """
+    slack_client.chat_postMessage(
+        channel=channel,
+        text=None,
+        as_user=True
+    )
+    return func()
+
+
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command
 def handle_payload(payload):
@@ -224,6 +238,7 @@ def next_question():
             return ask()
 
 # forces skip on current question and generates new question
+@quick_respond
 @app.route('/skip', methods=['POST'])
 def skip():
     global live_question

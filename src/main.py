@@ -59,7 +59,6 @@ categorized_questions = []
 # TODO: turn channel check into decorator
 
 # Utility Functions
-
 def quick_respond(func):
     """
     Decorator that responds with a generic 200 before running route to avoid timeout
@@ -238,7 +237,6 @@ def next_question():
             return ask()
 
 # forces skip on current question and generates new question
-@quick_respond
 @app.route('/skip', methods=['POST'])
 def skip():
     global live_question

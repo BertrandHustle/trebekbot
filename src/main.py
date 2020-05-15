@@ -59,19 +59,6 @@ categorized_questions = []
 # TODO: turn channel check into decorator
 
 # Utility Functions
-def quick_respond(func):
-    """
-    Decorator that responds with a generic 200 before running route to avoid timeout
-    :param func: function to wrap
-    :return func:
-    """
-    slack_client.chat_postMessage(
-        channel=channel,
-        text=None,
-        as_user=True
-    )
-    return func()
-
 
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command

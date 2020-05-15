@@ -1,10 +1,16 @@
 # trebekbot
+version 0.8.0 changelog (5-15-20):
+
+Features:
+  - updated slack API to 2.x
 
 version 0.7.5 changelog (2-13-20):
+
 Bugs:
   - answers with hyphens and slashes are handled as logical or's
 
 version 0.7.4 changelog (10-24-19):
+
 Bugs:
   - single letter answer bug is fixed
   

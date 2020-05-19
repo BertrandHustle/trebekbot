@@ -68,12 +68,9 @@ def keep_alive_response(func):
     :return: wrapper function
     """
     def wrap_func():
-        payload = {
-            'text': ''
-        }
-        payload = jsonify(payload)
+        payload = jsonify({'text': ''})
         payload.status_code = 200
-        post('https://trebekbot-py.herokuapp.com' + request.path, json=payload)
+        post(request.base_url, json=payload)
         func()
     return wrap_func
 
@@ -145,9 +142,7 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 @app.route('/hello', methods=['POST'])
 def hello():
     # TEST
-    print(request.path)
-    print(request.base_url)
-    post('https://trebekbot-py.herokuapp.com' + request.path, json={'text': ''})
+    post(request.base_url, json=jsonify({'text': ''}))
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

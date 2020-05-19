@@ -147,7 +147,7 @@ def hello():
     # TEST
     test_payload = jsonify({'text': ''})
     test_payload.status_code = 200
-    post('https://trebekbot-py.herokuapp.com' + request.path, json=test_payload)
+    post(url='https://trebekbot-py.herokuapp.com' + request.path, json=test_payload)
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

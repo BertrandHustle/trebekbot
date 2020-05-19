@@ -145,7 +145,8 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 @app.route('/hello', methods=['POST'])
 def hello():
     # TEST
-    post('https://trebekbot-py.herokuapp.com' + request.path, data={'text':''})
+    print(request.path)
+    post('https://trebekbot-py.herokuapp.com' + request.path, json={'text': ''})
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

@@ -145,7 +145,7 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 @app.route('/hello', methods=['POST'])
 def hello():
     # TEST
-    test_payload = jsonify({'text': ''})
+    test_payload = jsonify({'text': 'F'})
     test_payload.status_code = 200
     post(url='https://trebekbot-py.herokuapp.com' + request.path, json=test_payload)
     if request.form['channel_name'] == channel:

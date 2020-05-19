@@ -11,7 +11,6 @@ from src.db import db
 from src.host import Host
 from src.judge import Judge
 from src.question import Question
-from src.slack_formatter import SlackFormatter
 # third-party libs
 from flask import Flask, jsonify, request
 from requests import post
@@ -61,7 +60,7 @@ categorized_questions = []
 # TODO: turn channel check into decorator
 
 # Utility Functions
-def keep_alive_response(func, route):
+def keep_alive_response(route):
     """
     sends an instant 200 response to make sure slack commands don't time out
     :param func: function to decorate
@@ -72,7 +71,7 @@ def keep_alive_response(func, route):
     }
     payload = jsonify(payload)
     payload.status_code = 200
-    post(payload)
+    post(route, json=payload)
 
 
 # formats and sends payload
@@ -140,6 +139,7 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 # say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
+    print(request.base_url)
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

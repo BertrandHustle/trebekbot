@@ -13,8 +13,10 @@ from src.judge import Judge
 from src.question import Question
 from src.slack_formatter import SlackFormatter
 # third-party libs
-from slack import WebClient
 from flask import Flask, jsonify, request
+from requests import post
+from slack import WebClient
+
 
 app = Flask(__name__)
 
@@ -59,6 +61,19 @@ categorized_questions = []
 # TODO: turn channel check into decorator
 
 # Utility Functions
+def keep_alive_response(func, route):
+    """
+    sends an instant 200 response to make sure slack commands don't time out
+    :param func: function to decorate
+    :return: wrapper function
+    """
+    payload = {
+        'text': ''
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    post(payload)
+
 
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command
@@ -129,8 +144,8 @@ def hello():
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload = {
-        'text' : 'Hello ' + host.create_user_address(user_name, user_id),
-        'response_type' : 'in_channel'
+            'text': 'Hello ' + host.create_user_address(user_name, user_id),
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:
@@ -146,8 +161,8 @@ judge = Judge()
 def howtoplay():
     if request.form['channel_name'] == channel:
         payload = {
-        'text' : host.help_text,
-        'response_type' : 'in_channel'
+            'text': host.help_text,
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:
@@ -158,8 +173,8 @@ def howtoplay():
 def changelog():
     if request.form['channel_name'] == channel:
         payload = {
-        'text' : host.get_latest_changelog('README.md'),
-        'response_type' : 'in_channel'
+            'text': host.get_latest_changelog('README.md'),
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:
@@ -170,8 +185,8 @@ def changelog():
 def uptime():
     if request.form['channel_name'] == channel:
         payload = {
-        'text' : 'uptime: ' + host.uptime,
-        'response_type' : 'in_channel'
+            'text': 'uptime: ' + host.uptime,
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:
@@ -260,8 +275,8 @@ def wager():
         user_id = request.form['user_id']
         current_wager = int(request.form['text'])
         payload = {
-        'text' : host.get_wager(current_wager, user_name, user_id),
-        'response_type' : 'in_channel'
+            'text': host.get_wager(current_wager, user_name, user_id),
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:
@@ -275,8 +290,8 @@ def nope():
     global question_is_live
     if request.form['channel_name'] == channel:
         payload = {
-        'text' : 'Coward. The correct answer is ' + live_question.answer,
-        'response_type' : 'in_channel'
+            'text': 'Coward. The correct answer is ' + live_question.answer,
+            'response_type': 'in_channel'
         }
         if current_wager:
             payload['text'] = 'You can\'t pass if you\'ve already wagered!'
@@ -330,8 +345,8 @@ def myscore():
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload = {
-        'text': host.my_score(user_name, user_id),
-        'response_type': 'in_channel'
+            'text': host.my_score(user_name, user_id),
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:
@@ -344,8 +359,8 @@ def mywins():
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload = {
-        'text': host.my_wins(user_name, user_id),
-        'response_type': 'in_channel'
+            'text': host.my_wins(user_name, user_id),
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:
@@ -356,8 +371,8 @@ def mywins():
 def topten():
     if request.form['channel_name'] == channel:
         payload = {
-        'text': host.top_ten(),
-        'response_type': 'in_channel'
+            'text': host.top_ten(),
+            'response_type': 'in_channel'
         }
         return handle_payload(payload)
     else:

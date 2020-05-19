@@ -60,18 +60,22 @@ categorized_questions = []
 # TODO: turn channel check into decorator
 
 # Utility Functions
-def keep_alive_response(route):
+def keep_alive_response(func):
     """
     sends an instant 200 response to make sure slack commands don't time out
     :param func: function to decorate
+    :param route: route to send 200 response to
     :return: wrapper function
     """
-    payload = {
-        'text': ''
-    }
-    payload = jsonify(payload)
-    payload.status_code = 200
-    post(route, json=payload)
+    def wrap_func():
+        payload = {
+            'text': ''
+        }
+        payload = jsonify(payload)
+        payload.status_code = 200
+        post('https://trebekbot-py.herokuapp.com' + request.path, json=payload)
+        func()
+    return wrap_func
 
 
 # formats and sends payload
@@ -137,9 +141,9 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 # Routes
 
 # say hi!
+@keep_alive_response
 @app.route('/hello', methods=['POST'])
 def hello():
-    print(request.base_url)
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

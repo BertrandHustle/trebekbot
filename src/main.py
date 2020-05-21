@@ -79,7 +79,7 @@ def hello_handler():
     }
     payload = jsonify(payload)
     payload.status_code = 200
-    post(request.base_url, payload)
+    return payload
 
 
 def keep_alive_response(func):

@@ -6,6 +6,7 @@ bot_name = 'trebekbot'
 import os
 import urllib.parse as urlparse
 from threading import Timer, Thread
+from time import sleep
 # trebekbot classes
 from src.db import db
 from src.host import Host
@@ -167,6 +168,7 @@ def hello():
         Thread(target=hello_handler)
         payload = jsonify({'text': 'TEST'})
         payload.status_code = 200
+        sleep(3)
         post(request.base_url, json=payload)
         return None
     else:

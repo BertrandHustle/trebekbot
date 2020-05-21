@@ -147,8 +147,8 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 # Routes
 
 # say hi!
-@keep_alive_response
 @app.route('/hello', methods=['POST'])
+@keep_alive_response
 def hello():
     # TEST
     # post(request.base_url, json=jsonify({'text': ''}))

@@ -64,7 +64,7 @@ def send_200():
     """
     sends an instant 200 response to relevant flask route
     """
-    payload = jsonify({'text': ''})
+    payload = jsonify({'text': 'TWO HUNDRED!!!'})
     payload.status_code = 200
     post(request.base_url, json=payload)
 

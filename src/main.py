@@ -81,6 +81,7 @@ def keep_alive_response(func):
         func()
     return wrap_func
 
+
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command
 def handle_payload(payload):
@@ -144,11 +145,11 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 # Routes
 
 # say hi!
-# @keep_alive_response
+@keep_alive_response
 @app.route('/hello', methods=['POST'])
 def hello():
     # TEST
-    post(request.base_url, json=jsonify({'text': ''}))
+    # post(request.base_url, json=jsonify({'text': ''}))
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

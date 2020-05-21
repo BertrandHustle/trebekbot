@@ -165,7 +165,10 @@ def hello():
     # TEST
     if request.form['channel_name'] == channel:
         Thread(target=hello_handler)
-        return post(request.base_url, json=jsonify({'text': 'TEST'}))
+        payload = jsonify({'text': 'TEST'})
+        payload.status_code = 200
+        post(request.base_url, json=payload)
+        return pass
     else:
         return handle_payload(wrong_channel_payload)
 

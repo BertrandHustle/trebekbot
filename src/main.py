@@ -146,19 +146,15 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 
 
 # Routes
-def hello_handler():
-    payload = jsonify({'text': 'TEST'})
-    print('DEBUG')
-    payload.status_code = 200
-    post(os.environ['WEBHOOK'], json=payload)
-    return None
 
 # say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
     # TEST
     if request.form['channel_name'] == channel:
-        Thread(target=hello_handler)
+        payload = jsonify({'text': 'TEST'})
+        payload.status_code = 200
+        post(os.environ['WEBHOOK'], json=payload)
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload = {

@@ -168,7 +168,7 @@ def hello():
         Thread(target=hello_handler)
         payload = jsonify({'text': 'TEST'})
         payload.status_code = 200
-        sleep(3)
+        sleep(1)
         post(request.base_url, json=payload)
         return None
     else:

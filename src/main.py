@@ -66,6 +66,7 @@ def send_200():
     """
     payload = jsonify({'text': 'TWO HUNDRED!!!'})
     payload.status_code = 200
+    print('posted')
     post(request.base_url, json=payload)
 
 

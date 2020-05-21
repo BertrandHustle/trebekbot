@@ -60,6 +60,15 @@ categorized_questions = []
 # TODO: turn channel check into decorator
 
 # Utility Functions
+def send_200():
+    """
+    sends an instant 200 response to relevant flask route
+    """
+    payload = jsonify({'text': ''})
+    payload.status_code = 200
+    post(request.base_url, json=payload)
+
+
 def keep_alive_response(func):
     """
     sends an instant 200 response to make sure slack commands don't time out
@@ -68,12 +77,9 @@ def keep_alive_response(func):
     :return: wrapper function
     """
     def wrap_func():
-        payload = jsonify({'text': ''})
-        payload.status_code = 200
-        post(request.base_url, json=payload)
+        Thread(target=send_200)
         func()
     return wrap_func
-
 
 # formats and sends payload
 # TODO: have this return a private error message to the person executing slash command

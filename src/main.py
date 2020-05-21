@@ -168,7 +168,7 @@ def hello():
         payload = jsonify({'text': 'TEST'})
         payload.status_code = 200
         post(request.base_url, json=payload)
-        return pass
+        return None
     else:
         return handle_payload(wrong_channel_payload)
 

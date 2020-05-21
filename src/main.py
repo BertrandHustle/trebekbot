@@ -167,7 +167,7 @@ def hello():
         Thread(target=hello_handler)
         payload = jsonify({'text': 'TEST'})
         payload.status_code = 200
-        post(request.form['response_url'], json=payload)
+        post(os.environ['WEBHOOK'], json=payload)
         return None
     else:
         return handle_payload(wrong_channel_payload)

@@ -78,6 +78,7 @@ def keep_alive_response(func):
     :return: wrapper function
     """
     def wrap_func():
+        print('decorated')
         Thread(target=send_200)
         func()
     return wrap_func

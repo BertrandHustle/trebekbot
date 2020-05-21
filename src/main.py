@@ -144,20 +144,13 @@ def reset_timer():
 # load this in the background to speed up response time
 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
+
 # Routes
-
-
 def hello_handler():
-    user_name = request.form['user_name']
-    user_id = request.form['user_id']
-    payload = {
-        'text': 'Hello ' + host.create_user_address(user_name, user_id),
-        'response_type': 'in_channel'
-    }
-    payload = jsonify(payload)
+    payload = jsonify({'text': 'TEST'})
     payload.status_code = 200
-    return payload
-
+    post(os.environ['WEBHOOK'], json=payload)
+    return None
 
 # say hi!
 @app.route('/hello', methods=['POST'])
@@ -165,10 +158,15 @@ def hello():
     # TEST
     if request.form['channel_name'] == channel:
         Thread(target=hello_handler)
-        payload = jsonify({'text': 'TEST'})
+        user_name = request.form['user_name']
+        user_id = request.form['user_id']
+        payload = {
+            'text': 'Hello ' + host.create_user_address(user_name, user_id),
+            'response_type': 'in_channel'
+        }
+        payload = jsonify(payload)
         payload.status_code = 200
-        post(os.environ['WEBHOOK'], json=payload)
-        return None
+        return payload
     else:
         return handle_payload(wrong_channel_payload)
 

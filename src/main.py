@@ -6,7 +6,6 @@ bot_name = 'trebekbot'
 import os
 import urllib.parse as urlparse
 from threading import Timer, Thread
-from json import dumps
 # trebekbot classes
 from src.db import db
 from src.host import Host
@@ -16,7 +15,6 @@ from src.question import Question
 from flask import Flask, jsonify, request
 from requests import post
 from slack import WebClient
-
 
 
 app = Flask(__name__)
@@ -72,6 +70,18 @@ def send_200():
     post(request.base_url, json=payload)
 
 
+def hello_handler():
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+        'text': 'Hello ' + host.create_user_address(user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    post(request.base_url, payload)
+
+
 def keep_alive_response(func):
     """
     sends an instant 200 response to make sure slack commands don't time out
@@ -86,7 +96,7 @@ def keep_alive_response(func):
     return wrap_func
 
 
-# formats and sends payload
+# formats and returns payload
 # TODO: have this return a private error message to the person executing slash command
 def handle_payload(payload):
     payload = jsonify(payload)
@@ -153,15 +163,9 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 #@keep_alive_response
 def hello():
     # TEST
-    post(request.base_url, json=dumps({'text': ''}))
     if request.form['channel_name'] == channel:
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
-        payload = {
-            'text': 'Hello ' + host.create_user_address(user_name, user_id),
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
+        Thread(target=hello_handler)
+        return post(request.base_url, json=jsonify({'text': 'TEST'}))
     else:
         return handle_payload(wrong_channel_payload)
 

@@ -6,6 +6,7 @@ bot_name = 'trebekbot'
 import os
 import urllib.parse as urlparse
 from threading import Timer, Thread
+from json import dumps
 # trebekbot classes
 from src.db import db
 from src.host import Host
@@ -15,6 +16,7 @@ from src.question import Question
 from flask import Flask, jsonify, request
 from requests import post
 from slack import WebClient
+
 
 
 app = Flask(__name__)
@@ -151,7 +153,7 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 #@keep_alive_response
 def hello():
     # TEST
-    post(request.base_url, json=jsonify({'text': ''}))
+    post(request.base_url, json=dumps({'text': ''}))
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

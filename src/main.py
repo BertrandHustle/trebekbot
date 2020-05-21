@@ -6,7 +6,6 @@ bot_name = 'trebekbot'
 import os
 import urllib.parse as urlparse
 from threading import Timer, Thread
-from time import sleep
 # trebekbot classes
 from src.db import db
 from src.host import Host
@@ -69,19 +68,6 @@ def send_200():
     payload.status_code = 200
     print('posted')
     post(request.base_url, json=payload)
-
-
-def hello_handler():
-    user_name = request.form['user_name']
-    user_id = request.form['user_id']
-    payload = {
-        'text': 'Hello ' + host.create_user_address(user_name, user_id),
-        'response_type': 'in_channel'
-    }
-    payload = jsonify(payload)
-    payload.status_code = 200
-    sleep(1)
-    return payload
 
 
 def keep_alive_response(func):
@@ -160,16 +146,28 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 
 # Routes
 
+
+def hello_handler():
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+        'text': 'Hello ' + host.create_user_address(user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
+
 # say hi!
 @app.route('/hello', methods=['POST'])
-#@keep_alive_response
 def hello():
     # TEST
     if request.form['channel_name'] == channel:
         Thread(target=hello_handler)
         payload = jsonify({'text': 'TEST'})
         payload.status_code = 200
-        post(request.base_url, json=payload)
+        post(request.form['request_url'], json=payload)
         return None
     else:
         return handle_payload(wrong_channel_payload)

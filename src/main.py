@@ -148,10 +148,10 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 
 # say hi!
 @app.route('/hello', methods=['POST'])
-@keep_alive_response
+#@keep_alive_response
 def hello():
     # TEST
-    # post(request.base_url, json=jsonify({'text': ''}))
+    post(request.base_url, json=jsonify({'text': ''}))
     if request.form['channel_name'] == channel:
         user_name = request.form['user_name']
         user_id = request.form['user_id']

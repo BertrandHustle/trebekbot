@@ -154,10 +154,8 @@ def hello_handler():
         # post(base_url, json=payload)
 
 
-def rev_hello_handler(response_url):
+def rev_hello_handler(response_url, user_name, user_id):
     with app.test_request_context():
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
         payload = {
             'text': 'Hello ' + host.create_user_address(user_name, user_id),
             'response_type': 'in_channel'
@@ -171,7 +169,10 @@ def rev_hello_handler(response_url):
 def hello():
     # TEST
     if request.form['channel_name'] == channel:
-        Thread(target=rev_hello_handler, args=[request.form['response_url']]).start()
+        user_name = request.form['user_name']
+        user_id = request.form['user_id']
+        response_url = request.form['response_url']
+        Thread(target=rev_hello_handler, args=[response_url, user_name, user_id]).start()
         with app.app_context():
             return jsonify({'text': ' '})
     else:

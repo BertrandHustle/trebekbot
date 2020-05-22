@@ -152,12 +152,24 @@ def hello_handler():
     print('test')
     post(os.environ['WEBHOOK'], json=payload)
 
+
+def rev_hello_handler():
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+        'text': 'Hello ' + host.create_user_address(user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    payload = jsonify(payload)
+    payload.status_code = 200
+    return payload
+
 # say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
     # TEST
     if request.form['channel_name'] == channel:
-        Thread(target=hello_handler()).start()
+        Thread(target=hello_handler).start()
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload = {

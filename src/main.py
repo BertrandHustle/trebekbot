@@ -155,7 +155,7 @@ def hello_handler():
 
 
 def rev_hello_handler():
-    with app.app_context():
+    with app.test_request_context():
         user_name = request.form['user_name']
         user_id = request.form['user_id']
         payload = {

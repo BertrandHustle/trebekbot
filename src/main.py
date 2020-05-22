@@ -160,7 +160,8 @@ def rev_hello_handler(response_url, user_name, user_id):
             'text': 'Hello ' + host.create_user_address(user_name, user_id),
             'response_type': 'in_channel'
         }
-        payload = jsonify(payload)
+        from json import dumps
+        payload = dumps(payload)
         # payload.status_code = 200
         print(response_url)
         post(response_url, payload)
@@ -175,8 +176,7 @@ def hello():
         response_url = request.form['response_url']
         Thread(target=rev_hello_handler, args=[response_url, user_name, user_id]).start()
         with app.app_context():
-            import json
-            return json.dumps({'text': ' '})
+            return jsonify({'text': ' '})
     else:
         return handle_payload(wrong_channel_payload)
 

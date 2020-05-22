@@ -149,6 +149,7 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 def hello_handler(base_url):
     with app.app_context():
         payload = {'text': 'TEST'}
+        print(base_url)
         # payload.status_code = 200
         #post(os.environ['WEBHOOK'], json=payload)
         post(base_url, json=payload)

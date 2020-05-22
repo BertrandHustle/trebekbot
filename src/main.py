@@ -162,6 +162,7 @@ def rev_hello_handler(response_url, user_name, user_id):
         }
         payload = jsonify(payload)
         # payload.status_code = 200
+        print(response_url)
         post(response_url, payload)
 
 # say hi!

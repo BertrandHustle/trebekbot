@@ -176,7 +176,8 @@ def hello():
         response_url = request.form['response_url']
         Thread(target=rev_hello_handler, args=[response_url, user_name, user_id]).start()
         with app.app_context():
-            return jsonify({'text': ' '})
+            from json import dumps
+            return dumps({200, {'ContentType': 'application/json'}})
     else:
         return handle_payload(wrong_channel_payload)
 

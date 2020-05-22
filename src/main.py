@@ -171,7 +171,8 @@ def hello():
     # TEST
     if request.form['channel_name'] == channel:
         Thread(target=rev_hello_handler).start()
-        return post(os.environ['WEBHOOK'], json=payload)
+        with app.app_context():
+            return post(os.environ['WEBHOOK'], json=payload)
     else:
         return handle_payload(wrong_channel_payload)
 

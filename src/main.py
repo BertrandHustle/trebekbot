@@ -148,7 +148,7 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 # Routes
 def hello_handler():
     with app.app_context():
-        payload = {'text': ' '}
+        payload = {'text': ''}
         # payload.status_code = 200
         post(os.environ['WEBHOOK'], json=payload)
         # post(base_url, json=payload)
@@ -173,7 +173,7 @@ def hello():
     if request.form['channel_name'] == channel:
         Thread(target=rev_hello_handler).start()
         with app.app_context():
-            return jsonify({'text': ''})
+            return jsonify({'text': ' '})
     else:
         return handle_payload(wrong_channel_payload)
 

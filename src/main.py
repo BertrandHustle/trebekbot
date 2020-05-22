@@ -147,10 +147,11 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 
 # Routes
 def hello_handler():
-    payload = jsonify({'text': 'TEST'})
-    payload.status_code = 200
-    print('test')
-    post(os.environ['WEBHOOK'], json=payload)
+    with app.app_context():
+        payload = jsonify({'text': 'TEST'})
+        payload.status_code = 200
+        print('test')
+        post(os.environ['WEBHOOK'], json=payload)
 
 
 def rev_hello_handler():

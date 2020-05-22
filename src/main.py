@@ -170,7 +170,7 @@ def rev_hello_handler():
 def hello():
     # TEST
     if request.form['channel_name'] == channel:
-        payload = {'text': ''}
+        payload = {'text': ' '}
         payload = jsonify(payload)
         payload.status_code = 200
         Thread(target=rev_hello_handler).start()

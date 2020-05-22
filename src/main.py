@@ -151,7 +151,8 @@ def hello_handler():
         payload = {'text': 'TEST'}
         # payload.status_code = 200
         print('test')
-        post(os.environ['WEBHOOK'], json=payload)
+        #post(os.environ['WEBHOOK'], json=payload)
+        post(request.base_url, json=payload)
 
 
 def rev_hello_handler():

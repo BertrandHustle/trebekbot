@@ -151,7 +151,7 @@ def hello_handler():
         payload = {'text': ''}
         # payload.status_code = 200
         post(os.environ['WEBHOOK'], json=payload)
-        #post(base_url, json=payload)
+        # post(base_url, json=payload)
 
 
 def rev_hello_handler():
@@ -170,11 +170,8 @@ def rev_hello_handler():
 def hello():
     # TEST
     if request.form['channel_name'] == channel:
-        payload = {'text': ' '}
-        payload = jsonify(payload)
-        payload.status_code = 200
         Thread(target=rev_hello_handler).start()
-        return payload
+        return post(os.environ['WEBHOOK'], json=payload)
     else:
         return handle_payload(wrong_channel_payload)
 

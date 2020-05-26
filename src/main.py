@@ -142,7 +142,7 @@ def hello():
         }
         Thread(target=handle_payload, args=[payload, request.form['response_url']]).start()
         with app.app_context():
-            return "200"
+            return Response(status=200)
     else:
         return handle_payload(wrong_channel_payload, request.form['response_url'])
 

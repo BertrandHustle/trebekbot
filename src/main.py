@@ -139,8 +139,8 @@ def channel_check(route_func):
     return route_wrapper
 
 # say hi!
-@app.route('/hello', methods=['POST'])
 @channel_check
+@app.route('/hello', methods=['POST'])
 def hello():
     # if request.form['channel_name'] == channel:
     user_name = request.form['user_name']

@@ -130,30 +130,21 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 
 # Routes
 
-def channel_check(route_func):
-    def route_wrapper():
-        if request.form['channel_name'] == channel:
-            route_func()
-        else:
-            return handle_payload(wrong_channel_payload)
-    return route_wrapper
-
 # say hi!
-@channel_check
 @app.route('/hello', methods=['POST'])
 def hello():
-    # if request.form['channel_name'] == channel:
-    user_name = request.form['user_name']
-    user_id = request.form['user_id']
-    payload = {
-        'text': 'Hello ' + host.create_user_address(user_name, user_id),
-        'response_type': 'in_channel'
-    }
-    Thread(target=handle_payload, args=[payload, request.form['response_url']]).start()
-    with app.app_context():
-        return Response(status=200)
-    # else:
-    #     return handle_payload(wrong_channel_payload)
+    if request.form['channel_name'] == channel:
+        user_name = request.form['user_name']
+        user_id = request.form['user_id']
+        payload = {
+            'text': 'Hello ' + host.create_user_address(user_name, user_id),
+            'response_type': 'in_channel'
+        }
+        Thread(target=handle_payload, args=[payload, request.form['response_url']]).start()
+        with app.app_context():
+            return Response(status=200)
+    else:
+        return handle_payload(wrong_channel_payload)
 
 
 host = Host(slack_token, user_db)

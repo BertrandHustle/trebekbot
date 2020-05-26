@@ -6,6 +6,7 @@ bot_name = 'trebekbot'
 import os
 import urllib.parse as urlparse
 from threading import Timer, Thread
+from json import dumps
 # trebekbot classes
 from src.db import db
 from src.host import Host
@@ -70,7 +71,6 @@ categorized_questions = []
 
 def handle_payload(payload, response_url):
     with app.test_request_context():
-        from json import dumps
         payload = dumps(payload)
         post(response_url, payload)
 
@@ -144,7 +144,7 @@ def hello():
         with app.app_context():
             return Response(status=200)
     else:
-        return handle_payload(wrong_channel_payload)
+        return handle_payload(wrong_channel_payload, request.form['response_url'])
 
 
 host = Host(slack_token, user_db)

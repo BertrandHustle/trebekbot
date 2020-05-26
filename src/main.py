@@ -60,36 +60,19 @@ categorized_questions = []
 # TODO: turn channel check into decorator
 
 # Utility Functions
-def send_200():
-    """
-    sends an instant 200 response to relevant flask route
-    """
-    payload = jsonify({'text': 'TWO HUNDRED!!!'})
-    payload.status_code = 200
-    print('posted')
-    post(request.base_url, json=payload)
-
-
-def keep_alive_response(func):
-    """
-    sends an instant 200 response to make sure slack commands don't time out
-    :param func: function to decorate
-    :param route: route to send 200 response to
-    :return: wrapper function
-    """
-    def wrap_func():
-        print('decorated')
-        Thread(target=send_200)
-        func()
-    return wrap_func
-
 
 # formats and returns payload
 # TODO: have this return a private error message to the person executing slash command
-def handle_payload(payload):
-    payload = jsonify(payload)
-    payload.status_code = 200
-    return payload
+# def handle_payload(payload):
+#     payload = jsonify(payload)
+#     payload.status_code = 200
+#     return payload
+
+def handle_payload(payload, response_url):
+    with app.test_request_context():
+        from json import dumps
+        payload = dumps(payload)
+        post(response_url, payload)
 
 
 # checks answer in background as thread
@@ -146,39 +129,31 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 
 
 # Routes
-def hello_handler():
-    with app.app_context():
-        payload = {'text': ''}
-        # payload.status_code = 200
-        post(os.environ['WEBHOOK'], json=payload)
-        # post(base_url, json=payload)
 
-
-def rev_hello_handler(response_url, user_name, user_id):
-    with app.test_request_context():
-        payload = {
-            'text': 'Hello ' + host.create_user_address(user_name, user_id),
-            'response_type': 'in_channel'
-        }
-        from json import dumps
-        payload = dumps(payload)
-        # payload.status_code = 200
-        print(response_url)
-        post(response_url, payload)
+def channel_check(route_func):
+    def route_wrapper():
+        if request.form['channel_name'] == channel:
+            route_func()
+        else:
+            return handle_payload(wrong_channel_payload)
+    return route_wrapper
 
 # say hi!
 @app.route('/hello', methods=['POST'])
+@channel_check
 def hello():
-    # TEST
-    if request.form['channel_name'] == channel:
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
-        response_url = request.form['response_url']
-        Thread(target=rev_hello_handler, args=[response_url, user_name, user_id]).start()
-        with app.app_context():
-            return Response(status=200)
-    else:
-        return handle_payload(wrong_channel_payload)
+    # if request.form['channel_name'] == channel:
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+        'text': 'Hello ' + host.create_user_address(user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload, args=[payload, request.form['response_url']]).start()
+    with app.app_context():
+        return Response(status=200)
+    # else:
+    #     return handle_payload(wrong_channel_payload)
 
 
 host = Host(slack_token, user_db)

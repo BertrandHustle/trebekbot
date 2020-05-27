@@ -141,8 +141,8 @@ def hello():
         'response_type': 'in_channel'
     }
     Thread(target=handle_payload, args=[payload, request.form['response_url'], request.form['channel_name']]).start()
-    with app.app_context():
-        return Response(status=200)
+    #with app.app_context():
+    return Response(status=200)
 
 
 host = Host(slack_token, user_db)

@@ -122,8 +122,8 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 #     return payload
 
 
-def handle_payload(payload, response_url):
-    if request.form['channel_name'] == channel:
+def handle_payload(payload, response_url, request_channel):
+    if request_channel == channel:
         with app.test_request_context():
             return post(response_url, dumps(payload))
     else:
@@ -140,7 +140,7 @@ def hello():
         'text': 'Hello ' + host.create_user_address(user_name, user_id),
         'response_type': 'in_channel'
     }
-    Thread(target=handle_payload, args=[payload, request.form['response_url']]).start()
+    Thread(target=handle_payload, args=[payload, request.form['response_url'], request.form['channel_name']]).start()
     with app.app_context():
         return Response(status=200)
 

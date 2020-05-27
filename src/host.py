@@ -22,20 +22,20 @@ class Host:
     command_prefix = '/'
     intro_text = 'This iiiiiis trebekbot!'
     help_text = '''
-    Use '''+command_prefix+''' to prefix commands.
-    '''+command_prefix+'''help: bring up this help list
-    '''+command_prefix+'''hello: say hello to trebekbot
-    '''+command_prefix+'''ask: trebekbot will ask you a question
-    '''+command_prefix+'''next: get a new question from the previous category
-    '''+command_prefix+'''skip: skip current question
-    '''+command_prefix+'''whatis: use this to provide an answer to the question
-    '''+command_prefix+'''myscore: find out what your current score is
-    '''+command_prefix+'''mywins: find out your all-time win count
-    '''+command_prefix+'''topten: find out who the top ten scorers are
-    '''+command_prefix+'''wager: put in your wager for daily doubles
-    '''+command_prefix+'''nope: pass a daily double if you don't know it
-    '''+command_prefix+'''changelog: show latest changelog notes
-    '''+command_prefix+'''uptime: show start time of this trebekbot
+    Use ''' + command_prefix + ''' to prefix commands.
+    ''' + command_prefix + '''help: bring up this help list
+    ''' + command_prefix + '''hello: say hello to trebekbot
+    ''' + command_prefix + '''ask: trebekbot will ask you a question
+    ''' + command_prefix + '''next: get a new question from the previous category
+    ''' + command_prefix + '''skip: skip current question
+    ''' + command_prefix + '''whatis: use this to provide an answer to the question
+    ''' + command_prefix + '''myscore: find out what your current score is
+    ''' + command_prefix + '''mywins: find out your all-time win count
+    ''' + command_prefix + '''topten: find out who the top ten scorers are
+    ''' + command_prefix + '''wager: put in your wager for daily doubles
+    ''' + command_prefix + '''nope: pass a daily double if you don't know it
+    ''' + command_prefix + '''changelog: show latest changelog notes
+    ''' + command_prefix + '''uptime: show start time of this trebekbot
     '''
 
     def __init__(self, slack_token, user_db):
@@ -49,7 +49,7 @@ class Host:
         self.current_champion_name, self.current_champion_score = None, None
         try:
             self.current_champion_name, self.current_champion_score = \
-            self.user_db.get_champion(self.user_db.connection)
+                self.user_db.get_champion(self.user_db.connection)
         except TypeError:
             pass
         # create leaderboard
@@ -63,8 +63,8 @@ class Host:
             user_db.increment_win(user_db.connection, self.current_champion_name)
             self.say(self.channel, 'Let\'s welcome back last night\'s returning champion, \
             :crown: @' + self.current_champion_name + '!')
-            self.say(self.channel, 'With a total cash winnings of '+ \
-            '$' + str(self.current_champion_score) + '!')
+            self.say(self.channel, 'With a total cash winnings of ' +
+                     '$' + str(self.current_champion_score) + '!')
         # show yesterday's leaderboard
         self.say(self.channel, 'Here\'s yesterday\'s top scores:')
         self.say(self.channel, self.top_ten())
@@ -111,9 +111,9 @@ class Host:
         :param: user_id
         """
         if self.current_champion_name == user_name:
-            return ':crown: <@'+user_id+'>'
+            return ':crown: <@' + user_id + '>'
         else:
-            return '<@'+user_id+'>'
+            return '<@' + user_id + '>'
 
     def create_daily_double_address(self, user_name, user_id):
         """
@@ -124,8 +124,8 @@ class Host:
         user_address = self.create_user_address(user_name, user_id)
         user_score = self.my_score(user_name, user_id)
         return 'It\'s a DAILY DOUBLE!\n' + user_address + \
-        ' [$' + user_score + '] ' + \
-        'Please enter a wager with the /wager command'
+               ' [$' + user_score + '] ' + \
+               'Please enter a wager with the /wager command'
 
     def get_bot_id(self, bot_name):
         """
@@ -156,7 +156,7 @@ class Host:
                 if version_number_line and not found_latest:
                     found_latest = True
                     latest_changelog += line
-                elif version_number_line and found_latest :
+                elif version_number_line and found_latest:
                     return latest_changelog
                 elif found_latest:
                     latest_changelog += line
@@ -167,6 +167,7 @@ class Host:
     :param: user_name:
     :param: user_id:
     '''
+
     def get_wager(self, wager, user_name, user_id):
         user_score = self.user_db.get_score(self.user_db.connection, user_name)
         user_address = self.create_user_address(user_name, user_id)
@@ -183,6 +184,7 @@ class Host:
     adjusts wager according to jeopardy rules, this is separate from get_wager
     to bypass slack api for unit testing
     '''
+
     @staticmethod
     def calc_wager(wager, user_score: int):
         # we want this to return a None if we get a TypeError, that way
@@ -218,31 +220,31 @@ class Host:
         # if answer is close but not wrong
         if answer_check == 'close':
             return user_address + ' ' + \
-            Judge.check_closeness(user_answer, correct_answer)
+                   Judge.check_closeness(user_answer, correct_answer)
         # right answer
         elif answer_check == True:
             # award points to user
             if question.daily_double:
                 self.user_db.update_score(
-                self.user_db.connection, user_name, wager
+                    self.user_db.connection, user_name, wager
                 )
             else:
                 self.user_db.update_score(
-                self.user_db.connection, user_name, question.value
+                    self.user_db.connection, user_name, question.value
                 )
             return user_address + \
-            ' :white_check_mark: That is correct. The answer is ' \
-            +correct_answer
+                   ' :white_check_mark: That is correct. The answer is ' \
+                   + correct_answer
         # wrong answer
         elif answer_check == False:
             # take away points from user
             if question.daily_double and wager:
                 self.user_db.update_score(
-                self.user_db.connection, user_name, -wager
+                    self.user_db.connection, user_name, -wager
                 )
             else:
                 self.user_db.update_score(
-                self.user_db.connection, user_name, -question.value
+                    self.user_db.connection, user_name, -question.value
                 )
             return user_address + ' :x: Sorry, that is incorrect.'
 
@@ -253,6 +255,7 @@ class Host:
     :param: user_name:
     :param: user_id:
     '''
+
     def my_score(self, user_name, user_id):
         user_score = str(
             self.user_db.get_score(self.user_db.connection, user_name)
@@ -285,6 +288,6 @@ class Host:
     def my_wins(self, user_name, user_id):
         user_address = self.create_user_address(user_name, user_id)
         wins = str(
-        self.user_db.get_user_wins(self.user_db.connection, user_name)
+            self.user_db.get_user_wins(self.user_db.connection, user_name)
         )
         return user_address + ' wins: ' + wins

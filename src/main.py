@@ -58,7 +58,6 @@ categorized_questions = []
 
 
 # TODO: add 500 error handler
-# TODO: turn channel check into decorator
 
 # Utility Functions
 
@@ -114,15 +113,16 @@ def reset_timer():
 # load this in the background to speed up response time
 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
-# formats and returns payload
-# TODO: have this return a private error message to the person executing slash command
-# def handle_payload(payload):
-#     payload = jsonify(payload)
-#     payload.status_code = 200
-#     return payload
 
-
+# TODO: have this return a private error message to the person executing slash command (USE EPHEMERAL MESSAGE)
 def handle_payload(payload, response_url, request_channel):
+    """
+    formats and returns payload
+    :param payload: json formatted payload to return to slack API
+    :param response_url: where we send the payload
+    :param request_channel: channel where the API request comes from
+    :return: post payload if in correct channel, otherwise post wrong_channel_payload
+    """
     if request_channel == channel:
         return post(response_url, dumps(payload))
     else:
@@ -139,8 +139,8 @@ def hello():
         'text': 'Hello ' + host.create_user_address(user_name, user_id),
         'response_type': 'in_channel'
     }
-    Thread(target=handle_payload, args=[payload, request.form['response_url'], request.form['channel_name']]).start()
-    #with app.app_context():
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
     return Response(status=200)
 
 
@@ -151,38 +151,38 @@ judge = Judge()
 # display help text
 @app.route('/howtoplay', methods=['POST'])
 def howtoplay():
-    if request.form['channel_name'] == channel:
-        payload = {
-            'text': host.help_text,
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
+    payload = {
+        'text': host.help_text,
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # display latest changelog
 @app.route('/changelog', methods=['POST'])
 def changelog():
-    if request.form['channel_name'] == channel:
-        payload = {
-            'text': host.get_latest_changelog('README.md'),
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
+    payload = {
+        'text': host.get_latest_changelog('README.md'),
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # display uptime for trebekbot
 @app.route('/uptime', methods=['POST'])
 def uptime():
-    if request.form['channel_name'] == channel:
-        payload = {
-            'text': 'uptime: ' + host.uptime,
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
+    payload = {
+        'text': 'uptime: ' + host.uptime,
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # trebekbot asks a question
 @app.route('/ask', methods=['POST'])
@@ -190,31 +190,31 @@ def ask():
     global live_question
     global daily_double_asker
     global question_is_live
-    if request.form['channel_name'] == channel:
-        payload = {'text': None, 'response_type': 'in_channel'}
-        # check if question has active timer
-        if not question_is_live:
-            if live_question.daily_double:
-                user_name = request.form['user_name']
-                user_id = request.form['user_id']
-                payload['text'] = live_question.slack_text
-                payload['text'] += '\n' + host.create_daily_double_address(
-                    user_name, user_id
-                )
-                # if question is daily double we need to track who received it
-                daily_double_asker = request.form['user_name']
-            else:
-                payload['text'] = live_question.slack_text
-            # TODO: add time to timer if daily double
-            # start question timer and double check that timer hasn't been started already
-            if not live_question.timer.is_alive():
-                live_question.timer.start()
-            question_is_live = True
+    payload = {'text': None, 'response_type': 'in_channel'}
+    # check if question has active timer
+    if not question_is_live:
+        if live_question.daily_double:
+            user_name = request.form['user_name']
+            user_id = request.form['user_id']
+            payload['text'] = live_question.slack_text
+            payload['text'] += '\n' + host.create_daily_double_address(
+                user_name, user_id
+            )
+            # if question is daily double we need to track who received it
+            daily_double_asker = request.form['user_name']
         else:
-            payload['text'] = 'question is already in play!'
-        return handle_payload(payload)
+            payload['text'] = live_question.slack_text
+        # TODO: add time to timer if daily double
+        # start question timer and double check that timer hasn't been started already
+        if not live_question.timer.is_alive():
+            live_question.timer.start()
+        question_is_live = True
     else:
-        return handle_payload(wrong_channel_payload)
+        payload['text'] = 'question is already in play!'
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # get a new question from the last question's category
 @app.route('/next', methods=['POST'])
@@ -225,10 +225,11 @@ def next_question():
         # make sure that the next question isn't the same as the one we just asked
         if categorized_questions and live_question.slack_text != categorized_questions[0].slack_text:
             live_question = categorized_questions.pop()
-            return ask()
+            return Response(status=200), ask()
         else:
             say(channel, 'Out of that category! Here\'s a new question:')
-            return ask()
+            return Response(status=200), ask()
+
 
 # forces skip on current question and generates new question
 @app.route('/skip', methods=['POST'])

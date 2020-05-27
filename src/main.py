@@ -62,19 +62,6 @@ categorized_questions = []
 
 # Utility Functions
 
-# formats and returns payload
-# TODO: have this return a private error message to the person executing slash command
-# def handle_payload(payload):
-#     payload = jsonify(payload)
-#     payload.status_code = 200
-#     return payload
-
-def handle_payload(payload, response_url):
-    with app.test_request_context():
-        payload = dumps(payload)
-        post(response_url, payload)
-
-
 # checks answer in background as thread
 def answer_check_worker(answer, user_name, user_id):
     global live_question
@@ -127,24 +114,35 @@ def reset_timer():
 # load this in the background to speed up response time
 live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
 
+# formats and returns payload
+# TODO: have this return a private error message to the person executing slash command
+# def handle_payload(payload):
+#     payload = jsonify(payload)
+#     payload.status_code = 200
+#     return payload
+
+
+def handle_payload(payload, response_url):
+    if request.form['channel_name'] == channel:
+        with app.test_request_context():
+            return post(response_url, dumps(payload))
+    else:
+        return post(response_url, dumps(wrong_channel_payload))
 
 # Routes
 
 # say hi!
 @app.route('/hello', methods=['POST'])
 def hello():
-    if request.form['channel_name'] == channel:
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
-        payload = {
-            'text': 'Hello ' + host.create_user_address(user_name, user_id),
-            'response_type': 'in_channel'
-        }
-        Thread(target=handle_payload, args=[payload, request.form['response_url']]).start()
-        with app.app_context():
-            return Response(status=200)
-    else:
-        return handle_payload(wrong_channel_payload, request.form['response_url'])
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+        'text': 'Hello ' + host.create_user_address(user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload, args=[payload, request.form['response_url']]).start()
+    with app.app_context():
+        return Response(status=200)
 
 
 host = Host(slack_token, user_db)

@@ -17,7 +17,6 @@ from flask import Flask, jsonify, request, Response
 from requests import post
 from slack import WebClient
 
-
 app = Flask(__name__)
 
 # setup database (or connect to existing one)
@@ -128,6 +127,7 @@ def handle_payload(payload, response_url, request_channel):
     else:
         return post(response_url, dumps(wrong_channel_payload))
 
+
 # Routes
 
 # say hi!
@@ -215,6 +215,37 @@ def ask():
            args=[payload, request.form['response_url'], request.form['channel_name']]).start()
     return Response(status=200)
 
+# answer the current question
+@app.route('/whatis', methods=['POST'])
+def whatis():
+    global live_question
+    global daily_double_asker
+    global current_wager
+    global question_is_live
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    answer = request.form['text']
+    payload = {'text': None, 'response_type': 'in_channel'}
+    # if someone else tries to answer daily double
+    if live_question.daily_double and user_name != daily_double_asker:
+        payload['text'] = 'Not your daily double!'
+    # if someone tries to answer daily double without wagering
+    elif live_question.daily_double and not current_wager:
+        payload['text'] = 'Please wager something first (not zero!).'
+    elif not answer:
+        payload['text'] = 'Please type an answer.'
+    else:
+        # delegate answer check to background worker
+        answer_thread = Thread(target=answer_check_worker, args=[
+            answer,
+            user_name,
+            user_id
+        ])
+        answer_thread.start()
+        payload['text'] = 'Judges?'
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
 
 # get a new question from the last question's category
 @app.route('/next', methods=['POST'])
@@ -237,43 +268,43 @@ def skip():
     global live_question
     global daily_double_asker
     # cancel current timer and instantiate new question
-    if request.form['channel_name'] == channel:
-        live_question.timer.cancel()
-        live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
-        payload = {'text': None, 'response_type': 'in_channel'}
-        if live_question.daily_double:
-            user_name = request.form['user_name']
-            user_id = request.form['user_id']
-            payload['text'] = live_question.slack_text
-            payload['text'] += '\n' + host.create_daily_double_address(
-                user_name, user_id
-            )
-            # if question is daily double we need to track who received it
-            daily_double_asker = request.form['user_name']
-        else:
-            payload['text'] = live_question.slack_text
-        # TODO: add time to timer if daily double
-        # start question timer
-        live_question.timer.start()
-        return handle_payload(payload)
+    live_question.timer.cancel()
+    live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
+    payload = {'text': None, 'response_type': 'in_channel'}
+    if live_question.daily_double:
+        user_name = request.form['user_name']
+        user_id = request.form['user_id']
+        payload['text'] = live_question.slack_text
+        payload['text'] += '\n' + host.create_daily_double_address(
+            user_name, user_id
+        )
+        # if question is daily double we need to track who received it
+        daily_double_asker = request.form['user_name']
     else:
-        return handle_payload(wrong_channel_payload)
+        payload['text'] = live_question.slack_text
+    # TODO: add time to timer if daily double
+    # start question timer
+    live_question.timer.start()
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # get wager for daily double
 @app.route('/wager', methods=['POST'])
 def wager():
-    if request.form['channel_name'] == channel:
-        global current_wager
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
-        current_wager = int(request.form['text'])
-        payload = {
-            'text': host.get_wager(current_wager, user_name, user_id),
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
+    global current_wager
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    current_wager = int(request.form['text'])
+    payload = {
+        'text': host.get_wager(current_wager, user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # pass daily double if user doesn't know answer
 @app.route('/nope', methods=['POST'])
@@ -281,95 +312,62 @@ def nope():
     global current_wager
     global live_question
     global question_is_live
-    if request.form['channel_name'] == channel:
-        payload = {
-            'text': 'Coward. The correct answer is ' + live_question.answer,
-            'response_type': 'in_channel'
-        }
-        if current_wager:
-            payload['text'] = 'You can\'t pass if you\'ve already wagered!'
-        if not live_question.daily_double:
-            payload['text'] = 'Question must be a daily double!'
-        else:
-            live_question.timer.cancel()
-            live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
-            question_is_live = False
-        return handle_payload(payload)
+    payload = {
+        'text': 'Coward. The correct answer is ' + live_question.answer,
+        'response_type': 'in_channel'
+    }
+    if current_wager:
+        payload['text'] = 'You can\'t pass if you\'ve already wagered!'
+    if not live_question.daily_double:
+        payload['text'] = 'Question must be a daily double!'
     else:
-        return handle_payload(wrong_channel_payload)
+        live_question.timer.cancel()
+        live_question = Question(Question.get_random_question(), Timer(time_limit, reset_timer))
+        question_is_live = False
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
 
-# answer the current question
-@app.route('/whatis', methods=['POST'])
-def whatis():
-    global live_question
-    global daily_double_asker
-    global current_wager
-    global question_is_live
-    if request.form['channel_name'] == channel:
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
-        answer = request.form['text']
-        payload = {'text': None, 'response_type': 'in_channel'}
-        # if someone else tries to answer daily double
-        if live_question.daily_double and user_name != daily_double_asker:
-            payload['text'] = 'Not your daily double!'
-        # if someone tries to answer daily double without wagering
-        elif live_question.daily_double and not current_wager:
-            payload['text'] = 'Please wager something first (not zero!).'
-        elif not answer:
-            payload['text'] = 'Please type an answer.'
-        else:
-            # delegate answer check to background worker
-            answer_thread = Thread(target=answer_check_worker, args=[
-                answer,
-                user_name,
-                user_id
-            ])
-            answer_thread.start()
-            payload['text'] = 'Judges?'
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
 
 # get user's score
 @app.route('/myscore', methods=['POST'])
 def myscore():
-    if request.form['channel_name'] == channel:
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
-        payload = {
-            'text': host.my_score(user_name, user_id),
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+        'text': host.my_score(user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # get user's tally of all-time wins
 @app.route('/mywins', methods=['POST'])
 def mywins():
-    if request.form['channel_name'] == channel:
-        user_name = request.form['user_name']
-        user_id = request.form['user_id']
-        payload = {
-            'text': host.my_wins(user_name, user_id),
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
+    user_name = request.form['user_name']
+    user_id = request.form['user_id']
+    payload = {
+        'text': host.my_wins(user_name, user_id),
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # get list of all users' scores
 @app.route('/topten', methods=['POST'])
 def topten():
-    if request.form['channel_name'] == channel:
-        payload = {
-            'text': host.top_ten(),
-            'response_type': 'in_channel'
-        }
-        return handle_payload(payload)
-    else:
-        return handle_payload(wrong_channel_payload)
+    payload = {
+        'text': host.top_ten(),
+        'response_type': 'in_channel'
+    }
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # DEBUG Routes
 
@@ -378,7 +376,10 @@ def topten():
 def current_question():
     global live_question
     payload = {'text': live_question.slack_text, 'response_type': 'in_channel'}
-    return handle_payload(payload)
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
+
 
 # used to force a daily double for testing
 @app.route('/dd', methods=['POST'])
@@ -398,8 +399,10 @@ def dd():
         daily_double_asker = user_name
         # TODO: add time to timer if daily double
         live_question.timer.start()
-    if request.form['user_name'] == 'bertrand_hustle':
-        return handle_payload(payload)
+        Thread(target=handle_payload,
+               args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+        return Response(status=200)
+
 
 # force crash/restart trebekbot
 # TODO: make this cause a restart, right now it just throws a 500 error
@@ -407,6 +410,7 @@ def dd():
 def crash():
     if request.form['user_name'] == 'bertrand_hustle':
         raise Exception
+
 
 # shows debug info
 @app.route('/debug', methods=['POST'])
@@ -421,11 +425,11 @@ def debug():
     question live = {}
     current_wager = {}
     '''.format(
-    live_question.slack_text,
-    live_question.answer,
-    live_question.timer.is_alive(),
-    question_is_live,
-    current_wager
+        live_question.slack_text,
+        live_question.answer,
+        live_question.timer.is_alive(),
+        question_is_live,
+        current_wager
     )
     payload = {
         'text': debug_text,
@@ -433,11 +437,13 @@ def debug():
     }
     print(request.form)
     # if request.form['user_name'] == 'bertrand_hustle':
-    return handle_payload(payload)
+    Thread(target=handle_payload,
+           args=[payload, request.form['response_url'], request.form['channel_name']]).start()
+    return Response(status=200)
 
 
 # NOTE: set WEB_CONCURRENCY=1 to stop duplication problem
-if __name__=='__main__':
+if __name__ == '__main__':
     # start main game
     app.run_server(debug=False, use_reloader=False)
     # app.run()

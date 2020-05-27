@@ -124,8 +124,7 @@ live_question = Question(Question.get_random_question(), Timer(time_limit, reset
 
 def handle_payload(payload, response_url, request_channel):
     if request_channel == channel:
-        with app.test_request_context():
-            return post(response_url, dumps(payload))
+        return post(response_url, dumps(payload))
     else:
         return post(response_url, dumps(wrong_channel_payload))
 

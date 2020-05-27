@@ -245,7 +245,7 @@ def whatis():
         payload['text'] = 'Judges?'
     Thread(target=handle_payload,
            args=[payload, request.form['response_url'], request.form['channel_name']]).start()
-    return Response(status=200)
+    return jsonify({'text': answer})
 
 # get a new question from the last question's category
 @app.route('/next', methods=['POST'])

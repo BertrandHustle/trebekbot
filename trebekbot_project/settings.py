@@ -78,7 +78,9 @@ WSGI_APPLICATION = 'trebekbot_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'USERS',
+        'NAME': 'django',
+        'USER': 'postgres',
+        'PASSWORD': 'test'
     }
 }
 
@@ -123,4 +125,5 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
 
 # Activate Django-Heroku.
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+if os.name != 'nt':
+    DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)

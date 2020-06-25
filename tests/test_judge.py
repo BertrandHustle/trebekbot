@@ -2,12 +2,14 @@ import pytest
 import src.judge as judge
 test_judge = judge.Judge()
 
+
 #TODO: add more test cases here
 @pytest.mark.parametrize("test_value, expected_value", [
  ('Hello!', ['hello'])
 ])
 def test_strip_answer(test_value, expected_value):
     assert test_judge.strip_answer(test_value) == expected_value
+
 
 @pytest.mark.parametrize("given_answer, expected_answer, expected_list", [
  ('Bath', 'Borth', [('bath', 'borth')]),
@@ -65,6 +67,7 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
 "value": "$200", "answer": "King Midas", "round": "Double Jeopardy!",
 "show_number": "3242"}
 '''
+
 
 # time before async: 27.27 seconds
 @pytest.mark.parametrize("given_answer, expected_answer, expected_value", [

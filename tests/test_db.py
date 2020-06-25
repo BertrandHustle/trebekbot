@@ -2,7 +2,6 @@ from sys import path as syspath
 from sqlalchemy import create_engine
 syspath.append('c:\\users\\hooks\\documents\\programming\\projects\\trebekbot\\src')
 from re import findall
-from os import path, remove
 import pytest
 import db
 import testing.postgresql

@@ -1,8 +1,5 @@
 # django
 from django.db import models
-# native
-from json import loads as json_loads
-from contextlib import suppress
 # Create your models here.
 
 
@@ -25,5 +22,4 @@ class Question(models.Model):
     valid_links = models.CharField(max_length=500, blank=True, default='')
 
     def __str__(self):
-        return '{0}, {1}, {2}, {3}'.format(self.category, self.value, self.date, self.text)
-
+        return '{0} | {1} | {2} | {3}'.format(self.category, self.value, self.date, self.text)

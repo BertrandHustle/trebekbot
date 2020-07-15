@@ -1,26 +1,53 @@
+# native
 import os
+import json
 from sys import path as syspath
 syspath.append(
 os.path.abspath(
 os.path.join(
 os.path.dirname(__file__), os.path.pardir)))
-from src.question import Question
 from threading import Timer
+from re import findall
+# project
+from src.question import Question
+# third-party
 import pytest
-import json
 
 
 test_timer = Timer(1, None)
 test_question = Question(Question.get_random_question(), test_timer)
 
 
+def mock_question(question_string: str) -> Question:
+    """
+    creates a test question based on a slack-formatted string
+    :param question_string: slack-formatted question string, e.g.
+    "[NOW HEAR THIS!] [$500] [2001-01-09] 'It's the native wind instrument heard here, mate'"
+    :return: Question
+    """
+    new_question = Question(Question.get_random_question(), test_timer)
+    reg_question = findall(r'(\[(.*?)\]|\'(.*?)$)', question_string)
+    new_question.category = reg_question[0][1]
+    new_question.value = reg_question[1][1]
+    new_question.date = reg_question[2][1]
+    new_question.text = reg_question[3][2]
+    new_question.slack_text = question_string
+    new_question.daily_double = Question.is_daily_double(new_question.value)
+    return new_question
+
+
+q = mock_question('[NOW HEAR THIS!] [$500] [2001-01-09] \'It\'s the native wind instrument heard here, mate')
+print(q)
+
+
 def test_get_value():
-    '''
+    """
     we want to make sure that it's a valid Jeopardy point value,
     so it has to be in an increment of $100
-    '''
+    """
     value_no_dollar_sign = test_question.get_value()[1:]
     assert int(value_no_dollar_sign) % 100 == 0
+
 
 @pytest.mark.parametrize("test_text, expected_output", [
  # test working link

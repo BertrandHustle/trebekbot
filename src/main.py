@@ -247,6 +247,7 @@ def whatis():
            args=[payload, request.form['response_url'], request.form['channel_name']]).start()
     return jsonify({'text': answer, 'response_type': 'in_channel'})
 
+
 # get a new question from the last question's category
 @app.route('/next', methods=['POST'])
 def next_question():

@@ -36,7 +36,7 @@ Holds details about questions and questions themselves
 class Question:
 
     # init
-    banned_categories = 'missing this category',
+    banned_categories = 'missing this category'
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
     # TODO: refactor this to be a true constructor (e.g. not always a random question)
@@ -63,9 +63,8 @@ class Question:
     @staticmethod
     def get_random_question(category=None):
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
-        question_list = json.loads(jeopardy_json_file)
         question_list = Question.filter_questions(
-            question_list,
+            json.loads(jeopardy_json_file),
             banned_categories=Question.banned_categories,
             banned_phrases=Question.banned_phrases,
             category=category

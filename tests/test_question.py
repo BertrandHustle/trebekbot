@@ -18,26 +18,28 @@ test_timer = Timer(1, None)
 test_question = Question(Question.get_random_question(), test_timer)
 
 
-def mock_question(question_string: str) -> Question:
+def mock_question(question_string: str, ret_json=None):
     """
     creates a test question based on a slack-formatted string
     :param question_string: slack-formatted question string, e.g.
     "[NOW HEAR THIS!] [$500] [2001-01-09] 'It's the native wind instrument heard here, mate'"
+    :param ret_json: optional, outputs as json formatted string if set to true
     :return: Question
     """
-    new_question = Question(Question.get_random_question(), test_timer)
     reg_question = findall(r'(\[(.*?)\]|\'(.*?)$)', question_string)
-    new_question.category = reg_question[0][1]
-    new_question.value = reg_question[1][1]
-    new_question.date = reg_question[2][1]
-    new_question.text = reg_question[3][2]
-    new_question.slack_text = question_string
-    new_question.daily_double = Question.is_daily_double(new_question.value)
-    return new_question
+    category = reg_question[0][1]
+    value = reg_question[1][1]
+    date = reg_question[2][1]
+    text = reg_question[3][2]
 
-
-q = mock_question('[NOW HEAR THIS!] [$500] [2001-01-09] \'It\'s the native wind instrument heard here, mate')
-print(q)
+    if ret_json:
+        return {"category": category, "air_date": date, "question": text, "value": value}
+    else:
+        new_question = Question(Question.get_random_question(), test_timer)
+        new_question.category, new_question.value, new_question.date, new_question.text, new_question.daily_double = \
+            category, value, date, text, Question.is_daily_double(new_question.value)
+        new_question.slack_text = new_question.format_slack_text(new_question)
+        return new_question
 
 
 def test_get_value():
@@ -110,6 +112,14 @@ def test_filter_questions():
     test_question_list = json.loads(test_json)
     test_category = 'HISTORY'
 
+    mock_question_1 = mock_question('[POP CULTURE] [$2000] [2004-02-02] '
+                                    '\'He\'s the beloved comic strip character seen here with his friend Albert, '
+                                    'back in 1948', ret_json=True)
+    mock_question_2 = mock_question('[NOW HEAR THIS!] [$500] [2001-01-09] '
+                                    '\'It\'s the native wind instrument heard here, mate', ret_json=True)
+
+    mock_question_list = [mock_question_1, mock_question_2]
+
     # act
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=[
@@ -126,6 +136,7 @@ def test_filter_questions():
         banned_phrases=['heard here', 'seen here'],
     )
     category_filter = test_question.filter_questions(test_question_list, category=test_category)
+    mock_filter = test_question.filter_questions(mock_question_list, banned_phrases=['heard here', 'seen here'])
 
     # assert
     for c in history_filter: assert c['category'] != 'HISTORY'
@@ -139,6 +150,7 @@ def test_filter_questions():
     assert len(category_filter) > 0
     for q in category_filter:
         assert q['category'].lower() == test_category.lower()
+    assert len(mock_filter) == 0
 
 
 @pytest.mark.parametrize("test_value, expected_value", [

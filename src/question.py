@@ -55,8 +55,6 @@ class Question:
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question_json['answer']
         self.date = question_json['air_date']
-        self.slack_text = Question.format_slack_text(self)
-        # self.timer = timer
 
     # gets random question from given json file
     @staticmethod
@@ -72,23 +70,21 @@ class Question:
         question = question_list[randint(0, len(question_list))]
         return question
 
-    # TODO: turn this into a __str__ method
-    # formats text to be pretty for slack
-    @staticmethod
-    def format_slack_text(question):
-        if question.daily_double:
-            question_text = '[*' + question.category + '*] ' + \
-                            '[' + question.date + '] ' + \
-                            '_' + question.text + '_'
-        else:
-            question_text = '[*' + question.category + '*] ' + \
-                            '[' + question.get_value() + '] ' + \
-                            '[' + question.date + '] ' + \
-                            '_' + question.text + '_'
-        if question.valid_links:
-            for link in question.valid_links:
-                question_text += '\n' + link
-        return question_text
+    def format_to_json(self):
+        """
+        returns json representation of question and its fields
+        :return: json
+        """
+        return_json = {
+            'text': self.text,
+            'valid_links': self.valid_links,
+            'value': self.value,
+            'category': self.category,
+            'daily_double': self.daily_double,
+            'answer': self.answer,
+            'date': self.date
+        }
+        return json.dumps(return_json)
 
     def get_value(self):
         return '$' + str(self.value)

@@ -10,8 +10,7 @@ import pytest
 import json
 
 
-test_timer = Timer(1, None)
-test_question = Question(Question.get_random_question(), test_timer)
+test_question = Question(Question.get_random_question())
 
 
 def test_get_value():
@@ -101,14 +100,16 @@ def test_filter_questions():
     category_filter = test_question.filter_questions(test_question_list, category=test_category)
 
     # assert
-    for c in history_filter: assert c['category'] != 'HISTORY'
-    for c in science_filter: assert c['category'] != 'SCIENCE'
-    for q in heard_seen_here_filter: assert 'heard here' not in q['question']\
-        and 'seen here' not in q['question']
+    for c in history_filter:
+        assert c['category'] != 'HISTORY'
+    for c in science_filter:
+        assert c['category'] != 'SCIENCE'
+    for q in heard_seen_here_filter:
+        assert 'heard here' not in q['question'] and 'seen here' not in q['question']
     for q in category_and_phrase_filter: \
         assert 'heard here' not in q['question'] \
-        and 'seen here' not in q['question'] \
-        and q['category'] != 'missing this category'
+               and 'seen here' not in q['question'] \
+               and q['category'] != 'missing this category'
     assert len(category_filter) > 0
     for q in category_filter:
         assert q['category'].lower() == test_category.lower()
@@ -132,3 +133,18 @@ def test_get_questions_by_category():
     category_list = [q.category for q in categorized_questions]
     # if all categories are not the same the length of category_list set will be more than one
     assert len(set(category_list)) == 1
+
+
+def test_format_to_json():
+    test_json_keys = json.loads(test_question.format_to_json()).keys()
+    expected_keys = [
+        'text',
+        'valid_links',
+        'value',
+        'category',
+        'daily_double',
+        'answer',
+        'date'
+    ]
+    for k in expected_keys:
+        assert k in test_json_keys

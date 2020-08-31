@@ -8,7 +8,7 @@ from .models import Question
 from random import randint
 
 
-def question(request, template_name='trebekbot_app/question.html'):
+def question(request, template_name='question.html'):
     # get random question
     question_count = Question.objects.count()
     rand_question = Question.objects.get(pk=randint(0, question_count))

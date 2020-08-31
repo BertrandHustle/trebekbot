@@ -17,5 +17,19 @@ function test(){
     console.log("Test");
 }
 
+$(document).ready(function() {
+
+        // JQuery code to be added in here.
+
+});
+
+//$( function() {
+  //  $( ".widget input[type=submit], .widget a, .widget button" ).button();
+    //$( "button, input, a" ).click( function( event ) {
+      //  event.preventDefault();
+        //console.log("Test");
+        //} );
+    //} );
+
 //window.print('test');
 //window.setTimeout();

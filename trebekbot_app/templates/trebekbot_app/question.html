@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% load static %}
+    <script type="text/javascript" src="{% static "js/game.js" %}"> </script>
 </head>
+<body onload="test();">
 <body>
-    <li><a href="/trebekbot_app/{{ question.id }}/">{{ question.text }}</a></li>
+    {% load static %}
+    <script>test();</script>
+    <script>askQuestion("{{ question_json|escapejs }}");</script>
 </body>
 </html>

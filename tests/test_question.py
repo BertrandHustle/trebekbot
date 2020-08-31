@@ -133,18 +133,3 @@ def test_get_questions_by_category():
     category_list = [q.category for q in categorized_questions]
     # if all categories are not the same the length of category_list set will be more than one
     assert len(set(category_list)) == 1
-
-
-def test_format_to_json():
-    test_json_keys = json.loads(test_question.format_to_json()).keys()
-    expected_keys = [
-        'text',
-        'valid_links',
-        'value',
-        'category',
-        'daily_double',
-        'answer',
-        'date'
-    ]
-    for k in expected_keys:
-        assert k in test_json_keys

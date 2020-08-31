@@ -70,22 +70,6 @@ class Question:
         question = question_list[randint(0, len(question_list))]
         return question
 
-    def format_to_json(self):
-        """
-        returns json representation of question and its fields
-        :return: json
-        """
-        return_json = {
-            'text': self.text,
-            'valid_links': self.valid_links,
-            'value': self.value,
-            'category': self.category,
-            'daily_double': self.daily_double,
-            'answer': self.answer,
-            'date': self.date
-        }
-        return json.dumps(return_json)
-
     def get_value(self):
         return '$' + str(self.value)
 

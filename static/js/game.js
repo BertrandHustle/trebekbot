@@ -6,30 +6,11 @@ var currentWager = 0;
 var dailyDoubleAsker;
 var questionIsLive;
 var categorizedQuestions;
+//var liveQuestion = data;
 
-function askQuestion(){
-    var liveQuestion = data;
-        document.write(JSON.stringify(liveQuestion));
-        return JSON.stringify(liveQuestion);
-}
-
-function test(){
-    console.log("Test");
-}
-
-$(document).ready(function() {
-
-        // JQuery code to be added in here.
-
+$(document).ready( function() {
+        $("#answer").click(function (event) {
+            //alert(JSON.stringify(liveQuestion));
+            alert("test");
+        });
 });
-
-//$( function() {
-  //  $( ".widget input[type=submit], .widget a, .widget button" ).button();
-    //$( "button, input, a" ).click( function( event ) {
-      //  event.preventDefault();
-        //console.log("Test");
-        //} );
-    //} );
-
-//window.print('test');
-//window.setTimeout();

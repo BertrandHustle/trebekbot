@@ -8,7 +8,7 @@ from .models import Question
 from random import randint
 
 
-def question(request, template_name='question.html'):
+def question(request):
     # get random question
     question_count = Question.objects.count()
     rand_question = Question.objects.get(pk=randint(0, question_count))
@@ -22,7 +22,7 @@ def question(request, template_name='question.html'):
         'date': rand_question.date
     }
     # data = serializers.serialize("json", [question_json, ])
-    return render(request, template_name, question_json)
+    return render(request, 'trebekbot_app/question.html', question_json)
 
 
 def test(request):

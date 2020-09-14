@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "trebekbot_app/base.html" %}
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <script type="text/javascript" src="{% static "js/game.js" %}"> </script>
+</head>
+{% block content %}
+    <div class="widget">
+      <h1>Widget Buttons</h1>
+      <li>{{ question_json }}</li>
+      <button id="answer">Answer</button>
+    </div>
+{% endblock %}
+</html>

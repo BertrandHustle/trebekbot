@@ -6,11 +6,11 @@ var currentWager = 0;
 var dailyDoubleAsker;
 var questionIsLive;
 var categorizedQuestions;
-//var liveQuestion = data;
 
 $(document).ready( function() {
         $("#answer").click(function (event) {
-            //alert(JSON.stringify(liveQuestion));
-            alert("test");
+            const liveQuestion = JSON.parse(document.getElementById('qj').textContent);
+            alert(JSON.stringify(liveQuestion));
+            //alert(liveQuestion);
         });
 });

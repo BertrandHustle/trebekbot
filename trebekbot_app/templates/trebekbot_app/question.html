@@ -10,7 +10,7 @@
 {% block content %}
     <div class="widget">
       <h1>Widget Buttons</h1>
-      <li>{{ question_json }}</li>
+      <li>{{ question_json|json_script:"qj" }}</li>
       <button id="answer">Answer</button>
     </div>
 {% endblock %}

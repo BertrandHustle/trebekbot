@@ -22,7 +22,7 @@ def question(request):
         'date': rand_question.date
     }
     # data = serializers.serialize("json", [question_json, ])
-    return render(request, 'trebekbot_app/question.html', question_json)
+    return render(request, 'trebekbot_app/question.html', {"question_json": question_json})
 
 
 def test(request):

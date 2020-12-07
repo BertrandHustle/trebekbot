@@ -1,25 +1,55 @@
+# native
 import os
+import json
 from sys import path as syspath
 syspath.append(
 os.path.abspath(
 os.path.join(
 os.path.dirname(__file__), os.path.pardir)))
-from src.question import Question
 from threading import Timer
+from re import findall
+# project
+from src.question import Question
+# third-party
 import pytest
-import json
 
 
-test_question = Question(Question.get_random_question())
+test_timer = Timer(1, None)
+test_question = Question(Question.get_random_question(), test_timer)
+
+
+def mock_question(question_string: str, ret_json=None):
+    """
+    creates a test question based on a slack-formatted string
+    :param question_string: slack-formatted question string, e.g.
+    "[NOW HEAR THIS!] [$500] [2001-01-09] 'It's the native wind instrument heard here, mate'"
+    :param ret_json: optional, outputs as json formatted string if set to true
+    :return: Question
+    """
+    reg_question = findall(r'(\[(.*?)\]|\'(.*?)$)', question_string)
+    category = reg_question[0][1]
+    value = reg_question[1][1]
+    date = reg_question[2][1]
+    text = reg_question[3][2]
+
+    if ret_json:
+        return {"category": category, "air_date": date, "question": text, "value": value}
+    else:
+        new_question = Question(Question.get_random_question(), test_timer)
+        new_question.category, new_question.value, new_question.date, new_question.text, new_question.daily_double = \
+            category, value, date, text, Question.is_daily_double(new_question.value)
+        new_question.slack_text = new_question.format_slack_text(new_question)
+        return new_question
 
 
 def test_get_value():
-    '''
+    """
     we want to make sure that it's a valid Jeopardy point value,
     so it has to be in an increment of $100
-    '''
+    """
     value_no_dollar_sign = test_question.get_value()[1:]
     assert int(value_no_dollar_sign) % 100 == 0
+
 
 @pytest.mark.parametrize("test_text, expected_output", [
  # test working link
@@ -82,6 +112,14 @@ def test_filter_questions():
     test_question_list = json.loads(test_json)
     test_category = 'HISTORY'
 
+    mock_question_1 = mock_question('[POP CULTURE] [$2000] [2004-02-02] '
+                                    '\'He\'s the beloved comic strip character seen here with his friend Albert, '
+                                    'back in 1948', ret_json=True)
+    mock_question_2 = mock_question('[NOW HEAR THIS!] [$500] [2001-01-09] '
+                                    '\'It\'s the native wind instrument heard here, mate', ret_json=True)
+
+    mock_question_list = [mock_question_1, mock_question_2]
+
     # act
     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
     science_filter = test_question.filter_questions(test_question_list, banned_categories=[
@@ -98,21 +136,21 @@ def test_filter_questions():
         banned_phrases=['heard here', 'seen here'],
     )
     category_filter = test_question.filter_questions(test_question_list, category=test_category)
+    mock_filter = test_question.filter_questions(mock_question_list, banned_phrases=['heard here', 'seen here'])
 
     # assert
-    for c in history_filter:
-        assert c['category'] != 'HISTORY'
-    for c in science_filter:
-        assert c['category'] != 'SCIENCE'
-    for q in heard_seen_here_filter:
-        assert 'heard here' not in q['question'] and 'seen here' not in q['question']
+    for c in history_filter: assert c['category'] != 'HISTORY'
+    for c in science_filter: assert c['category'] != 'SCIENCE'
+    for q in heard_seen_here_filter: assert 'heard here' not in q['question']\
+        and 'seen here' not in q['question']
     for q in category_and_phrase_filter: \
         assert 'heard here' not in q['question'] \
-               and 'seen here' not in q['question'] \
-               and q['category'] != 'missing this category'
+        and 'seen here' not in q['question'] \
+        and q['category'] != 'missing this category'
     assert len(category_filter) > 0
     for q in category_filter:
         assert q['category'].lower() == test_category.lower()
+    assert len(mock_filter) == 0
 
 
 @pytest.mark.parametrize("test_value, expected_value", [

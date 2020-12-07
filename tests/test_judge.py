@@ -3,7 +3,7 @@ import src.judge as judge
 test_judge = judge.Judge()
 
 
-#TODO: add more test cases here
+# TODO: add more test cases here
 @pytest.mark.parametrize("test_value, expected_value", [
  ('Hello!', ['hello'])
 ])
@@ -68,7 +68,6 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
 "show_number": "3242"}
 '''
 
-
 # time before async: 27.27 seconds
 @pytest.mark.parametrize("given_answer, expected_answer, expected_value", [
  ('Bath', 'Borth', False),
@@ -131,13 +130,12 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
     assert test_judge.fuzz_answer(given_answer, expected_answer) == expected_value
 
+
 @pytest.mark.parametrize("given_answer, correct_answer, expected_reply", [
  ('princess di', 'Princess Diana', 'Please be more specific.'),
- ('general mills and general electric', 'General Motors & General Electric', \
- 'Please be more specific.'),
+ ('general mills and general electric', 'General Motors & General Electric', 'Please be more specific.'),
  ('the almighty king of siam', 'the king of siam', 'Please be less specific.'),
  ('corporal klinger', 'max klinger', 'Please be more specific.')
 ])
 def test_check_closeness(given_answer, correct_answer, expected_reply):
-    assert test_judge.check_closeness(given_answer, correct_answer) == \
-    expected_reply
+    assert test_judge.check_closeness(given_answer, correct_answer) == expected_reply

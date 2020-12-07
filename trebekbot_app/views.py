@@ -36,7 +36,6 @@ def judge_answer(request):
         answer_checker = Judge()
         given_answer = request.POST.get('givenAnswer')
         correct_answer = request.POST.get('correctAnswer')
-        print(request)
         answer_result = {'result': ''}
         answer_is_correct = answer_checker.fuzz_answer(given_answer, correct_answer)
         if answer_is_correct == 'close':

@@ -96,6 +96,7 @@ class Judge:
     - or vice versa (but we dont check if correct word is in given answer)
     then it's close enough
     '''
+
     @staticmethod
     def fuzz_word(given_word, correct_word):
         given_word, correct_word = given_word.lower(), correct_word.lower()
@@ -107,10 +108,10 @@ class Judge:
 
             # get lists of close words (spell check)
             check_given_word_closeness = difflib.get_close_matches \
-            (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
+                (given_word, first_letter_eng_dict, n=5, cutoff=0.8)
 
             check_correct_word_closeness = difflib.get_close_matches \
-            (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
+                (correct_word, first_letter_eng_dict, n=5, cutoff=0.8)
 
             # remove newline chars from spell check lists
             check_given_word_closeness = sub(r'\n', ' ', ' '.join(check_given_word_closeness)).split(' ')
@@ -120,24 +121,24 @@ class Judge:
             lev_dist = editdistance.eval(given_word, correct_word)
             # check to see if word is in spell check list for both words
             is_in_both_dicts = given_word in check_given_word_closeness \
-            and given_word in check_correct_word_closeness
+                               and given_word in check_correct_word_closeness
             # check for proper nouns (in other words: is the word
             # in a standard dictionary?)
             not_in_dict = not given_word in check_given_word_closeness \
-            and not given_word in check_correct_word_closeness
+                          and not given_word in check_correct_word_closeness
             # difference between the lengths of the two words
             length_diff = abs(len(given_word) - len(correct_word))
             # is the length of the guessed word close enough to the correct word?
             is_long_enough = length_diff <= \
-            max(len(given_word), len(correct_word)) * 0.3
+                             max(len(given_word), len(correct_word)) * 0.3
 
             if is_long_enough and is_in_both_dicts or lev_dist <= 1:
                 return True
             elif is_in_both_dicts and \
-            (given_word in correct_word or correct_word in given_word) \
-            and lev_dist <= 2:
+                    (given_word in correct_word or correct_word in given_word) \
+                    and lev_dist <= 2:
                 return 'close'
-            elif not_in_dict and lev_dist <=2 and len(given_word) == len(correct_word):
+            elif not_in_dict and lev_dist <= 2 and len(given_word) == len(correct_word):
                 return 'close'
             else:
                 return False
@@ -152,7 +153,6 @@ class Judge:
         :param correct_answer: correct answer to the Question
         :return: True, False, or 'close' (if answer is close enough but not correct)
         """
-
         # words/symbols that signify that either answer is correct
         or_words = [' or ', '/', ' / ']
         # if we get an empty string, don't bother
@@ -173,8 +173,8 @@ class Judge:
         except ValueError:
             # single word answers
             if len(given_answer.split(' ')) == 1 and \
-               len(correct_answer.split(' ')) == 1 and \
-               (given_answer + correct_answer).isalnum():
+                    len(correct_answer.split(' ')) == 1 and \
+                    (given_answer + correct_answer).isalnum():
                 return Judge.fuzz_word(correct_answer, given_answer)
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
@@ -213,7 +213,6 @@ class Judge:
                     elif result == True:
                         right += 1
                 # this lets us get len() by number of words in answer
-                print(correct_answer)
                 # in case correct_answer is a list
                 if type(correct_answer) == str:
                     correct_answer = correct_answer.split()

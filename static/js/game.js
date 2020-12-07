@@ -33,7 +33,7 @@ $(document).ready( function() {
                 type: "POST",
                 url: "/judge_answer/",
                 // TODO: this needs to pass correctAnswer as well
-                data: {givenAnswer: givenAnswer},
+                data: {givenAnswer: givenAnswer, correctAnswer: correctAnswer},
                 dataType: 'JSON',
                 error: function(jqXHR, textStatus, errorThrown) {
                     alert(jqXHR.status + errorThrown);

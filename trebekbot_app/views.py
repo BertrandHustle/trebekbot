@@ -1,17 +1,17 @@
 # django
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.template import RequestContext, Template
 from .models import Question
 
 # native
 from random import randint
-from json import dumps as json_dumps
 
 # project
 from src.judge import Judge
 
 
+@login_required(login_url='/accounts/login')
 def game(request):
     return render(request, 'trebekbot_app/game.html')
 

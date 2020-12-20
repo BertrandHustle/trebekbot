@@ -6,4 +6,5 @@ urlpatterns = [
     path('judge_answer/', views.judge_answer),
     path('new_question/', views.new_question),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('signup/', views.signup)
 ]

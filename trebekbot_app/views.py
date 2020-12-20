@@ -16,6 +16,10 @@ def game(request):
     return render(request, 'trebekbot_app/game.html')
 
 
+def signup(request):
+    return render(request, 'trebekbot_app/signup.html')
+
+
 def judge_answer(request):
     if request.method == 'POST':
         answer_checker = Judge()

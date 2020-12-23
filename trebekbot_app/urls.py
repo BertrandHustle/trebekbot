@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from . import views
 
 urlpatterns = [
@@ -6,5 +6,5 @@ urlpatterns = [
     path('judge_answer/', views.judge_answer),
     path('new_question/', views.new_question),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('signup/', views.signup)
+    re_path(r"^signup/", views.signup)
 ]

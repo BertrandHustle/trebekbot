@@ -120,11 +120,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
-LOGIN_REDIRECT_URL = '/'
+STATIC_URL = 'static/'
+LOGIN_REDIRECT_URL = 'game/'
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
-STATICFILES_DIRS = (os.path.join('static'), )
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'trebekbot_app', 'static', 'trebekbot_app')
+STATICFILES_DIRS = []
 
 # Activate Django-Heroku.
 if os.name != 'nt':

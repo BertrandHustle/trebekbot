@@ -11,7 +11,7 @@ from random import randint
 from src.judge import Judge
 
 
-@login_required(login_url='/accounts/login')
+#@login_required(login_url='/accounts/login')
 def game(request):
     return render(request, 'trebekbot_app/game.html')
 

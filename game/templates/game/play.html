@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+{% extends "game/base.html" %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    {% load static %}
+    <script src="{% static 'game.js' %}"></script>
+</head>
+
+{% block content %}
+    <div class="widget">
+      <h1 class="questionTimer">test</h1>
+      <li>{{ question_json|json_script:"question_json" }}</li>
+      <button id="getQuestion">Get Question</button>
+    </div>
+    <div class="question" id="questionText"></div>
+    <div class="question" id="validLinks"></div>
+    <div class="question" id="questionValue"></div>
+    <div class="question" id="questionCategory">Category: </div>
+    <div class="question" id="questionDate">Air Date: </div>
+    <div class="answer" id="questionAnswer"></div>
+    <!-- <div class="debug" id="debug">DEBUG: </div>-->
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="answer"></div>
+        <input type="text" name="answer" id="givenAnswer">
+        <button type="button" id="submitButton">Answer</button>
+    </form>
+
+    <div class="answer" id="answerResult"> Answer Result: </div>
+{% endblock %}
+
+</html>

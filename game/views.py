@@ -14,7 +14,7 @@ def index(request):
 
 
 def play(request):
-    return HttpResponse("play")
+    return render(request, "game/play.html")
 
 
 def judge_answer(request):

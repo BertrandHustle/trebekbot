@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 
 
 def login(request):
-    return render(request, "accounts/login.html")
+    return render(request, "registration/login.html")
 
 
 def create_account(request):
@@ -17,5 +17,5 @@ def create_account(request):
         user = authenticate(username=username, password=password)
         login(request, user)
         return redirect('index')
-    return render(request, 'accounts/create_account.html', {'form', new_user_form})
+    return render(request, 'registration/create_account.html', {'form', new_user_form})
 

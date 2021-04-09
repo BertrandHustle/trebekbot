@@ -1,7 +1,7 @@
-from django.shortcuts import render
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login as django_login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect
+from django.shortcuts import render
 
 
 def login(request):
@@ -15,7 +15,7 @@ def create_account(request):
         username = new_user_form.cleaned_data.get('username')
         password = new_user_form.cleaned_data.get('password')
         user = authenticate(username=username, password=password)
-        login(request, user)
+        django_login(request, user)
         return redirect('index')
     return render(request, 'game/create_account.html', {'form': new_user_form})
 

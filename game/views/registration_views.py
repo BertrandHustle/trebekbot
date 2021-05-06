@@ -5,9 +5,10 @@ from django.shortcuts import render
 
 
 def login(request):
-    return render(request, "game/login.html")
+    return render(request, "registration/login.html")
 
 
+#TODO: make users re-sign in after page is closed
 def create_account(request):
     new_user_form = UserCreationForm(request.POST)
     if new_user_form.is_valid():

@@ -15,7 +15,7 @@ $(document).ready( function() {
                 $.ajax({
                     headers: { "X-CSRFToken": Cookies.get('csrftoken') },
                     type: "GET",
-                    url: "/new_question/",
+                    url: "new_question",
                     dataType: 'JSON',
                     error: function(jqXHR, textStatus, errorThrown) {
                         alert(jqXHR.status + errorThrown);
@@ -47,7 +47,7 @@ $(document).ready( function() {
             $.ajax({
                 headers: { "X-CSRFToken": Cookies.get('csrftoken') },
                 type: "POST",
-                url: "/judge_answer/",
+                url: "judge_answer/",
                 data: {givenAnswer: givenAnswer, correctAnswer: correctAnswer},
                 dataType: 'JSON',
                 error: function(jqXHR, textStatus, errorThrown) {

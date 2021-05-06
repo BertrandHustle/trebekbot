@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-{% load static %}
 <html>
     <head>
+        {% block js_scripts %}{% endblock %}
     </head>
 
     <body>
-    {% block content %}{% endblock content %}
+        {% block content %}{% endblock %}
     </body>
 </html>

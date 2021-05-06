@@ -1,1 +1,1 @@
-{"model": "trebekbot_app.question", "pk": 0, "fields": {"text": "'This part of the United Kingdom is called \"Cymru\" in its native language'", "value": 200, "category": "WORLD GEOGRAPHY", "daily_double": false, "answer": "Wales", "date": "1988-06-28", "valid_links": ""}}
+[{"model": "game.question", "pk": 1, "fields": {"text": "'This part of the United Kingdom is called \"Cymru\" in its native language'", "value": 200, "category": "WORLD GEOGRAPHY", "daily_double": false, "answer": "Wales", "date": "1988-06-28", "valid_links": ""}}]

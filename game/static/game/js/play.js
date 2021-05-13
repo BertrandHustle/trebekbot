@@ -33,7 +33,7 @@ $(document).ready( function() {
                         correctAnswer = liveQuestion['answer'];
                         // set and start timer
                         currentTime = timeLimit;
-                        setInterval(tickTimer, 1000);
+                        timerInterval = setInterval(tickTimer, 1000);
                     }
                 })
             }
@@ -47,25 +47,33 @@ $(document).ready( function() {
             $.ajax({
                 headers: { "X-CSRFToken": Cookies.get('csrftoken') },
                 type: "POST",
-                url: "judge_answer/",
+                url: "judge_answer",
                 data: {givenAnswer: givenAnswer, correctAnswer: correctAnswer},
                 dataType: 'JSON',
                 error: function(jqXHR, textStatus, errorThrown) {
                     alert(jqXHR.status + errorThrown);
                 },
                 success:  function(data){
-                       alert(data.result);
-                       $('.answerResult').text(data.result);
+                       alert(data.text);
+                       $('.answerResult').text(data.text);
+                       // clear timer if answer is correct
+                       if (data.result === true) {
+                            clearInterval(timerInterval);
+                            $('.questionTimer').text('Correct!');
+                       }
                 }
             })
         });
 
         function tickTimer() {
             $('.questionTimer').html(currentTime).show();
-            currentTime--;
-            if (currentTime <= 0) {
-                clearInterval();
-                $('.questionTimer').text("Time Up!");
+            if (currentTime > 0) {
+                currentTime--;
+            }
+            else {
+                clearInterval(timerInterval);
+                alert('Time Up!')
+                $('.questionTimer').text('Ready');
                 // set answer to make available to tickTimer
                 correctAnswer = liveQuestion['answer'];
                 $('#answerResult').text('Answer: ' + correctAnswer);

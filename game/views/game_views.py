@@ -22,14 +22,16 @@ def judge_answer(request):
         answer_checker = Judge()
         given_answer = request.POST.get('givenAnswer')
         correct_answer = request.POST.get('correctAnswer')
-        answer_result = {'result': ''}
+        answer_result = {'result': '', 'text': ''}
         answer_is_correct = answer_checker.fuzz_answer(given_answer, correct_answer)
         if answer_is_correct == 'close':
-            answer_result['result'] = answer_checker.check_closeness(given_answer, correct_answer)
+            answer_result['text'] = answer_checker.check_closeness(given_answer, correct_answer)
         elif answer_is_correct:
-            answer_result['result'] = 'That is correct. The answer is ' + given_answer
+            answer_result['text'] = 'That is correct. The answer is ' + given_answer
+            answer_result['result'] = True
         elif not answer_is_correct:
-            answer_result['result'] = 'Sorry, that is incorrect.'
+            answer_result['text'] = 'Sorry, that is incorrect.'
+            answer_result['result'] = False
         return JsonResponse(answer_result)
 
 
@@ -46,5 +48,7 @@ def new_question(request):
         'answer': rand_question.answer,
         'date': rand_question.date
     }
+    # DEBUG
+    print(rand_question.answer)
     return JsonResponse(question_json)
 

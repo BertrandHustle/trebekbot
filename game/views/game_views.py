@@ -6,6 +6,10 @@ from game.models import Question
 from random import randint
 
 from src.judge import Judge
+from src.db import db
+
+answer_checker = Judge()
+score_updater = db()
 
 
 def index(request):
@@ -19,7 +23,7 @@ def play(request):
 
 def judge_answer(request):
     if request.method == 'POST':
-        answer_checker = Judge()
+
         given_answer = request.POST.get('givenAnswer')
         correct_answer = request.POST.get('correctAnswer')
         answer_result = {'result': '', 'text': ''}

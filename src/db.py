@@ -1,9 +1,14 @@
-import psycopg2
+# Native
+import os
+import urllib.parse as urlparse
 from contextlib import suppress
+# Third-party
+import psycopg2
+# Project
 
 '''
 Class for database setup/functions
-This will primarily serve to store users and track their scores/money totals
+This will primarily serve to store players and track their scores/money totals
 :param filename: name of database file
 :param filepath: path to persistant storage where db is to be located
 :param connection: connection object to database
@@ -12,67 +17,81 @@ This will primarily serve to store users and track their scores/money totals
 
 class db:
     """
-    db object for interacing with psql database
-    :param conn_string: psql connection string of comma-separated options
+    db object for interacting with psql database
     """
-    def __init__(self, conn_string):
-        self.conn_string = conn_string
+    def __init__(self):
+        # Use local db if we're doing development
+        try:
+            result = urlparse.urlparse(os.environ['DATABASE_URL'])
+            dbname = result.path[1:]
+            dbuser = result.dbuser
+            password = result.password
+            dbhost = result.hostname
+        except KeyError:
+            dbname = 'django'
+            dbuser = 'postgres'
+            password = 'test'
+            dbhost = '127.0.0.1'
+        self.conn_string = 'dbname=' + dbname + ' ' + \
+            'user=' + dbuser + ' ' + \
+            'password=' + password + ' ' + \
+            'host=' + dbhost + ' ' + \
+            'sslmode=require'
         self.connection = psycopg2.connect(self.conn_string)
-        self.create_table_users(self.connection)
+        self.create_table_players(self.connection)
         self.connection.commit()
 
-    def create_table_users(self, connection):
+    def create_table_players(self, connection):
         '''
         :param connection: connection to the sql database
-        :sql_param name: name of user
-        :sql_param score: current money value of user
+        :sql_param name: name of player
+        :sql_param score: current money value of player
         :sql_param wins: total all-time wins
         '''
         cursor = connection.cursor()
         cursor.execute(
-        '''
-        CREATE TABLE IF NOT EXISTS users (
-        id serial PRIMARY KEY,
-        name text NOT NULL UNIQUE,
-        score integer NOT NULL DEFAULT 0,
-        wins integer DEFAULT 0
-        );
-        '''
+            '''
+            CREATE TABLE IF NOT EXISTS players (
+            id serial PRIMARY KEY,
+            name text NOT NULL UNIQUE,
+            score integer NOT NULL DEFAULT 0,
+            wins integer DEFAULT 0
+            );
+            '''
         )
         # save changes to db
         self.connection.commit()
 
-    def drop_table_users(self, connection):
+    def drop_table_players(self, connection):
         cursor = connection.cursor()
         cursor.execute(
-        '''
-        DROP TABLE users;
-        '''
+            '''
+            DROP TABLE players;
+            '''
         )
-        return 1
         # save changes to db
         self.connection.commit()
 
-    # add user if they don't already exist in the database
-    def add_user_to_db(self, connection, user):
+    # add player if they don't already exist in the database
+    def add_player_to_db(self, connection, player):
         cursor = connection.cursor()
         cursor.execute(
-        '''
-        INSERT INTO USERS(name) VALUES(%s) ON CONFLICT(name) DO NOTHING;
-        ''',
-        (user,)
+            '''
+            INSERT INTO playerS(name) VALUES(%s) ON CONFLICT(name) DO NOTHING;
+            ''',
+            (player,)
         )
         # save changes to db
         self.connection.commit()
 
-    # tells us what the given user's score is
-    def get_score(self, connection, user):
+    # tells us what the given player's score is
+    def get_score(self, connection, player):
         cursor = connection.cursor()
         select_score = cursor.execute(
-        '''
-        SELECT SCORE FROM USERS WHERE NAME = %s
-        ''',
-        (user,)
+            '''
+            SELECT SCORE FROM playerS WHERE NAME = %s
+            ''',
+            (player,)
         )
         results = cursor.fetchall()
         # TODO: make this more elegant
@@ -83,20 +102,20 @@ class db:
     def return_top_ten(self, connection):
         cursor = connection.cursor()
         top_ten = cursor.execute(
-        '''
-        SELECT * FROM USERS ORDER BY SCORE DESC LIMIT 10
-        ''',
+            '''
+            SELECT * FROM playerS ORDER BY SCORE DESC LIMIT 10
+            ''',
         )
         top_ten = cursor.fetchall()
         return top_ten
 
-    # gets user with most wins
+    # gets player with most wins
     def return_all_time_champ(self, connection):
         cursor = connection.cursor()
         champion_search = cursor.execute(
-        '''
-        SELECT NAME, MAX(WINS) FROM USERS
-        '''
+            '''
+            SELECT NAME, MAX(WINS) FROM playerS
+            '''
         ).fetchall()
         return champion_search[0][0], champion_search[0][1]
 
@@ -104,10 +123,10 @@ class db:
     def get_champion(self, connection):
         cursor = connection.cursor()
         champion_search = cursor.execute(
-        '''
-        SELECT NAME, SCORE FROM USERS WHERE
-        SCORE = (SELECT MAX(SCORE) FROM USERS)
-        '''
+            '''
+            SELECT NAME, SCORE FROM playerS WHERE
+            SCORE = (SELECT MAX(SCORE) FROM playerS)
+            '''
         )
         champion_search = cursor.fetchall()
         with suppress(IndexError):
@@ -117,57 +136,57 @@ class db:
                 return champion_name, champion_score
 
     '''
-    updates the score of a given user
-    :param score_change: the amount by which we will change the user's score
+    updates the score of a given player
+    :param score_change: the amount by which we will change the player's score
     '''
-    def update_score(self, connection, user, score_change):
+    def update_score(self, connection, player, score_change):
         try:
             cursor = connection.cursor()
             cursor.execute(
-            '''
-            UPDATE USERS
-            SET SCORE = CASE
-                WHEN (SCORE + %s) <= -10000 THEN -10000
-                ELSE SCORE + %s
-            END
-            WHERE NAME = %s
-            ''', (int(score_change), int(score_change), user)
+                '''
+                UPDATE playerS
+                SET SCORE = CASE
+                    WHEN (SCORE + %s) <= -10000 THEN -10000
+                    ELSE SCORE + %s
+                END
+                WHERE NAME = %s
+                ''', (int(score_change), int(score_change), player)
             )
             self.connection.commit()
         except ValueError:
             pass
 
-    # adds 1 to a user's wins
-    def increment_win(self, connection, user):
+    # adds 1 to a player's wins
+    def increment_win(self, connection, player):
         cursor = connection.cursor()
         cursor.execute(
-        '''
-        UPDATE USERS
-        SET WINS = WINS + 1
-        WHERE NAME = %s
-        ''', (user,)
+            '''
+            UPDATE playerS
+            SET WINS = WINS + 1
+            WHERE NAME = %s
+            ''', (player,)
         )
         self.connection.commit()
 
-    # shows all-time wins for user
-    def get_user_wins(self, connection, user):
+    # shows all-time wins for player
+    def get_player_wins(self, connection, player):
         cursor = connection.cursor()
         wins = cursor.execute(
-        '''
-        SELECT WINS FROM USERS WHERE NAME = %s
-        ''',
-        (user,)
+            '''
+            SELECT WINS FROM playerS WHERE NAME = %s
+            ''',
+            (player,)
         )
         wins = cursor.fetchall()
         if wins:
             return wins[0][0]
 
-    # resets scores to 0 for all users, used for nightly resets
+    # resets scores to 0 for all players, used for nightly resets
     def wipe_scores(self, connection):
         cursor = connection.cursor()
         cursor.execute(
-        '''
-        UPDATE USERS SET SCORE = 0
-        '''
+            '''
+            UPDATE playerS SET SCORE = 0
+            '''
         )
         self.connection.commit()

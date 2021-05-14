@@ -1,0 +1,13 @@
+colorama==0.3.9
+decorator
+editdistance
+Flask
+gunicorn
+psycopg2
+py==1.4.34
+pytest==3.1.2
+requests
+slackclient
+sqlalchemy
+testing.postgresql
+Unidecode==0.4.20

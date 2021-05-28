@@ -18,12 +18,11 @@ def index(request):
 
 @login_required
 def play(request):
-    return render(request, "game/play.html")
+    return render(request, "game/play.html", {'user': request.user})
 
 
 def judge_answer(request):
     if request.method == 'POST':
-
         given_answer = request.POST.get('givenAnswer')
         correct_answer = request.POST.get('correctAnswer')
         answer_result = {'result': '', 'text': ''}

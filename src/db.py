@@ -35,53 +35,8 @@ class db:
         self.conn_string = 'dbname=' + dbname + ' ' + \
             'user=' + dbuser + ' ' + \
             'password=' + password + ' ' + \
-            'host=' + dbhost + ' ' + \
-            'sslmode=require'
+            'host=' + dbhost + ' '
         self.connection = psycopg2.connect(self.conn_string)
-        self.create_table_players(self.connection)
-        self.connection.commit()
-
-    def create_table_players(self, connection):
-        '''
-        :param connection: connection to the sql database
-        :sql_param name: name of player
-        :sql_param score: current money value of player
-        :sql_param wins: total all-time wins
-        '''
-        cursor = connection.cursor()
-        cursor.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS players (
-            id serial PRIMARY KEY,
-            name text NOT NULL UNIQUE,
-            score integer NOT NULL DEFAULT 0,
-            wins integer DEFAULT 0
-            );
-            '''
-        )
-        # save changes to db
-        self.connection.commit()
-
-    def drop_table_players(self, connection):
-        cursor = connection.cursor()
-        cursor.execute(
-            '''
-            DROP TABLE players;
-            '''
-        )
-        # save changes to db
-        self.connection.commit()
-
-    # add player if they don't already exist in the database
-    def add_player_to_db(self, connection, player):
-        cursor = connection.cursor()
-        cursor.execute(
-            '''
-            INSERT INTO playerS(name) VALUES(%s) ON CONFLICT(name) DO NOTHING;
-            ''',
-            (player,)
-        )
-        # save changes to db
         self.connection.commit()
 
     # tells us what the given player's score is

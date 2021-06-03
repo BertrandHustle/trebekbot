@@ -10,13 +10,10 @@ def login(request):
     return render(request, "registration/login.html")
 
 
-#TODO: implement as logout button on every page
 def logout_view(request):
     logout(request)
 
 
-#TODO: fix CSRF token error when this page is accessed by logged-in user
-#TODO: make users re-sign in after page is closed in their browser
 def create_account(request):
     new_user_form = UserCreationForm(request.POST)
     if new_user_form.is_valid():

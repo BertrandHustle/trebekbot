@@ -20,7 +20,7 @@ $(document).ready( function() {
                     error: function(jqXHR, textStatus, errorThrown) {
                         alert(jqXHR.status + errorThrown);
                     },
-                    success:  function(data){
+                    success: function(data){
                         liveQuestion = data;
                         $('#questionText').text(liveQuestion['text']);
                         if (liveQuestion['valid_links']) {
@@ -48,7 +48,11 @@ $(document).ready( function() {
                 headers: { "X-CSRFToken": Cookies.get('csrftoken') },
                 type: "POST",
                 url: "judge_answer",
-                data: {givenAnswer: givenAnswer, correctAnswer: correctAnswer},
+                data: {
+                    givenAnswer: givenAnswer,
+                    correctAnswer: correctAnswer,
+                    questionValue: liveQuestion['value']
+                },
                 dataType: 'JSON',
                 error: function(jqXHR, textStatus, errorThrown) {
                     alert(jqXHR.status + errorThrown);
@@ -60,11 +64,13 @@ $(document).ready( function() {
                        if (data.result === true) {
                             clearInterval(timerInterval);
                             $('.questionTimer').text('Correct!');
+                            currentTime = 0;
                        }
                 }
             })
         });
 
+        //TODO: fix 'question is still live' issue
         function tickTimer() {
             $('.questionTimer').html(currentTime).show();
             if (currentTime > 0) {

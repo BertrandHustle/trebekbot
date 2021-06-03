@@ -12,7 +12,7 @@
 </head>
 
 {% block content %}
-    <div>{{ user }}</div>
+    <div>{{ user }} {{ player.score }}</div>
     <div class="widget">
       <h1 class="questionTimer">test</h1>
       <li>{{ question_json|json_script:"question_json" }}</li>

@@ -18,13 +18,15 @@ def index(request):
 
 @login_required
 def play(request):
-    return render(request, "game/play.html", {'user': request.user})
+    return render(request, "game/play.html", {'user': request.user, 'player': request.user.player})
 
 
 def judge_answer(request):
     if request.method == 'POST':
+        player = request.user.player
         given_answer = request.POST.get('givenAnswer')
         correct_answer = request.POST.get('correctAnswer')
+        question_value = int(request.POST.get('questionValue'))
         answer_result = {'result': '', 'text': ''}
         answer_is_correct = answer_checker.fuzz_answer(given_answer, correct_answer)
         if answer_is_correct == 'close':
@@ -32,9 +34,11 @@ def judge_answer(request):
         elif answer_is_correct:
             answer_result['text'] = 'That is correct. The answer is ' + given_answer
             answer_result['result'] = True
+            player.score += question_value
         elif not answer_is_correct:
             answer_result['text'] = 'Sorry, that is incorrect.'
             answer_result['result'] = False
+            player.score -= question_value
         return JsonResponse(answer_result)
 
 

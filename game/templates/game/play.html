@@ -11,8 +11,14 @@
     {% endblock %}
 </head>
 
+{% load pass_score from game_filters %}
 {% block content %}
-    <div>{{ user }} {{ player.score }}</div>
+    <div>{{ user }}</div>
+    <div>
+        {% with score=player.score|pass_score %}
+            SCORE: {{ score }}
+        {% endwith %}
+    </div>
     <div class="widget">
       <h1 class="questionTimer">test</h1>
       <li>{{ question_json|json_script:"question_json" }}</li>

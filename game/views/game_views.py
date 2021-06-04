@@ -1,7 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
-from game.models import Question
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render
+
+
+from game.models import Question, Player
 
 from random import randint
 
@@ -23,7 +25,8 @@ def play(request):
 
 def judge_answer(request):
     if request.method == 'POST':
-        player = request.user.player
+        player = Player.objects.get(user=request.user)
+        print(player.score)
         given_answer = request.POST.get('givenAnswer')
         correct_answer = request.POST.get('correctAnswer')
         question_value = int(request.POST.get('questionValue'))
@@ -35,10 +38,12 @@ def judge_answer(request):
             answer_result['text'] = 'That is correct. The answer is ' + given_answer
             answer_result['result'] = True
             player.score += question_value
+            player.save()
         elif not answer_is_correct:
             answer_result['text'] = 'Sorry, that is incorrect.'
             answer_result['result'] = False
             player.score -= question_value
+            player.save()
         return JsonResponse(answer_result)
 
 

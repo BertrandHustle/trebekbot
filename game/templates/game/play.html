@@ -11,14 +11,9 @@
     {% endblock %}
 </head>
 
-{% load pass_score from game_filters %}
 {% block content %}
     <div>{{ user }}</div>
-    <div>
-        {% with score=player.score|pass_score %}
-            SCORE: {{ score }}
-        {% endwith %}
-    </div>
+    <div class="player" id="playerScore"> Score: {{ player_score }} </div>
     <div class="widget">
       <h1 class="questionTimer">test</h1>
       <li>{{ question_json|json_script:"question_json" }}</li>
@@ -30,7 +25,6 @@
     <div class="question" id="questionCategory">Category: </div>
     <div class="question" id="questionDate">Air Date: </div>
     <div class="answer" id="questionAnswer"></div>
-    <!-- <div class="debug" id="debug">DEBUG: </div>-->
 
     <form method="post">
         {% csrf_token %}

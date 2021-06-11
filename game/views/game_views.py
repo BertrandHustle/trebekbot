@@ -20,17 +20,16 @@ def index(request):
 
 @login_required
 def play(request):
-    return render(request, "game/play.html", {'user': request.user, 'player': request.user.player})
+    return render(request, "game/play.html", {'user': request.user, 'player_score': request.user.player.score})
 
 
 def judge_answer(request):
     if request.method == 'POST':
         player = Player.objects.get(user=request.user)
-        print(player.score)
         given_answer = request.POST.get('givenAnswer')
         correct_answer = request.POST.get('correctAnswer')
         question_value = int(request.POST.get('questionValue'))
-        answer_result = {'result': '', 'text': ''}
+        answer_result = {'result': '', 'text': '', 'player_score': 0}
         answer_is_correct = answer_checker.fuzz_answer(given_answer, correct_answer)
         if answer_is_correct == 'close':
             answer_result['text'] = answer_checker.check_closeness(given_answer, correct_answer)
@@ -44,6 +43,7 @@ def judge_answer(request):
             answer_result['result'] = False
             player.score -= question_value
             player.save()
+        answer_result['player_score'] = player.score
         return JsonResponse(answer_result)
 
 

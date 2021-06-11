@@ -59,7 +59,8 @@ $(document).ready( function() {
                 },
                 success:  function(data){
                        alert(data.text);
-                       $('.answerResult').text(data.text);
+                       $('#answerResult').text(data.text);
+                       $('#playerScore').text('Score: ' + data.player_score);
                        // clear timer if answer is correct
                        if (data.result === true) {
                             clearInterval(timerInterval);

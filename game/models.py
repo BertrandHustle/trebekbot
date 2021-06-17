@@ -1,7 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 # Create your models here.
+
+# Validators
+
+
+# def room_is_full(players):
+#     if Room.player. > 3:
+#         raise ValidationError('Room limit reached!')
 
 
 class Player(models.Model):
@@ -25,3 +33,7 @@ class Question(models.Model):
 
     def __str__(self):
         return f'{self.category} | {self.value} | {self.date} | {self.text}'
+
+#
+# class Room(models.Model):
+#     players = models.ForeignKey(Player, validators=[room_is_full()])

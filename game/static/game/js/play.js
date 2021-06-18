@@ -7,6 +7,18 @@ var liveQuestion;
 var correctAnswer;
 
 $(document).ready( function() {
+
+        const gameSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/game/play'
+            + '/'
+        );
+
+        gameSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+        }
+
         var correctAnswer;
         $("#getQuestion").click(function () {
             if (currentTime <= 0) {
@@ -44,32 +56,23 @@ $(document).ready( function() {
 
         $("#submitButton").click(function () {
             const givenAnswer = $('form').serializeArray()[1].value;
-            $.ajax({
-                headers: { "X-CSRFToken": Cookies.get('csrftoken') },
-                type: "POST",
-                url: "judge_answer",
-                data: {
-                    givenAnswer: givenAnswer,
-                    correctAnswer: correctAnswer,
-                    questionValue: liveQuestion['value']
-                },
-                dataType: 'JSON',
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert(jqXHR.status + errorThrown);
-                },
-                success:  function(data){
-                       alert(data.text);
-                       $('#answerResult').text(data.text);
-                       $('#playerScore').text('Score: ' + data.player_score);
-                       // clear timer if answer is correct
-                       if (data.result === true) {
-                            clearInterval(timerInterval);
-                            $('.questionTimer').text('Correct!');
-                            currentTime = 0;
-                       }
-                }
-            })
+            gameSocket.send(JSON.stringify({
+                'givenAnswer': givenAnswer,
+                'correctAnswer': correctAnswer,
+                'questionValue': liveQuestion['value']
+            }));
+            alert(data.result);
         });
+
+//                       alert(data.text);
+//                       $('#answerResult').text(data.text);
+//                       $('#playerScore').text('Score: ' + data.player_score);
+//                       // clear timer if answer is correct
+//                       if (data.result === true) {
+//                            clearInterval(timerInterval);
+//                            $('.questionTimer').text('Correct!');
+//                            currentTime = 0;
+
 
         //TODO: fix 'question is still live' issue
         function tickTimer() {

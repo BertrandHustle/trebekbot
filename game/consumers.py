@@ -7,8 +7,7 @@ from src.judge import Judge
 
 
 class AnswerConsumer(WebsocketConsumer):
-    def __init__(self, judge: Judge):
-        self.judge = judge
+    judge = Judge()
 
     def connect(self):
         self.accept()
@@ -21,7 +20,6 @@ class AnswerConsumer(WebsocketConsumer):
         given_answer = text_data_json['givenAnswer']
         correct_answer = text_data_json['correctAnswer']
         result = self.judge.fuzz_answer(given_answer, correct_answer)
-
         self.send(text_data=json.dumps({
-            'answer': answer
+            'result': result
         }))

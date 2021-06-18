@@ -14,7 +14,7 @@ class Judge:
     eng_dict = open(WORDS).read().splitlines()
 
     @staticmethod
-    def check_closeness(user_answer, correct_answer):
+    def _check_closeness(user_answer, correct_answer):
         """
         check if user needs to be more specific or less specific in their answer
         :string user_answer: answer given by user
@@ -36,7 +36,7 @@ class Judge:
 
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod
-    def strip_answer(answer):
+    def _strip_answer(answer):
         # ok, not technically ALL articles
         articles = ['and', 'the', 'an', 'a', 'of']
         '''
@@ -74,7 +74,7 @@ class Judge:
     # makes list of word-pairs out of given/correct answer arrays (arrays of words)
     # these arrays will always be filtered through strip_answer() first
     @staticmethod
-    def pair_off_answers(answer1, answer2):
+    def _pair_off_answers(answer1, answer2):
         matrix = []
         for word in answer1:
             for comp_word in answer2:
@@ -97,7 +97,7 @@ class Judge:
     then it's close enough
     '''
     @staticmethod
-    def fuzz_word(given_word, correct_word):
+    def _fuzz_word(given_word, correct_word):
         given_word, correct_word = given_word.lower(), correct_word.lower()
         if given_word == correct_word:
             return True
@@ -175,7 +175,7 @@ class Judge:
             if len(given_answer.split(' ')) == 1 and \
                len(correct_answer.split(' ')) == 1 and \
                (given_answer + correct_answer).isalnum():
-                return Judge.fuzz_word(correct_answer, given_answer)
+                return Judge._fuzz_word(correct_answer, given_answer)
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
             right, close = 0, 0
@@ -198,16 +198,16 @@ class Judge:
             else:
                 possible_answers.append(correct_answer)
             # remove casing, punctuation, and articles
-            given_answer = Judge.strip_answer(given_answer)
-            possible_answers = [Judge.strip_answer(answer) for answer in possible_answers]
+            given_answer = Judge._strip_answer(given_answer)
+            possible_answers = [Judge._strip_answer(answer) for answer in possible_answers]
             for answer in possible_answers:
-                pair_list = Judge.pair_off_answers(given_answer, answer)
+                pair_list = Judge._pair_off_answers(given_answer, answer)
                 if given_answer == answer:
                     return True
                 # compare pairs and adjust totals accordingly
                 for pair in pair_list:
                     # check equality first for performance boost
-                    result = pair[0] == pair[1] or Judge.fuzz_word(pair[0], pair[1])
+                    result = pair[0] == pair[1] or Judge._fuzz_word(pair[0], pair[1])
                     if result == 'close':
                         close += 1
                     elif result == True:

@@ -17,6 +17,14 @@ $(document).ready( function() {
 
         gameSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
+            alert(data.result);
+            $('#answerResult').text(data.text);
+            $('#playerScore').text('Score: ' + data.player_score);
+            // clear timer if answer is correct
+            if (data.result === true) {
+                clearInterval(timerInterval);
+                $('.questionTimer').text('Correct!');
+                currentTime = 0;
         }
 
         var correctAnswer;
@@ -61,20 +69,8 @@ $(document).ready( function() {
                 'correctAnswer': correctAnswer,
                 'questionValue': liveQuestion['value']
             }));
-            alert(data.result);
         });
 
-//                       alert(data.text);
-//                       $('#answerResult').text(data.text);
-//                       $('#playerScore').text('Score: ' + data.player_score);
-//                       // clear timer if answer is correct
-//                       if (data.result === true) {
-//                            clearInterval(timerInterval);
-//                            $('.questionTimer').text('Correct!');
-//                            currentTime = 0;
-
-
-        //TODO: fix 'question is still live' issue
         function tickTimer() {
             $('.questionTimer').html(currentTime).show();
             if (currentTime > 0) {

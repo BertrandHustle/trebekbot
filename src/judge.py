@@ -14,7 +14,7 @@ class Judge:
     eng_dict = open(WORDS).read().splitlines()
 
     @staticmethod
-    def _check_closeness(user_answer, correct_answer):
+    def check_closeness(user_answer, correct_answer):
         """
         check if user needs to be more specific or less specific in their answer
         :string user_answer: answer given by user

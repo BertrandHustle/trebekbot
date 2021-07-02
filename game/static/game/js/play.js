@@ -25,6 +25,7 @@ $(document).ready( function() {
                 clearInterval(timerInterval);
                 $('.questionTimer').text('Correct!');
                 currentTime = 0;
+            }
         }
 
         var correctAnswer;

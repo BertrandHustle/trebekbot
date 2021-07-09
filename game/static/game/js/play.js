@@ -17,17 +17,18 @@ $(document).ready( function() {
 
         gameSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            alert(data.result);
-            $('#answerResult').text(data.text);
+            alert(data.response);
+            $('#answerResult').text(data.response);
             $('#playerScore').text('Score: ' + data.player_score);
             // clear timer if answer is correct
-            if (data.result === true) {
+            if (data.correct === true) {
                 clearInterval(timerInterval);
                 $('.questionTimer').text('Correct!');
                 currentTime = 0;
             }
         }
 
+        //TODO: convert this to a websocket
         var correctAnswer;
         $("#getQuestion").click(function () {
             if (currentTime <= 0) {

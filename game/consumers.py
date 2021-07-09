@@ -48,10 +48,11 @@ class AnswerConsumer(WebsocketConsumer):
         )
 
     def answer_result(self, event):
-        result = event['result']
         # Send message to WebSocket
         self.send(text_data=json.dumps({
-             'result': result
+             'response': event['response'],
+             'correct': event['correct'],
+             'player_score': event['player_score']
         }))
 
     def eval_answer(self, given_answer, correct_answer, question_value):

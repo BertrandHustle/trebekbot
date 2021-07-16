@@ -133,6 +133,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 LOGIN_URL = '/registration/login'
 LOGIN_REDIRECT_URL = '/game/'
+LOGOUT_REDIRECT_URL = '/game/'
 
 # Channels
 ASGI_APPLICATION = 'trebekbot.asgi.application'

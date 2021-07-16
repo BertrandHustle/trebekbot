@@ -1,16 +1,24 @@
-from django.contrib.auth import login as django_login, logout, authenticate
+# Django
+from django.contrib.auth import login as django_login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.shortcuts import render
 from game.models import Player
 
+# Project
+from src.redis_interface import RedisInterface
+
+redis_handler = RedisInterface()
+
 
 def login(request):
+    redis_handler.add_player(request.user.username)
     return render(request, "registration/login.html")
 
 
 def logout_view(request):
+    redis_handler.remove_player(request.user.username)
     logout(request)
 
 

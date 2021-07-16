@@ -8,10 +8,8 @@ from game.models import Question, Player
 from random import randint
 
 from src.judge import Judge
-from src.db import db
 
 answer_checker = Judge()
-score_updater = db()
 
 
 def index(request):

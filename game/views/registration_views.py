@@ -13,12 +13,10 @@ redis_handler = RedisInterface()
 
 
 def login(request):
-    redis_handler.add_player(request.user.username)
     return render(request, "registration/login.html")
 
 
 def logout_view(request):
-    redis_handler.remove_player(request.user.username)
     logout(request)
 
 

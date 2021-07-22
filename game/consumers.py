@@ -6,13 +6,16 @@ from channels.generic.websocket import WebsocketConsumer
 # Project
 from game.models import Player
 from src.judge import Judge
+from src.redis_interface import RedisInterface
 
 
 class AnswerConsumer(WebsocketConsumer):
     judge = Judge()
+    redis_helper = RedisInterface()
 
     def connect(self):
         self.room_group_name = 'test_room'
+        self.redis_helper.add_player(self.scope['user'].username)
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(

@@ -7,7 +7,7 @@ class RedisInterface:
         self.redis_connection = Redis(host=hostname, port=port, db=db)
 
     def add_player(self, player: str):
-        self.redis_connection.lpush('active_players', player)
+        self.redis_connection.sadd('active_players', player)
 
     def remove_player(self, player: str):
-        self.redis_connection.lrem('active_players', player)
+        self.redis_connection.srem('active_players', player)

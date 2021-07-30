@@ -11,3 +11,7 @@ class RedisInterface:
 
     def remove_player(self, player: str):
         self.redis_connection.srem('active_players', player)
+
+    def get_all_players(self) -> list:
+        return [b.decode() for b in self.redis_connection.smembers('active_players')]
+    

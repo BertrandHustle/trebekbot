@@ -73,6 +73,17 @@ $(document).ready( function() {
             }));
         });
 
+        $('.givenAnswer').bind("enterKey", function(e){
+            return;
+        });
+
+        $('.givenAnswer').keyup(function(e) {
+            if (e.which == 13) {
+                $("#submitButton").click();
+            }
+        });
+
+
         function tickTimer() {
             $('.questionTimer').html(currentTime).show();
             if (currentTime > 0) {

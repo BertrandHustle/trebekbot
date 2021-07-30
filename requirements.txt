@@ -4,6 +4,7 @@ colorama==0.3.9
 decorator
 django
 editdistance
+fakeredis
 gunicorn
 py==1.4.34
 pytest==3.1.2

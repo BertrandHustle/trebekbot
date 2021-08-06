@@ -17,14 +17,28 @@ $(document).ready( function() {
 
         gameSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            alert(data.response);
-            $('#answerResult').text(data.response);
-            $('#playerScore').text('Score: ' + data.player_score);
-            // clear timer if answer is correct
-            if (data.correct === true) {
-                clearInterval(timerInterval);
-                $('.questionTimer').text('Correct!');
-                currentTime = 0;
+            if (data.type === 'answer_result') {
+                alert(data.response);
+                $('#answerResult').text(data.response);
+                $('#playerScore').text('Score: ' + data.player_score);
+                // clear timer if answer is correct
+                if (data.correct === true) {
+                    clearInterval(timerInterval);
+                    $('.questionTimer').text('Correct!');
+                    currentTime = 0;
+                }
+            }
+            else if (data.type === 'player_login') {
+                newPlayer = data['player'];
+                $.ajax({
+                    headers: { "X-CSRFToken": Cookies.get('csrftoken') },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert(jqXHR.status + errorThrown);
+                    },
+                    success: function(data){
+                        $('#players').append(newPlayer['text']);
+                    }
+                })
             }
         }
 

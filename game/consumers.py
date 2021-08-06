@@ -24,6 +24,15 @@ class AnswerConsumer(WebsocketConsumer):
         )
 
         self.accept()
+        # Update page with new list of players
+        self.send(
+            json.dumps(
+                {
+                    'type': 'player_login',
+                    'player': self.scope['user'].username
+                }
+            )
+        )
 
     def disconnect(self, close_code):
         # Leave room group

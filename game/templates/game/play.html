@@ -11,10 +11,20 @@
     {% endblock %}
 </head>
 
-<body></body>
+<body>
+    ACTIVE PLAYERS:
+    <div class="players">
+        {% for player in players %}
+            <tr>
+                {player.username}
+            </tr>
+        {% endfor %}
+    </div>
+</body>
+
 
 {% block content %}
-    <div>{{ user }}</div>
+<!--    <div>{{ user }}</div>-->
     <div class="player" id="playerScore"> Score: {{ player_score }} </div>
     <div class="widget">
       <h1 class="questionTimer">test</h1>

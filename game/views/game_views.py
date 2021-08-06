@@ -8,8 +8,10 @@ from game.models import Question, Player
 from random import randint
 
 from src.judge import Judge
+from src.redis_interface import RedisInterface
 
 answer_checker = Judge()
+redis_handler = RedisInterface()
 
 
 def index(request):
@@ -18,7 +20,10 @@ def index(request):
 
 @login_required
 def play(request):
-    return render(request, "game/play.html", {'user': request.user, 'player_score': request.user.player.score})
+    return render(request, "game/play.html", {
+        'user': request.user.username,
+        'player_score': request.user.player.score
+    })
 
 
 def judge_answer(request):

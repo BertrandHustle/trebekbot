@@ -8,6 +8,8 @@ urlpatterns = [
     path('new_question', game_views.new_question, name='new_question'),
     path('judge_answer', game_views.judge_answer, name='judge_answer'),
     # registration
+    path('login', registration_views.login_view, name='login'),
+    path('logout', registration_views.logout_view, name='logout'),
     path('create_account', registration_views.create_account, name='create_account'),
 ]
 

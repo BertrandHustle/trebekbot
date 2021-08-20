@@ -21,7 +21,7 @@ def index(request):
 @login_required
 def play(request):
     return render(request, "game/play.html", {
-        'user': request.user.username,
+        'player_name': request.user.username,
         'player_score': request.user.player.score
     })
 

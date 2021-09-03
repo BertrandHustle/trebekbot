@@ -16,7 +16,8 @@
     <div class="players">
         {% for player in players %}
             <tr>
-                {player.username}
+                {{player.name}}
+                {{player.score}}
             </tr>
         {% endfor %}
     </div>

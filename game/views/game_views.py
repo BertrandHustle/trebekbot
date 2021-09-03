@@ -20,7 +20,9 @@ def index(request):
 
 @login_required
 def play(request):
+    players = Player.objects.filter(name__in=redis_handler.get_all_players())
     return render(request, "game/play.html", {
+        'players': players,
         'player_name': request.user.username,
         'player_score': request.user.player.score
     })

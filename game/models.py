@@ -2,16 +2,19 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
-# Create your models here.
+ROOM_LIMIT = 3
 
 # Validators
 
 
 # def room_is_full(players):
-#     if Room.player. > 3:
+#     if len(players) > ROOM_LIMIT:
 #         raise ValidationError('Room limit reached!')
 
+# Models
 
+
+#TODO: add a "in-game" status attr to this
 class Player(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=True)
@@ -34,6 +37,6 @@ class Question(models.Model):
     def __str__(self):
         return f'{self.category} | {self.value} | {self.date} | {self.text}'
 
-#
+
 # class Room(models.Model):
 #     players = models.ForeignKey(Player, validators=[room_is_full()])

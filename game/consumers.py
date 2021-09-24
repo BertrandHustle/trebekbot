@@ -1,12 +1,34 @@
 # Native
+import asyncio
 import json
 # Third Party
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 # Project
 from game.models import Player
 from src.judge import Judge
 from src.redis_interface import RedisInterface
+
+
+class TimerConsumer(AsyncWebsocketConsumer):
+
+    async def websocket_connect(self, message):
+        await self.accept({'type': 'websocket.accept'})
+
+    async def websocket_receive(self, message):
+        time_limit = 60
+        await asyncio.sleep(time_limit)
+        print('received!')
+        await self.send({
+            'type': 'websocket.send',
+            'text': 'Timer Up!'
+        })
+
+    async def websocket_disconnect(self, message):
+        await self.send({
+            'type': 'websocket.send',
+            'text': 'Timer Cut Short!'
+        })
 
 
 class AnswerConsumer(WebsocketConsumer):
@@ -42,22 +64,30 @@ class AnswerConsumer(WebsocketConsumer):
         )
 
     def receive(self, text_data):
-        text_data_json = json.loads(text_data)
-        given_answer = text_data_json['givenAnswer']
-        correct_answer = text_data_json['correctAnswer']
-        question_value = text_data_json['questionValue']
-        response, correct, player_score = self.eval_answer(given_answer, correct_answer, question_value)
+        if text_data.get('buzzer'):
+            # Get player so we know who buzzed in
+            self.send(text_data=json.dumps({
+                'player': Player.objects.get(user=self.scope['user']),
+                'type': 'buzzer'
+                }
+            ))
+        else:
+            text_data_json = json.loads(text_data)
+            given_answer = text_data_json['givenAnswer']
+            correct_answer = text_data_json['correctAnswer']
+            question_value = text_data_json['questionValue']
+            response, correct, player_score = self.eval_answer(given_answer, correct_answer, question_value)
 
-        # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(
-            self.room_group_name,
-            {
-                'type': 'answer_result',
-                'response': response,
-                'correct': correct,
-                'player_score': player_score
-            }
-        )
+            # Send message to room group
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type': 'answer_result',
+                    'response': response,
+                    'correct': correct,
+                    'player_score': player_score
+                }
+            )
 
     def answer_result(self, event):
         # Send message to WebSocket

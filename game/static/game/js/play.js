@@ -5,6 +5,8 @@ var dailyDoubleAsker;
 var categorizedQuestions;
 var liveQuestion;
 var correctAnswer;
+var buzzerLocked = false;
+var buzzedInPlayer;
 
 $(document).ready( function() {
 
@@ -15,6 +17,13 @@ $(document).ready( function() {
             + '/'
         );
 
+        const timerSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/game/timer'
+            + '/'
+        )
+
         gameSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             if (data.type === 'answer_result') {
@@ -23,10 +32,14 @@ $(document).ready( function() {
                 $('#playerScore').text('Score: ' + data.player_score);
                 // clear timer if answer is correct
                 if (data.correct === true) {
+                    timerSocket.close();
                     clearInterval(timerInterval);
                     $('.questionTimer').text('Correct!');
                     currentTime = 0;
                 }
+            }
+            else if (data.type === 'buzzer') {
+                buzzedInPlayer = data.player
             }
             else if (data.type === 'player_login') {
                 newPlayer = data['player'];
@@ -40,6 +53,11 @@ $(document).ready( function() {
                     }
                 })
             }
+        }
+
+        timerSocket.onmessage = function(e) {
+            currentTime = 0;
+            alert(e.data);
         }
 
         //TODO: convert this to a websocket
@@ -69,6 +87,7 @@ $(document).ready( function() {
                         correctAnswer = liveQuestion['answer'];
                         // set and start timer
                         currentTime = timeLimit;
+                        timerSocket.send();
                         timerInterval = setInterval(tickTimer, 1000);
                     }
                 })
@@ -76,6 +95,13 @@ $(document).ready( function() {
             else {
                 alert('Question is still live!')
             }
+        });
+
+        $("#buzzer").click(function () {
+            buzzerLocked = true;
+            gameSocket.send(JSON.stringify({
+                'buzzer': ''
+            }));
         });
 
         $("#submitButton").click(function () {

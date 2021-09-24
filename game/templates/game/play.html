@@ -40,6 +40,10 @@
     <div class="answer" id="questionAnswer"></div>
 
     <form method="post">
+        <button type="button" id="buzzer">Buzz In!</button>
+    </form>
+
+    <form method="post">
         {% csrf_token %}
         <div class="answer"></div>
         <input type="input" name="answer" id="givenAnswer">

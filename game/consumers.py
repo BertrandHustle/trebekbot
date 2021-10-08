@@ -20,10 +20,8 @@ class TimerConsumer(AsyncWebsocketConsumer):
         time_limit = 60
         await asyncio.sleep(time_limit)
         await self.send(text_data='Timer Up!')
-        await self.close()
 
     async def disconnect(self, message):
-        #await super(TimerConsumer, self).websocket_disconnect(message)
         await self.send(text_data='Timer Cut Short!')
 
 

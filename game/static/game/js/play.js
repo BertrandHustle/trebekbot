@@ -32,7 +32,7 @@ $(document).ready( function() {
                 $('#playerScore').text('Score: ' + data.player_score);
                 // clear timer if answer is correct
                 if (data.correct === true) {
-                    timerSocket.close();
+                    timerSocket.send('kill timer');
                     clearInterval(timerInterval);
                     $('.questionTimer').text('Correct!');
                     currentTime = 0;
@@ -87,7 +87,7 @@ $(document).ready( function() {
                         correctAnswer = liveQuestion['answer'];
                         // set and start timer
                         currentTime = timeLimit;
-                        timerSocket.send('test');
+                        timerSocket.send('start timer');
                         timerInterval = setInterval(tickTimer, 1000);
                     }
                 })

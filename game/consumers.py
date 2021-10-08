@@ -12,17 +12,21 @@ from src.redis_interface import RedisInterface
 
 class TimerConsumer(AsyncWebsocketConsumer):
 
+    #TODO: have this report timer ticks back to client
+    async def _create_timer(self, time_limit):
+        await asyncio.sleep(time_limit)
+        await self.send(text_data='Timer Up!')
+
     async def connect(self):
         await self.accept()
 
     async def receive(self, text_data=None, bytes_data=None):
-        print('received!')
+        print(text_data)
         time_limit = 60
-        await asyncio.sleep(time_limit)
-        await self.send(text_data='Timer Up!')
+        timer_task = asyncio.create_task(self._create_timer(time_limit))
+        if text_data == 'kill timer':
+            timer_task.cancel()
 
-    async def disconnect(self, message):
-        await self.send(text_data='Timer Cut Short!')
 
 
 class AnswerConsumer(WebsocketConsumer):

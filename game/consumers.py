@@ -12,23 +12,19 @@ from src.redis_interface import RedisInterface
 
 class TimerConsumer(AsyncWebsocketConsumer):
 
-    async def websocket_connect(self, message):
-        await self.accept({'type': 'websocket.accept'})
+    async def connect(self):
+        await self.accept()
 
-    async def websocket_receive(self, message):
+    async def receive(self, text_data=None, bytes_data=None):
+        print('received!')
         time_limit = 60
         await asyncio.sleep(time_limit)
-        print('received!')
-        await self.send({
-            'type': 'websocket.send',
-            'text': 'Timer Up!'
-        })
+        await self.send(text_data='Timer Up!')
+        await self.close()
 
-    async def websocket_disconnect(self, message):
-        await self.send({
-            'type': 'websocket.send',
-            'text': 'Timer Cut Short!'
-        })
+    async def disconnect(self, message):
+        #await super(TimerConsumer, self).websocket_disconnect(message)
+        await self.send(text_data='Timer Cut Short!')
 
 
 class AnswerConsumer(WebsocketConsumer):

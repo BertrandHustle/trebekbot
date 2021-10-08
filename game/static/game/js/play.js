@@ -87,7 +87,7 @@ $(document).ready( function() {
                         correctAnswer = liveQuestion['answer'];
                         // set and start timer
                         currentTime = timeLimit;
-                        timerSocket.send();
+                        timerSocket.send('test');
                         timerInterval = setInterval(tickTimer, 1000);
                     }
                 })
@@ -112,17 +112,6 @@ $(document).ready( function() {
                 'questionValue': liveQuestion['value']
             }));
         });
-
-        $('.givenAnswer').bind("enterKey", function(e){
-            return;
-        });
-
-        $('.givenAnswer').keyup(function(e) {
-            if (e.which == 13) {
-                $("#submitButton").click();
-            }
-        });
-
 
         function tickTimer() {
             $('.questionTimer').html(currentTime).show();

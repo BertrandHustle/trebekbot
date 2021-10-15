@@ -73,8 +73,7 @@ $(document).ready( function() {
                 $('#answer').text('')
                 questionSocket.send('get_question')
                 questionSocket.onmessage = function(e) {
-                    var correctAnswer;
-                    var liveQuestion = JSON.parse(e.data);
+                    liveQuestion = JSON.parse(e.data);
                     $('#questionText').text(liveQuestion['text']);
                     if (liveQuestion['valid_links']) {
                         $('#validLinks').text(liveQuestion['valid_links']);
@@ -94,42 +93,6 @@ $(document).ready( function() {
                 alert('Question is still live!')
             }
         });
-
-//        var correctAnswer;
-//        $("#getQuestion").click(function () {
-//            if (currentTime <= 0) {
-//                // remove answer from previous question
-//                $('#answer').text('')
-//                $.ajax({
-//                    headers: { "X-CSRFToken": Cookies.get('csrftoken') },
-//                    type: "GET",
-//                    url: "new_question",
-//                    dataType: 'JSON',
-//                    error: function(jqXHR, textStatus, errorThrown) {
-//                        alert(jqXHR.status + errorThrown);
-//                    },
-//                    success: function(data){
-//                        liveQuestion = data;
-//                        $('#questionText').text(liveQuestion['text']);
-//                        if (liveQuestion['valid_links']) {
-//                            $('#validLinks').text(liveQuestion['valid_links']);
-//                        }
-//                        $('#questionValue').text(liveQuestion['value']);
-//                        $('#questionCategory').text(liveQuestion['category']);
-//                        $('#questionDate').text(liveQuestion['date']);
-//                        // set answer to make available to tickTimer
-//                        correctAnswer = liveQuestion['answer'];
-//                        // set and start timer
-//                        currentTime = timeLimit;
-//                        timerSocket.send('start timer');
-//                        timerInterval = setInterval(tickTimer, 1000);
-//                    }
-//                })
-//            }
-//            else {
-//                alert('Question is still live!')
-//            }
-//        });
 
         $("#buzzer").click(function () {
             buzzerLocked = true;

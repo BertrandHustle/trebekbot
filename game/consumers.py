@@ -1,11 +1,12 @@
 # Native
 import asyncio
 import json
+from random import randint
 # Third Party
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
 # Project
-from game.models import Player
+from game.models import Player, Question
 from src.judge import Judge
 from src.redis_interface import RedisInterface
 
@@ -27,6 +28,28 @@ class TimerConsumer(AsyncWebsocketConsumer):
         if text_data == 'kill timer':
             timer_task.cancel()
 
+
+class QuestionConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+
+    def receive(self, text_data=None, bytes_data=None):
+        if text_data == 'get_question':
+            # get random question
+            question_count = Question.objects.count()
+            rand_question = Question.objects.get(pk=randint(0, question_count))
+            question_json = {
+                'text': rand_question.text,
+                'valid_links': rand_question.valid_links,
+                'value': rand_question.value,
+                'category': rand_question.category,
+                'daily_double': rand_question.daily_double,
+                'answer': rand_question.answer,
+                'date': rand_question.date
+            }
+            # DEBUG
+            print(rand_question.answer)
+            self.send(json.dumps(question_json))
 
 
 class AnswerConsumer(WebsocketConsumer):
@@ -61,7 +84,7 @@ class AnswerConsumer(WebsocketConsumer):
             self.channel_name
         )
 
-    def receive(self, text_data):
+    def receive(self, text_data=None, bytes_data=None):
         if text_data.get('buzzer'):
             # Get player so we know who buzzed in
             self.send(text_data=json.dumps({

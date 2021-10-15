@@ -39,7 +39,7 @@ $(document).ready( function() {
                 $('#playerScore').text('Score: ' + data.player_score);
                 // clear timer if answer is correct
                 if (data.correct === true) {
-                    timerSocket.send('kill timer');
+                    timerSocket.send('kill_timer');
                     clearInterval(timerInterval);
                     $('.questionTimer').text('Correct!');
                     currentTime = 0;
@@ -48,6 +48,7 @@ $(document).ready( function() {
             else if (data.type === 'buzzer') {
                 buzzedInPlayer = data.player
             }
+            // TODO: Make new websocket for this
             else if (data.type === 'player_login') {
                 newPlayer = data['player'];
                 $.ajax({
@@ -63,8 +64,29 @@ $(document).ready( function() {
         }
 
         timerSocket.onmessage = function(e) {
-            currentTime = 0;
-            alert(e.data);
+            if (e.data === 'Timer Started!'){
+                currentTime = timeLimit;
+                timerInterval = setInterval(tickTimer, 1000);
+            }
+            else if (e.data === 'Timer Up!'){
+                currentTime = 0;
+            }
+        }
+
+        function tickTimer() {
+            $('.questionTimer').html(currentTime).show();
+            if (currentTime > 0) {
+                currentTime--;
+            }
+            else {
+                clearInterval(timerInterval);
+                alert('Time Up!')
+                $('.questionTimer').text('Ready');
+                // set answer to make available to tickTimer
+                correctAnswer = liveQuestion['answer'];
+                $('#answerResult').text('Answer: ' + correctAnswer);
+                $('.question').text('')
+            }
         }
 
         $("#getQuestion").click(function () {
@@ -85,8 +107,7 @@ $(document).ready( function() {
                     correctAnswer = liveQuestion['answer'];
                     // set and start timer
                     currentTime = timeLimit;
-                    timerSocket.send('start timer');
-                    timerInterval = setInterval(tickTimer, 1000);
+                    timerSocket.send('start_timer');
                 }
             }
             else {
@@ -94,35 +115,19 @@ $(document).ready( function() {
             }
         });
 
-        $("#buzzer").click(function () {
-            buzzerLocked = true;
-            gameSocket.send(JSON.stringify({
-                'buzzer': ''
-            }));
-        });
+//        $("#buzzer").click(function () {
+//            buzzerLocked = true;
+//            gameSocket.send(JSON.stringify({
+//                'buzzer': ''
+//            }));
+//        });
 
         $("#submitButton").click(function () {
             const givenAnswer = $('form').serializeArray()[1].value;
-            gameSocket.send(JSON.stringify({
+            answerSocket.send(JSON.stringify({
                 'givenAnswer': givenAnswer,
                 'correctAnswer': correctAnswer,
                 'questionValue': liveQuestion['value']
             }));
         });
-
-        function tickTimer() {
-            $('.questionTimer').html(currentTime).show();
-            if (currentTime > 0) {
-                currentTime--;
-            }
-            else {
-                clearInterval(timerInterval);
-                alert('Time Up!')
-                $('.questionTimer').text('Ready');
-                // set answer to make available to tickTimer
-                correctAnswer = liveQuestion['answer'];
-                $('#answerResult').text('Answer: ' + correctAnswer);
-                $('.question').text('')
-            }
-        }
 });

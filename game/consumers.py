@@ -1,10 +1,11 @@
 # Native
 import asyncio
 import json
+from contextlib import suppress
 from random import randint
 # Third Party
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import AsyncWebsocketConsumer, WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
 # Project
 from game.models import Player, Question
 from src.judge import Judge
@@ -22,11 +23,15 @@ class TimerConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def receive(self, text_data=None, bytes_data=None):
-        print(text_data)
-        time_limit = 60
-        timer_task = asyncio.create_task(self._create_timer(time_limit))
-        if text_data == 'kill timer':
-            timer_task.cancel()
+        timer_task = None
+        if text_data == 'start_timer':
+            time_limit = 60
+            timer_task = asyncio.create_task(self._create_timer(time_limit))
+            await self.send(text_data='Timer Started!')
+        if text_data == 'kill_timer':
+            # ignore errors where task isn't created yet
+            with suppress(AttributeError):
+                timer_task.cancel()
 
 
 class QuestionConsumer(WebsocketConsumer):
@@ -52,71 +57,25 @@ class QuestionConsumer(WebsocketConsumer):
             self.send(json.dumps(question_json))
 
 
-class AnswerConsumer(WebsocketConsumer):
+class AnswerConsumer(JsonWebsocketConsumer):
     judge = Judge()
-    redis_helper = RedisInterface()
 
     def connect(self):
-        self.room_group_name = 'test_room'
-        self.redis_helper.add_player(self.scope['user'].username)
-
-        # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
-            self.channel_name
-        )
-
         self.accept()
-        # Update page with new list of players
-        self.send(
-            json.dumps(
-                {
-                    'type': 'player_login',
-                    'player': self.scope['user'].username
-                }
-            )
-        )
 
-    def disconnect(self, close_code):
-        # Leave room group
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
-            self.channel_name
-        )
-
-    def receive(self, text_data=None, bytes_data=None):
-        if text_data.get('buzzer'):
-            # Get player so we know who buzzed in
-            self.send(text_data=json.dumps({
-                'player': Player.objects.get(user=self.scope['user']),
-                'type': 'buzzer'
-                }
-            ))
-        else:
-            text_data_json = json.loads(text_data)
-            given_answer = text_data_json['givenAnswer']
-            correct_answer = text_data_json['correctAnswer']
-            question_value = text_data_json['questionValue']
-            response, correct, player_score = self.eval_answer(given_answer, correct_answer, question_value)
-
-            # Send message to room group
-            async_to_sync(self.channel_layer.group_send)(
-                self.room_group_name,
-                {
-                    'type': 'answer_result',
-                    'response': response,
-                    'correct': correct,
-                    'player_score': player_score
-                }
-            )
-
-    def answer_result(self, event):
-        # Send message to WebSocket
-        self.send(text_data=json.dumps({
-             'response': event['response'],
-             'correct': event['correct'],
-             'player_score': event['player_score']
-        }))
+    def receive_json(self, text_data=None, bytes_data=None):
+        text_data_json = json.loads(text_data)
+        given_answer = text_data_json['givenAnswer']
+        correct_answer = text_data_json['correctAnswer']
+        question_value = text_data_json['questionValue']
+        response, correct, player_score = self.eval_answer(given_answer, correct_answer, question_value)
+        payload = {
+            'type': 'answer_result',
+            'response': response,
+            'correct': correct,
+            'player_score': player_score
+        }
+        self.send_json(payload)
 
     def eval_answer(self, given_answer, correct_answer, question_value):
         player = Player.objects.get(user=self.scope['user'])
@@ -136,3 +95,18 @@ class AnswerConsumer(WebsocketConsumer):
             player.score -= question_value
             player.save()
         return response, correct, player.score
+
+
+#         # Update page with new list of players
+#         self.send(
+#             json.dumps(
+#                 {
+#                     'type': 'player_login',
+#                     'player': self.scope['user'].username
+#                 }
+#             )
+#         )
+#
+
+
+

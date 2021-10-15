@@ -64,10 +64,9 @@ class AnswerConsumer(JsonWebsocketConsumer):
         self.accept()
 
     def receive_json(self, text_data=None, bytes_data=None):
-        text_data_json = json.loads(text_data)
-        given_answer = text_data_json['givenAnswer']
-        correct_answer = text_data_json['correctAnswer']
-        question_value = text_data_json['questionValue']
+        given_answer = text_data['givenAnswer']
+        correct_answer = text_data['correctAnswer']
+        question_value = text_data['questionValue']
         response, correct, player_score = self.eval_answer(given_answer, correct_answer, question_value)
         payload = {
             'type': 'answer_result',

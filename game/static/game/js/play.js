@@ -36,6 +36,7 @@ $(document).ready( function() {
             if (data.type === 'answer_result') {
                 alert(data.response);
                 $('#answerResult').text(data.response);
+                // TODO: make sure player score under ACTIVE PLAYERS is updated as well
                 $('#playerScore').text('Score: ' + data.player_score);
                 // clear timer if answer is correct
                 if (data.correct === true) {
@@ -44,9 +45,6 @@ $(document).ready( function() {
                     $('.questionTimer').text('Correct!');
                     currentTime = 0;
                 }
-            }
-            else if (data.type === 'buzzer') {
-                buzzedInPlayer = data.player
             }
             // TODO: Make new websocket for this
             else if (data.type === 'player_login') {

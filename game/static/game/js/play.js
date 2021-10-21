@@ -142,6 +142,7 @@ $(document).ready( function() {
                 alert(e.data)
                 if (e.data === 'buzzed_in'){
                     $('.dot').css({'background-color': 'red'});
+                    buzzedInPlayer = $('buzzer').value.text;
                 }
                 else if (e.data === 'buzzer_locked'){
                     alert('Player already buzzed in!');

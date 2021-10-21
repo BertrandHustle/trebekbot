@@ -3,7 +3,7 @@ var currentTime = 0;
 var currentWager = 0;
 var dailyDoubleAsker;
 var categorizedQuestions;
-var liveQuestion;
+var liveQuestion = null;
 var correctAnswer;
 var buzzedInPlayer;
 
@@ -37,6 +37,15 @@ $(document).ready( function() {
             + '/'
         )
 
+        // used to reset relevant vars after question is completed, either by correct answer or timer
+        function terminateQuestion() {
+            var liveQuestion = null;
+            timerSocket.send('kill_timer');
+            buzzerSocket.send('reset_buzzer');
+            clearInterval(timerInterval);
+            currentTime = 0;
+        }
+
         answerSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             if (data.type === 'answer_result') {
@@ -44,27 +53,31 @@ $(document).ready( function() {
                 $('#answerResult').text(data.response);
                 // TODO: make sure player score under ACTIVE PLAYERS is updated as well
                 $('#playerScore').text('Score: ' + data.player_score);
-                // clear timer if answer is correct
+                // clear timer and reset buzzer if answer is correct
                 if (data.correct === true) {
-                    timerSocket.send('kill_timer');
-                    clearInterval(timerInterval);
+                    terminateQuestion();
                     $('.questionTimer').text('Correct!');
-                    currentTime = 0;
+                }
+                else if (data.correct === 'close') {
+                    buzzerSocket.send('reset_buzzer');
+                }
+                else if (data.correct === false) {
+                    buzzerSocket.send('reset_buzzer')
                 }
             }
-            // TODO: Make new websocket for this
-            else if (data.type === 'player_login') {
-                newPlayer = data['player'];
-                $.ajax({
-                    headers: { "X-CSRFToken": Cookies.get('csrftoken') },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        alert(jqXHR.status + errorThrown);
-                    },
-                    success: function(data){
-                        $('#players').append(newPlayer['text']);
-                    }
-                })
-            }
+//            // TODO: Make new websocket for this
+//            else if (data.type === 'player_login') {
+//                newPlayer = data['player'];
+//                $.ajax({
+//                    headers: { "X-CSRFToken": Cookies.get('csrftoken') },
+//                    error: function(jqXHR, textStatus, errorThrown) {
+//                        alert(jqXHR.status + errorThrown);
+//                    },
+//                    success: function(data){
+//                        $('#players').append(newPlayer['text']);
+//                    }
+//                })
+//            }
         }
 
         timerSocket.onmessage = function(e) {
@@ -73,7 +86,7 @@ $(document).ready( function() {
                 timerInterval = setInterval(tickTimer, 1000);
             }
             else if (e.data === 'Timer Up!'){
-                currentTime = 0;
+                terminateQuestion();
             }
         }
 
@@ -120,12 +133,15 @@ $(document).ready( function() {
         });
 
         $("#buzzer").click(function () {
-            buzzerSocket.send('buzzer')
+            if (liveQuestion == null) {
+                alert('Question not active!')
+                return;
+            }
+            buzzerSocket.send('buzz_in')
             buzzerSocket.onmessage = function(e) {
                 alert(e.data)
-                $('.dot').css({'background-color': 'red'});
                 if (e.data === 'buzzed_in'){
-                    $('dot').css({'background-color': 'red'});
+                    $('.dot').css({'background-color': 'red'});
                 }
                 else if (e.data === 'Timer Up!'){
                     alert('Player already buzzed in!');
@@ -133,7 +149,7 @@ $(document).ready( function() {
             }
         });
 
-        $("#submitButton").click(function () {
+        $("#answerButton").click(function () {
             const givenAnswer = $('form').serializeArray()[1].value;
             answerSocket.send(JSON.stringify({
                 'givenAnswer': givenAnswer,

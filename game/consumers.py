@@ -42,12 +42,16 @@ class BuzzerConsumer(WebsocketConsumer):
 
     # TODO: return player name who buzzed in
     def receive(self, text_data=None, bytes_data=None):
-        if text_data == 'buzzer':
+        if text_data == 'status':
+            self.send(text_data=BuzzerConsumer.buzzer_locked)
+        elif text_data == 'buzz_in':
             if not BuzzerConsumer.buzzer_locked:
                 BuzzerConsumer.buzzer_locked = True
                 self.send(text_data='buzzed_in')
             else:
                 self.send(text_data='buzzer_locked')
+        elif text_data == 'reset_buzzer':
+            BuzzerConsumer.buzzer_locked = False
 
 
 class QuestionConsumer(WebsocketConsumer):
@@ -99,6 +103,7 @@ class AnswerConsumer(JsonWebsocketConsumer):
         answer_is_correct = self.judge.fuzz_answer(given_answer, correct_answer)
         if answer_is_correct == 'close':
             response = self.judge.check_closeness(given_answer, correct_answer)
+            correct = 'close'
         elif answer_is_correct:
             response = 'That is correct. The answer is ' + given_answer
             correct = True

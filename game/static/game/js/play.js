@@ -86,7 +86,7 @@ $(document).ready( function() {
                 timerInterval = setInterval(tickTimer, 1000);
             }
             else if (e.data === 'Timer Up!'){
-                terminateQuestion();
+                buzzerSocket.send('reset_buzzer');
             }
         }
 
@@ -143,7 +143,7 @@ $(document).ready( function() {
                 if (e.data === 'buzzed_in'){
                     $('.dot').css({'background-color': 'red'});
                 }
-                else if (e.data === 'Timer Up!'){
+                else if (e.data === 'buzzer_locked'){
                     alert('Player already buzzed in!');
                 }
             }

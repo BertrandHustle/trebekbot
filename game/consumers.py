@@ -4,7 +4,6 @@ import json
 from contextlib import suppress
 from random import randint
 # Third Party
-from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
 # Project
 from game.models import Player, Question
@@ -32,6 +31,23 @@ class TimerConsumer(AsyncWebsocketConsumer):
             # ignore errors where task isn't created yet
             with suppress(AttributeError):
                 timer_task.cancel()
+
+
+class BuzzerConsumer(WebsocketConsumer):
+
+    buzzer_locked = False
+    
+    def connect(self):
+        self.accept()
+
+    # TODO: return player name who buzzed in
+    def receive(self, text_data=None, bytes_data=None):
+        if text_data == 'buzzer':
+            if not BuzzerConsumer.buzzer_locked:
+                BuzzerConsumer.buzzer_locked = True
+                self.send(text_data='buzzed_in')
+            else:
+                self.send(text_data='buzzer_locked')
 
 
 class QuestionConsumer(WebsocketConsumer):

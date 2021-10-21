@@ -5,7 +5,6 @@ var dailyDoubleAsker;
 var categorizedQuestions;
 var liveQuestion;
 var correctAnswer;
-var buzzerLocked = false;
 var buzzedInPlayer;
 
 $(document).ready( function() {
@@ -21,6 +20,13 @@ $(document).ready( function() {
             'ws://'
             + window.location.host
             + '/ws/game/timer'
+            + '/'
+        )
+
+        const buzzerSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/game/buzzer'
             + '/'
         )
 
@@ -113,12 +119,19 @@ $(document).ready( function() {
             }
         });
 
-//        $("#buzzer").click(function () {
-//            buzzerLocked = true;
-//            gameSocket.send(JSON.stringify({
-//                'buzzer': ''
-//            }));
-//        });
+        $("#buzzer").click(function () {
+            buzzerSocket.send('buzzer')
+            buzzerSocket.onmessage = function(e) {
+                alert(e.data)
+                $('.dot').css({'background-color': 'red'});
+                if (e.data === 'buzzed_in'){
+                    $('dot').css({'background-color': 'red'});
+                }
+                else if (e.data === 'Timer Up!'){
+                    alert('Player already buzzed in!');
+                }
+            }
+        });
 
         $("#submitButton").click(function () {
             const givenAnswer = $('form').serializeArray()[1].value;

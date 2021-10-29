@@ -150,7 +150,7 @@ $(document).ready( function() {
                     alert('Player already buzzed in!');
                 }
                 else if (e.data.startsWith('buzzed_in_player')){
-                    $('.buzzerPlayer').text(e.data);
+                    $('#buzzerPlayer').text(e.data.split(':')[1]);
                 }
             }
         });

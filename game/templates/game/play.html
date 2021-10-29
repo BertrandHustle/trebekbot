@@ -25,6 +25,8 @@
     <div>
         BUZZER:
         <span class="dot" id="buzzerLight"></span>
+        BUZZED IN:
+        <span class="buzzer" id="buzzerPlayer"></span>
     </div>
 </body>
 
@@ -44,7 +46,7 @@
     <div class="answer" id="questionAnswer"></div>
 
     <form method="post">
-        <button type="button" value="{{ player_name }}" id="buzzer">Buzz In!</button>
+        <button type="button" id="buzzer">Buzz In!</button>
     </form>
 
     <form method="post">
@@ -55,6 +57,11 @@
     </form>
 
     <div class="answer" id="answerResult"> Answer Result: </div>
+
+    <script type="text/javascript">
+        var currentPlayer = "{{ player_name }}";
+    </script>
+
 {% endblock %}
 
 </html>

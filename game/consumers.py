@@ -36,6 +36,7 @@ class TimerConsumer(AsyncWebsocketConsumer):
 class BuzzerConsumer(WebsocketConsumer):
 
     buzzer_locked = False
+    buzzed_in_player = ''
     
     def connect(self):
         self.accept()
@@ -52,6 +53,9 @@ class BuzzerConsumer(WebsocketConsumer):
                 self.send(text_data='buzzer_locked')
         elif text_data == 'reset_buzzer':
             BuzzerConsumer.buzzer_locked = False
+        elif text_data.startswith('buzzed_in_player:'):
+            BuzzerConsumer.buzzed_in_player = text_data.split(':')[1]
+            self.send(text_data='buzzed_in_player:' + BuzzerConsumer.buzzed_in_player)
 
 
 class QuestionConsumer(WebsocketConsumer):

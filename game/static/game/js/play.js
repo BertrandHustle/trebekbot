@@ -5,7 +5,6 @@ var dailyDoubleAsker;
 var categorizedQuestions;
 var liveQuestion = null;
 var correctAnswer;
-var buzzedInPlayer;
 
 $(document).ready( function() {
 
@@ -42,6 +41,7 @@ $(document).ready( function() {
             var liveQuestion = null;
             timerSocket.send('kill_timer');
             buzzerSocket.send('reset_buzzer');
+            $('.dot').css({'background-color': 'gray'});
             clearInterval(timerInterval);
             currentTime = 0;
         }
@@ -57,6 +57,7 @@ $(document).ready( function() {
                 if (data.correct === true) {
                     terminateQuestion();
                     $('.questionTimer').text('Correct!');
+                    $('.dot').css({'background-color': 'gray'});
                 }
                 else if (data.correct === 'close') {
                     buzzerSocket.send('reset_buzzer');
@@ -98,6 +99,7 @@ $(document).ready( function() {
             else {
                 clearInterval(timerInterval);
                 alert('Time Up!')
+                $('.dot').css({'background-color': 'gray'});
                 $('.questionTimer').text('Ready');
                 // set answer to make available to tickTimer
                 correctAnswer = liveQuestion['answer'];
@@ -142,10 +144,13 @@ $(document).ready( function() {
                 alert(e.data)
                 if (e.data === 'buzzed_in'){
                     $('.dot').css({'background-color': 'red'});
-                    buzzedInPlayer = $('buzzer').value.text;
+                    buzzerSocket.send('buzzed_in_player:' + currentPlayer)
                 }
                 else if (e.data === 'buzzer_locked'){
                     alert('Player already buzzed in!');
+                }
+                else if (e.data.startsWith('buzzed_in_player')){
+                    $('.buzzerPlayer').text(e.data);
                 }
             }
         });

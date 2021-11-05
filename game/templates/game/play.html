@@ -12,6 +12,7 @@
 </head>
 
 <body>
+
     ACTIVE PLAYERS:
     <div class="players">
         {% for player in players %}
@@ -31,6 +32,7 @@
 </body>
 
 {% block content %}
+    <div class="room" id="roomName"> Room: {{ room_name }} </div>
     <div class="player" id="playerName"> Name: {{ player_name }} </div>
     <div class="player" id="playerScore"> Score: {{ player_score }} </div>
     <div class="widget">

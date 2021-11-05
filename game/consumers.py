@@ -59,6 +59,9 @@ class BuzzerConsumer(WebsocketConsumer):
 
 
 class QuestionConsumer(WebsocketConsumer):
+
+    live_question = Question()
+
     def connect(self):
         self.accept()
 
@@ -66,19 +69,23 @@ class QuestionConsumer(WebsocketConsumer):
         if text_data == 'get_question':
             # get random question
             question_count = Question.objects.count()
-            rand_question = Question.objects.get(pk=randint(0, question_count))
+            QuestionConsumer.live_question = Question.objects.get(pk=randint(0, question_count))
             question_json = {
-                'text': rand_question.text,
-                'valid_links': rand_question.valid_links,
-                'value': rand_question.value,
-                'category': rand_question.category,
-                'daily_double': rand_question.daily_double,
-                'answer': rand_question.answer,
-                'date': rand_question.date
+                'text': QuestionConsumer.live_question.text,
+                'valid_links': QuestionConsumer.live_question.valid_links,
+                'value': QuestionConsumer.live_question.value,
+                'category': QuestionConsumer.live_question.category,
+                'daily_double': QuestionConsumer.live_question.daily_double,
+                'answer': QuestionConsumer.live_question.answer,
+                'date': QuestionConsumer.live_question.date
             }
             # DEBUG
-            print(rand_question.answer)
+            print(QuestionConsumer.live_question.answer)
             self.send(json.dumps(question_json))
+        elif text_data == 'question_status':
+            self.send(bool(QuestionConsumer.live_question))
+        elif text_data == 'reset_question':
+            QuestionConsumer.live_question = False
 
 
 class AnswerConsumer(JsonWebsocketConsumer):

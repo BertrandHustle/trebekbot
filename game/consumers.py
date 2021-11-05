@@ -4,11 +4,33 @@ import json
 from contextlib import suppress
 from random import randint
 # Third Party
+from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
 # Project
 from game.models import Player, Question
 from src.judge import Judge
 from src.redis_interface import RedisInterface
+
+
+class RoomConsumer(WebsocketConsumer):
+    def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = 'game_%s' % self.room_name
+
+        # Join room group
+        async_to_sync(self.channel_layer.group_add)(
+            self.room_group_name,
+            self.channel_name
+        )
+
+        self.accept()
+
+    def disconnect(self, close_code):
+        # Leave room group
+        async_to_sync(self.channel_layer.group_discard)(
+            self.room_group_name,
+            self.channel_name
+        )
 
 
 class TimerConsumer(AsyncWebsocketConsumer):

@@ -8,7 +8,15 @@ var liveQuestion;
 
 $(document).ready( function() {
 
-    const roomName = document.getElementById('roomName').textContent.split(':')[1];
+    const roomName = document.getElementById('roomName').textContent.split(':')[1].trim();
+
+    const roomSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/game/play/'
+        + roomName
+        + '/'
+    );
 
     const answerSocket = new WebSocket(
         'ws://'

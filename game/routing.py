@@ -6,4 +6,5 @@ websocket_urlpatterns = [
     re_path(r'ws/game/timer/$', consumers.TimerConsumer.as_asgi()),
     re_path(r'ws/game/question/$', consumers.QuestionConsumer.as_asgi()),
     re_path(r'ws/game/buzzer/$', consumers.BuzzerConsumer.as_asgi()),
+    re_path(r'ws/game/play/(?P<room_name>\w+)/$', consumers.RoomConsumer.as_asgi()),
 ]

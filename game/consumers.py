@@ -6,6 +6,7 @@ from random import randint
 # Third Party
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
+from channels.layers import get_channel_layer
 # Project
 from game.models import Player, Question
 from src.judge import Judge
@@ -15,7 +16,7 @@ from src.redis_interface import RedisInterface
 class RoomConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.room_group_name = 'game_%s' % self.room_name
+        self.room_group_name = f'game_{self.room_name}'
 
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
@@ -24,6 +25,10 @@ class RoomConsumer(WebsocketConsumer):
         )
 
         self.accept()
+
+    def room_message(self, event):
+        print('received!')
+        self.send(text_data=event["text"])
 
     def disconnect(self, close_code):
         # Leave room group
@@ -61,6 +66,8 @@ class BuzzerConsumer(WebsocketConsumer):
     buzzed_in_player = ''
     
     def connect(self):
+        async_to_sync(self.channel_layer.group_add)('buzzer', self.channel_name)
+        async_to_sync(self.channel_layer.group_send)('game_test', {'type': 'room.message', 'text': 'test'})
         self.accept()
 
     # TODO: return player name who buzzed in
@@ -78,6 +85,9 @@ class BuzzerConsumer(WebsocketConsumer):
         elif text_data.startswith('buzzed_in_player:'):
             BuzzerConsumer.buzzed_in_player = text_data.split(':')[1]
             self.send(text_data='buzzed_in_player:' + BuzzerConsumer.buzzed_in_player)
+
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)('buzzer', self.channel_name)
 
 
 class QuestionConsumer(WebsocketConsumer):

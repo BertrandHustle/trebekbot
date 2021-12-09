@@ -6,24 +6,39 @@ from random import randint
 # Third Party
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
-from channels.layers import get_channel_layer
 # Project
 from game.models import Player, Question
 from src.judge import Judge
 from src.redis_interface import RedisInterface
 
+redis_interfacer = RedisInterface().redis_connection
+
 
 class RoomConsumer(WebsocketConsumer):
+
+    def init_stateful_objects(self):
+        shared_channel_name = self.channel_name.split('!')[0]
+        redis_interfacer.hset(f'{shared_channel_name}', 'buzzer_locked', 0)
+        redis_interfacer.hset(f'{shared_channel_name}', 'buzzed_in_player', '')
+        redis_interfacer.hset(f'{shared_channel_name}', 'timer', 0)
+        # TODO: this will need to be converted into a json/some data structure
+        redis_interfacer.hset(f'{shared_channel_name}', 'live_question', '')
+
+    def remove_stateful_objects(self):
+        redis_interfacer.hdel(f'{shared_channel_name}', 'buzzer_locked')
+        redis_interfacer.hdel(f'{shared_channel_name}', 'buzzed_in_player')
+        redis_interfacer.hdel(f'{shared_channel_name}', 'timer')
+        redis_interfacer.hdel(f'{shared_channel_name}', 'live_question')
+
     def connect(self):
+        self.init_stateful_objects()
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
-
         # Join room group
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name
         )
-
         self.accept()
 
     def room_message(self, event):
@@ -36,16 +51,18 @@ class RoomConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+        self.remove_stateful_objects()
 
 
 class TimerConsumer(AsyncWebsocketConsumer):
 
-    #TODO: have this report timer ticks back to client
+    #TODO: have this report timer ticks back to server
     async def _create_timer(self, time_limit):
         await asyncio.sleep(time_limit)
         await self.send(text_data='Timer Up!')
 
     async def connect(self):
+        await self.channel_layer.group_add('timer', self.channel_name)
         await self.accept()
 
     async def receive(self, text_data=None, bytes_data=None):
@@ -59,32 +76,43 @@ class TimerConsumer(AsyncWebsocketConsumer):
             with suppress(AttributeError):
                 timer_task.cancel()
 
+    async def disconnect(self, code):
+        await self.channel_layer.group_discard('timer', self.channel_name)
+
 
 class BuzzerConsumer(WebsocketConsumer):
 
-    buzzer_locked = False
-    buzzed_in_player = ''
+    def get_buzzer_status(self):
+        return int(redis_interfacer.hget(self.channel_name.split('!')[0], 'buzzer_locked').decode())
+
+    def set_buzzer_status(self, status: int):
+        # use 0 for False, 1 for True
+        redis_interfacer.hset(self.channel_name.split('!')[0], 'buzzer_locked', status)
+
+    def get_buzzed_in_player(self):
+        return redis_interfacer.hget(self.channel_name.split('!')[0], 'buzzed_in_player').decode()
+
+    def set_buzzed_in_player(self, player: str):
+        redis_interfacer.hset(self.channel_name.split('!')[0], 'buzzed_in_player', player)
     
     def connect(self):
-        async_to_sync(self.channel_layer.group_add)('buzzer', self.channel_name)
-        async_to_sync(self.channel_layer.group_send)('game_test', {'type': 'room.message', 'text': 'test'})
         self.accept()
 
-    # TODO: return player name who buzzed in
     def receive(self, text_data=None, bytes_data=None):
         if text_data == 'status':
-            self.send(text_data=BuzzerConsumer.buzzer_locked)
+            self.send(text_data=self.get_buzzed_in_player())
         elif text_data == 'buzz_in':
-            if not BuzzerConsumer.buzzer_locked:
-                BuzzerConsumer.buzzer_locked = True
-                self.send(text_data='buzzed_in')
-            else:
+            print(self.get_buzzer_status())
+            if self.get_buzzer_status():
                 self.send(text_data='buzzer_locked')
+            else:
+                self.set_buzzer_status(1)
+                self.send(text_data='buzzed_in')
         elif text_data == 'reset_buzzer':
-            BuzzerConsumer.buzzer_locked = False
+            self.set_buzzer_status(0)
         elif text_data.startswith('buzzed_in_player:'):
-            BuzzerConsumer.buzzed_in_player = text_data.split(':')[1]
-            self.send(text_data='buzzed_in_player:' + BuzzerConsumer.buzzed_in_player)
+            self.set_buzzed_in_player(text_data.split(':')[1])
+            self.send(text_data='buzzed_in_player:' + self.get_buzzed_in_player())
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)('buzzer', self.channel_name)
@@ -95,6 +123,7 @@ class QuestionConsumer(WebsocketConsumer):
     live_question = Question()
 
     def connect(self):
+        async_to_sync(self.channel_layer.group_add)('question', self.channel_name)
         self.accept()
 
     def receive(self, text_data=None, bytes_data=None):
@@ -119,11 +148,15 @@ class QuestionConsumer(WebsocketConsumer):
         elif text_data == 'reset_question':
             QuestionConsumer.live_question = False
 
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)('question', self.channel_name)
+
 
 class AnswerConsumer(JsonWebsocketConsumer):
     judge = Judge()
 
     def connect(self):
+        async_to_sync(self.channel_layer.group_add)('answer', self.channel_name)
         self.accept()
 
     def receive_json(self, text_data=None, bytes_data=None):
@@ -159,6 +192,9 @@ class AnswerConsumer(JsonWebsocketConsumer):
             player.save()
         return response, correct, player.score
 
+    def disconnect(self, code):
+        async_to_sync(self.channel_layer.group_discard)('answer', self.channel_name)
+
 
 #         # Update page with new list of players
 #         self.send(
@@ -170,6 +206,3 @@ class AnswerConsumer(JsonWebsocketConsumer):
 #             )
 #         )
 #
-
-
-

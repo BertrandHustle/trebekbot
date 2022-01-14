@@ -10,41 +10,53 @@ $(document).ready( function() {
 
     const roomName = document.getElementById('roomName').textContent.split(':')[1].trim();
 
-    const roomSocket = new WebSocket(
+    const demultiplexerSocker = new WebSocket(
         'ws://'
         + window.location.host
-        + '/ws/game/play/'
+        + '/ws/game/demultiplexer/'
         + roomName
         + '/'
     );
-
-    const answerSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/game/answer'
-        + '/'
-    );
-
-    const timerSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/game/timer'
-        + '/'
-    )
-
-    const buzzerSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/game/buzzer'
-        + '/'
-    )
-
-    const questionSocket = new WebSocket(
-        'ws://'
-        + window.location.host
-        + '/ws/game/question'
-        + '/'
-    )
+//
+//    const roomSocket = new WebSocket(
+//        'ws://'
+//        + window.location.host
+//        + '/ws/game/play/'
+//        + roomName
+//        + '/'
+//    );
+//
+//    const answerSocket = new WebSocket(
+//        'ws://'
+//        + window.location.host
+//        + '/ws/game/answer/'
+//        + roomName
+//        + '/'
+//    );
+//
+//    const timerSocket = new WebSocket(
+//        'ws://'
+//        + window.location.host
+//        + '/ws/game/timer/'
+//        + roomName
+//        + '/'
+//    )
+//
+//    const buzzerSocket = new WebSocket(
+//        'ws://'
+//        + window.location.host
+//        + '/ws/game/buzzer/'
+//        + roomName
+//        + '/'
+//    )
+//
+//    const questionSocket = new WebSocket(
+//        'ws://'
+//        + window.location.host
+//        + '/ws/game/question/'
+//        + roomName
+//        + '/'
+//    )
 
     // used to reset relevant vars after question is completed, either by correct answer or timer
     function terminateQuestion() {
@@ -144,6 +156,13 @@ $(document).ready( function() {
         }
         else {
             alert('Question is still live!')
+        }
+    });
+
+    buzzerSocket.addEventListener('message', function(event) {
+        if (event.data === 'buzzed_in'){
+            $('.dot').css({'background-color': 'red'});
+            alert('test')
         }
     });
 

@@ -4,6 +4,7 @@ import json
 from contextlib import suppress
 from random import randint
 # Third Party
+from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
 # Project
@@ -14,31 +15,33 @@ from src.redis_interface import RedisInterface
 redis_interfacer = RedisInterface().redis_connection
 
 
+def get_shared_channel_name(channel_name: str):
+    return channel_name.split('!')[0]
+
+
+def init_stateful_objects(channel_name: str):
+    redis_interfacer.hset(f'{get_shared_channel_name(channel_name)}', 'buzzer_locked', 0)
+    redis_interfacer.hset(f'{get_shared_channel_name(channel_name)}', 'buzzed_in_player', '')
+    redis_interfacer.hset(f'{get_shared_channel_name(channel_name)}', 'timer', 0)
+    # TODO: this will need to be converted into a json/some data structure
+    redis_interfacer.hset(f'{get_shared_channel_name(channel_name)}', 'live_question', '')
+
+
+def remove_stateful_objects(channel_name: str):
+    redis_interfacer.hdel(f'{get_shared_channel_name(channel_name)}', 'buzzer_locked')
+    redis_interfacer.hdel(f'{get_shared_channel_name(channel_name)}', 'buzzed_in_player')
+    redis_interfacer.hdel(f'{get_shared_channel_name(channel_name)}', 'timer')
+    redis_interfacer.hdel(f'{get_shared_channel_name(channel_name)}', 'live_question')
+
+
 class RoomConsumer(WebsocketConsumer):
 
-    def init_stateful_objects(self):
-        shared_channel_name = self.channel_name.split('!')[0]
-        redis_interfacer.hset(f'{shared_channel_name}', 'buzzer_locked', 0)
-        redis_interfacer.hset(f'{shared_channel_name}', 'buzzed_in_player', '')
-        redis_interfacer.hset(f'{shared_channel_name}', 'timer', 0)
-        # TODO: this will need to be converted into a json/some data structure
-        redis_interfacer.hset(f'{shared_channel_name}', 'live_question', '')
-
-    def remove_stateful_objects(self):
-        redis_interfacer.hdel(f'{shared_channel_name}', 'buzzer_locked')
-        redis_interfacer.hdel(f'{shared_channel_name}', 'buzzed_in_player')
-        redis_interfacer.hdel(f'{shared_channel_name}', 'timer')
-        redis_interfacer.hdel(f'{shared_channel_name}', 'live_question')
-
     def connect(self):
-        self.init_stateful_objects()
+        init_stateful_objects(self.channel_name)
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
         # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name,
-            self.channel_name
-        )
+        async_to_sync(self.channel_layer.group_add)(self.room_group_name, self.channel_name)
         self.accept()
 
     def room_message(self, event):
@@ -51,7 +54,7 @@ class RoomConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
-        self.remove_stateful_objects()
+        remove_stateful_objects(self.channel_name)
 
 
 class TimerConsumer(AsyncWebsocketConsumer):
@@ -60,9 +63,11 @@ class TimerConsumer(AsyncWebsocketConsumer):
     async def _create_timer(self, time_limit):
         await asyncio.sleep(time_limit)
         await self.send(text_data='Timer Up!')
+        await self.channel_layer.group_send()
 
     async def connect(self):
-        await self.channel_layer.group_add('timer', self.channel_name)
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f'game_{self.room_name}'
         await self.accept()
 
     async def receive(self, text_data=None, bytes_data=None):
@@ -76,26 +81,26 @@ class TimerConsumer(AsyncWebsocketConsumer):
             with suppress(AttributeError):
                 timer_task.cancel()
 
-    async def disconnect(self, code):
-        await self.channel_layer.group_discard('timer', self.channel_name)
-
 
 class BuzzerConsumer(WebsocketConsumer):
 
     def get_buzzer_status(self):
-        return int(redis_interfacer.hget(self.channel_name.split('!')[0], 'buzzer_locked').decode())
+        return int(redis_interfacer.hget(get_shared_channel_name(self.channel_name), 'buzzer_locked').decode())
 
     def set_buzzer_status(self, status: int):
         # use 0 for False, 1 for True
-        redis_interfacer.hset(self.channel_name.split('!')[0], 'buzzer_locked', status)
+        redis_interfacer.hset(get_shared_channel_name(self.channel_name), 'buzzer_locked', status)
 
     def get_buzzed_in_player(self):
-        return redis_interfacer.hget(self.channel_name.split('!')[0], 'buzzed_in_player').decode()
+        return redis_interfacer.hget(get_shared_channel_name(self.channel_name), 'buzzed_in_player').decode()
 
     def set_buzzed_in_player(self, player: str):
-        redis_interfacer.hset(self.channel_name.split('!')[0], 'buzzed_in_player', player)
+        redis_interfacer.hset(get_shared_channel_name(self.channel_name), 'buzzed_in_player', player)
     
     def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f'game_{self.room_name}'
+        async_to_sync(self.channel_layer.group_add)('question', self.channel_name)
         self.accept()
 
     def receive(self, text_data=None, bytes_data=None):
@@ -123,6 +128,8 @@ class QuestionConsumer(WebsocketConsumer):
     live_question = Question()
 
     def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f'game_{self.room_name}'
         async_to_sync(self.channel_layer.group_add)('question', self.channel_name)
         self.accept()
 
@@ -195,6 +202,14 @@ class AnswerConsumer(JsonWebsocketConsumer):
     def disconnect(self, code):
         async_to_sync(self.channel_layer.group_discard)('answer', self.channel_name)
 
+
+class GameDemultiplexer(AsyncJsonWebsocketDemultiplexer):
+    applications = {
+        "timer": TimerConsumer.as_asgi(),
+        "buzzer": BuzzerConsumer.as_asgi(),
+        "question": QuestionConsumer.as_asgi(),
+        "answer": AnswerConsumer.as_asgi(),
+    }
 
 #         # Update page with new list of players
 #         self.send(

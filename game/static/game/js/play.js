@@ -41,21 +41,18 @@ $(document).ready( function() {
     // judge whether an answer is correct
     demultiplexerSocket.addEventListener('message', function(e) {
         const payload = JSON.parse(e.data);
-        alert(data.response);
-        $('#answerResult').text(data.response);
+        alert(payload.response);
+        $('#answerResult').text(payload.response);
         // TODO: make sure player score under ACTIVE PLAYERS is updated as well
-        $('#playerScore').text('Score: ' + data.player_score);
+        $('#playerScore').text('Score: ' + payload.player_score);
         // clear timer and reset buzzer if answer is correct
-        if (data.correct === true) {
+        if (payload.correct === true) {
             terminateQuestion();
             $('.questionTimer').text('Correct!');
             $('.dot').css({'background-color': 'gray'});
         }
-        else if (data.correct === 'close') {
-            buzzerSocket.send('reset_buzzer');
-        }
-        else if (data.correct === false) {
-            buzzerSocket.send('reset_buzzer')
+        else if (payload.correct === 'close' || payload.correct === false) {
+            demultiplexerSocket.sendToStream('buzzer', 'reset_buzzer');
         }
     })
 
@@ -73,37 +70,41 @@ $(document).ready( function() {
 
     // receive a new question
     demultiplexerSocket.addEventListener('message', function(e) {
-        const payload = JSON.parse(e.data);
-        alert(payload);
-        liveQuestion = payload.question;
-        $('#questionText').text(liveQuestion['text']);
-        if (liveQuestion['valid_links']) {
-            $('#validLinks').text(liveQuestion['valid_links']);
+        let payload = JSON.parse(e.data).payload;
+        let stream = JSON.parse(e.data).stream;
+        if (stream === 'question') {
+            liveQuestion = payload;
+            $('#questionText').text(liveQuestion['text']);
+            if (liveQuestion['valid_links']) {
+                $('#validLinks').text(liveQuestion['valid_links']);
+            }
+            $('#questionValue').text(liveQuestion['value']);
+            $('#questionCategory').text(liveQuestion['category']);
+            $('#questionDate').text(liveQuestion['date']);
+            // set answer to make available to tickTimer
+            correctAnswer = liveQuestion['answer'];
+            // set and start timer
+            currentTime = timeLimit;
+            sendToStream('timer', 'start_timer');
         }
-        $('#questionValue').text(liveQuestion['value']);
-        $('#questionCategory').text(liveQuestion['category']);
-        $('#questionDate').text(liveQuestion['date']);
-        // set answer to make available to tickTimer
-        correctAnswer = liveQuestion['answer'];
-        // set and start timer
-        currentTime = timeLimit;
-        sendToStream('timer', 'start_timer');
     })
 
 
     // buzzer
     demultiplexerSocket.addEventListener('message', function(e) {
         const payload = JSON.parse(e.data);
-        alert(e.data);
-        if (payload.message === 'buzzed_in'){
-            $('.dot').css({'background-color': 'red'});
-            buzzerSocket.send('buzzed_in_player:' + currentPlayer);
-        }
-        else if (payload.message === 'buzzer_locked'){
-            alert('Player already buzzed in!');
-        }
-        else if (payload.message.startsWith('buzzed_in_player')){
-            $('#buzzerPlayer').text(e.data.split(':')[1]);
+        alert(payload);
+        if (payload.stream === 'buzzer'){
+            if (payload === 'buzzed_in'){
+                $('.dot').css({'background-color': 'red'});
+                demultiplexerSocket.sendToStream('buzzer', 'buzzed_in_player:' + currentPlayer);
+            }
+            else if (payload === 'buzzer_locked'){
+                alert('Player already buzzed in!');
+            }
+            else if (payload.startsWith('buzzed_in_player')){
+                $('#buzzerPlayer').text(e.data.split(':')[1]);
+            }
         }
     })
 

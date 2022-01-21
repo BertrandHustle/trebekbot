@@ -6,7 +6,7 @@ from random import randint
 # Third Party
 from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
 from asgiref.sync import async_to_sync
-from channels.generic.websocket import AsyncWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
 # Project
 from game.models import Player, Question
 from src.judge import Judge
@@ -57,20 +57,24 @@ class RoomConsumer(WebsocketConsumer):
         remove_stateful_objects(self.channel_name)
 
 
-class TimerConsumer(AsyncWebsocketConsumer):
+class TimerConsumer(AsyncJsonWebsocketConsumer):
 
     #TODO: have this report timer ticks back to server
     async def _create_timer(self, time_limit):
         await asyncio.sleep(time_limit)
-        await self.send(text_data='Timer Up!')
-        await self.channel_layer.group_send()
+        payload = {
+            'type': 'timer',
+            'message': 'Timer Up!'
+        }
+        await self.send_json(payload)
+        await self.channel_layer.group_send(payload)
 
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
         await self.accept()
 
-    async def receive(self, text_data=None, bytes_data=None):
+    async def receive_json(self, content, **kwargs):
         timer_task = None
         if text_data == 'start_timer':
             time_limit = 60
@@ -130,10 +134,12 @@ class QuestionConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
-        async_to_sync(self.channel_layer.group_add)('question', self.channel_name)
+        self.channel_layer.group_add('question', self.channel_name)
         self.accept()
 
     def receive(self, text_data=None, bytes_data=None):
+        # for some reason JSON.stringify adds double quotes
+        text_data = text_data.replace('"', '')
         if text_data == 'get_question':
             # get random question
             question_count = Question.objects.count()
@@ -155,8 +161,8 @@ class QuestionConsumer(WebsocketConsumer):
         elif text_data == 'reset_question':
             QuestionConsumer.live_question = False
 
-    def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)('question', self.channel_name)
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard('question', self.channel_name)
 
 
 class AnswerConsumer(JsonWebsocketConsumer):
@@ -172,7 +178,7 @@ class AnswerConsumer(JsonWebsocketConsumer):
         question_value = text_data['questionValue']
         response, correct, player_score = self.eval_answer(given_answer, correct_answer, question_value)
         payload = {
-            'type': 'answer_result',
+            'type': 'answer',
             'response': response,
             'correct': correct,
             'player_score': player_score
@@ -210,6 +216,8 @@ class GameDemultiplexer(AsyncJsonWebsocketDemultiplexer):
         "question": QuestionConsumer.as_asgi(),
         "answer": AnswerConsumer.as_asgi(),
     }
+
+
 
 #         # Update page with new list of players
 #         self.send(

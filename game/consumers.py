@@ -59,15 +59,25 @@ class RoomConsumer(WebsocketConsumer):
 
 class TimerConsumer(AsyncJsonWebsocketConsumer):
 
-    #TODO: have this report timer ticks back to server
-    async def _create_timer(self, time_limit):
-        await asyncio.sleep(time_limit)
-        payload = {
-            'type': 'timer',
-            'message': 'Timer Up!'
-        }
-        await self.send_json(payload)
-        await self.channel_layer.group_send(payload)
+    async def tick_redis_timer(self):
+        redis_interfacer.hincrby(f'{get_shared_channel_name(self.channel_name)}', 'timer', -1)
+
+    def get_redis_timer_value(self):
+        return int(redis_interfacer.hget(get_shared_channel_name(self.channel_name), 'timer').decode())
+
+    def set_redis_timer_value(self, time_limit):
+        redis_interfacer.hset(get_shared_channel_name(self.channel_name), 'timer', time_limit)
+
+    def reset_redis_timer(self):
+        redis_interfacer.hset(f'{get_shared_channel_name(self.channel_name)}', 'timer', 0)
+
+    async def _tick_timer(self, time_limit):
+        self.set_redis_timer_value(time_limit)
+        while self.get_redis_timer_value() > 0:
+            await asyncio.sleep(1)
+            await self.tick_redis_timer()
+            await self.send_json({'message': 'tick'})
+        self.reset_redis_timer()
 
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
@@ -75,12 +85,13 @@ class TimerConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
 
     async def receive_json(self, content, **kwargs):
+        content = content.replace('"', '')
         timer_task = None
-        if text_data == 'start_timer':
+        if content == 'start_timer':
             time_limit = 60
-            timer_task = asyncio.create_task(self._create_timer(time_limit))
-            await self.send(text_data='Timer Started!')
-        if text_data == 'kill_timer':
+            timer_task = asyncio.create_task(self._tick_timer(time_limit))
+            await self.send_json({'message': 'Timer Started!'})
+        if content == 'kill_timer':
             # ignore errors where task isn't created yet
             with suppress(AttributeError):
                 timer_task.cancel()

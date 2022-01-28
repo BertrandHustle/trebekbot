@@ -41,7 +41,7 @@ $(document).ready( function() {
     // judge whether an answer is correct
     demultiplexerSocket.addEventListener('message', function(e) {
         const payload = JSON.parse(e.data);
-        alert(payload.response);
+        //alert(payload.response);
         $('#answerResult').text(payload.response);
         // TODO: make sure player score under ACTIVE PLAYERS is updated as well
         $('#playerScore').text('Score: ' + payload.player_score);
@@ -58,15 +58,30 @@ $(document).ready( function() {
 
     // timer
     demultiplexerSocket.addEventListener('message', function(e) {
-            const payload = JSON.parse(e.data);
+        let payload = JSON.parse(e.data).payload;
+        let stream = JSON.parse(e.data).stream;
+        if (stream === 'timer') {
             if (payload.message === 'Timer Started!'){
-            currentTime = timeLimit;
-            timerInterval = setInterval(tickTimer, 1000);
-        }
+                currentTime = timeLimit;
+                //$('.questionTimer').html(currentTime).show();
+            }
+            else if (payload.message === 'tick'){
+                currentTime--;
+                $('.questionTimer').html(currentTime).show();
+            }
             else if (payload.message === 'Timer Up!'){
                 buzzerSocket.send('reset_buzzer');
+                alert('Time Up!')
+                $('.dot').css({'background-color': 'gray'});
+                $('.questionTimer').text('Ready');
+                // set answer to make available to tickTimer
+                correctAnswer = liveQuestion['answer'];
+                $('#answerResult').text('Answer: ' + correctAnswer);
+                $('.question').text('')
+            }
         }
     })
+
 
     // receive a new question
     demultiplexerSocket.addEventListener('message', function(e) {
@@ -93,7 +108,7 @@ $(document).ready( function() {
     // buzzer
     demultiplexerSocket.addEventListener('message', function(e) {
         const payload = JSON.parse(e.data);
-        alert(payload);
+        //alert(payload);
         if (payload.stream === 'buzzer'){
             if (payload === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});
@@ -123,29 +138,12 @@ $(document).ready( function() {
 //                })
 //            }
 
-
-    function tickTimer() {
-        $('.questionTimer').html(currentTime).show();
-        if (currentTime > 0) {
-            currentTime--;
-        }
-        else {
-            clearInterval(timerInterval);
-            alert('Time Up!')
-            $('.dot').css({'background-color': 'gray'});
-            $('.questionTimer').text('Ready');
-            // set answer to make available to tickTimer
-            correctAnswer = liveQuestion['answer'];
-            $('#answerResult').text('Answer: ' + correctAnswer);
-            $('.question').text('')
-        }
-    }
-
     $("#getQuestion").click(function () {
         if (currentTime <= 0) {
             // remove answer from previous question
             $('#answer').text('')
             sendToStream('question', 'get_question')
+            sendToStream('timer', 'start_timer')
         }
         else {
             alert('Question is still live!')

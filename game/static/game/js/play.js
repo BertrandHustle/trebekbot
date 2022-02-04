@@ -29,7 +29,6 @@ $(document).ready( function() {
     function terminateQuestion() {
         // server-side resets
         sendToStream('question', 'reset_question')
-        sendToStream('timer', 'kill_timer')
         sendToStream('buzzer', 'reset_buzzer')
         // client-side resets
         $('.dot').css({'background-color': 'gray'});
@@ -37,6 +36,24 @@ $(document).ready( function() {
         liveQuestion = null;
         currentTime = 0;
     }
+
+    function tickTimer() {
+        $('.questionTimer').html(currentTime).show();
+        if (currentTime > 0) {
+            currentTime--;
+        }
+        else {
+            clearInterval(timerInterval);
+            alert('Time Up!')
+            $('.dot').css({'background-color': 'gray'});
+            $('.questionTimer').text('Ready');
+            // set answer to make available to tickTimer
+            correctAnswer = liveQuestion['answer'];
+            $('#answerResult').text('Answer: ' + correctAnswer);
+            $('.question').text('')
+        }
+    }
+
 
     // judge whether an answer is correct
     demultiplexerSocket.addEventListener('message', function(e) {
@@ -100,7 +117,7 @@ $(document).ready( function() {
             correctAnswer = liveQuestion['answer'];
             // set and start timer
             currentTime = timeLimit;
-            sendToStream('timer', 'start_timer');
+            timerInterval = setInterval(tickTimer, 1000);
         }
     })
 
@@ -143,7 +160,6 @@ $(document).ready( function() {
             // remove answer from previous question
             $('#answer').text('')
             sendToStream('question', 'get_question')
-            sendToStream('timer', 'start_timer')
         }
         else {
             alert('Question is still live!')

@@ -45,7 +45,7 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
         self.init_buzzer()
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
-        await self.channel_layer.group_add('question', self.channel_name)
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
     async def receive_json(self, content, **kwargs):

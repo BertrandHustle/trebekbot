@@ -124,9 +124,10 @@ $(document).ready( function() {
 
     // buzzer
     demultiplexerSocket.addEventListener('message', function(e) {
-        const payload = JSON.parse(e.data);
+        let payload = JSON.parse(e.data).payload;
+        let stream = JSON.parse(e.data).stream;
         //alert(payload);
-        if (payload.stream === 'buzzer'){
+        if (stream === 'buzzer'){
             if (payload === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});
                 demultiplexerSocket.sendToStream('buzzer', 'buzzed_in_player:' + currentPlayer);
@@ -171,7 +172,7 @@ $(document).ready( function() {
             alert('Question not active!')
             return;
         }
-        sendToStream('buzzer', {'text': 'buzz_in'})
+        sendToStream('buzzer', 'buzz_in')
     });
 
     $("#answerButton").click(function () {

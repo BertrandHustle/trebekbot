@@ -1,11 +1,10 @@
 # Native
-import asyncio
 import json
-from contextlib import suppress
 from random import randint
 # Third Party
 from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
 from asgiref.sync import async_to_sync
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
 # Project
 from game.models import Player, Question
@@ -49,30 +48,29 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_add('question', self.channel_name)
         await self.accept()
 
-    async def receive_json(self, text_data=None, bytes_data=None):
-        if text_data == 'status':
+    async def receive_json(self, content, **kwargs):
+        if content == 'status':
             await self.send(text_data=self.get_buzzed_in_player())
-        elif text_data == 'buzz_in':
-            print(self.get_buzzer_status())
+        elif content == 'buzz_in':
             if self.get_buzzer_status():
-                await self.send(text_data='buzzer_locked')
+                await self.send_json(content='buzzer_locked')
             else:
                 self.set_buzzer_status(1)
-                await self.send(text_data='buzzed_in')
+                await self.send_json(content='buzzed_in')
                 await self.channel_layer.group_send(self.room_group_name, {
                     'type': 'send_message',
                     'message': 'buzzed_in',
                     'event': "buzzer"
                 })
-        elif text_data == 'reset_buzzer':
+        elif content == 'reset_buzzer':
             self.set_buzzer_status(0)
-        elif text_data.startswith('buzzed_in_player:'):
-            self.set_buzzed_in_player(text_data.split(':')[1])
+        elif content.startswith('buzzed_in_player:'):
+            self.set_buzzed_in_player(content.split(':')[1])
             await self.send(text_data='buzzed_in_player:' + self.get_buzzed_in_player())
 
-    def disconnect(self, close_code):
+    async def disconnect(self, close_code):
         self.remove_buzzer()
-        async_to_sync(self.channel_layer.group_discard)('buzzer', self.channel_name)
+        await self.channel_layer.group_discard('buzzer', self.channel_name)
 
     async def send_message(self, res):
         # Send message to WebSocket
@@ -88,8 +86,22 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
     def remove_question(self):
         redis_interfacer.hdel(f'{get_shared_channel_name(self.channel_name)}', 'live_question')
 
-    def get_question(self):
+    def get_live_question(self):
         redis_interfacer.hget(f'{get_shared_channel_name(self.channel_name)}', 'live_question')
+
+    def set_live_question(self, question_json):
+        redis_interfacer.hset(
+            f'{get_shared_channel_name(self.channel_name)}',
+            'live_question',
+            json.dumps(question_json)
+        )
+
+    @staticmethod
+    @database_sync_to_async
+    def get_new_question():
+        # get random question
+        question_count = Question.objects.count()
+        return Question.objects.get(pk=randint(0, question_count))
 
     async def connect(self):
         self.init_question()
@@ -102,28 +114,27 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
         # for some reason JSON.stringify adds double quotes
         content = content.replace('"', '')
         if content == 'get_question':
-            # get random question
-            question_count = Question.objects.count()
-            live_question = Question.objects.get(pk=randint(0, question_count))
+            new_question = await self.get_new_question()
             question_json = {
-                'text': live_question.text,
-                'valid_links': live_question.valid_links,
-                'value': live_question.value,
-                'category': live_question.category,
-                'daily_double': live_question.daily_double,
-                'answer': live_question.answer,
-                'date': live_question.date
+                'text': new_question.text,
+                'valid_links': new_question.valid_links,
+                'value': new_question.value,
+                'category': new_question.category,
+                'daily_double': new_question.daily_double,
+                'answer': new_question.answer,
+                'date': new_question.date
             }
+            self.set_live_question(question_json)
             await self.send_json(question_json)
             await self.channel_layer.group_send(self.room_group_name, {
                 'type': 'send_message',
-                'message': live_question,
+                'message': question_json,
                 'event': 'question'
             })
             # DEBUG
-            print(live_question.answer)
+            print(question_json['answer'])
         elif content == 'question_status':
-            await self.send_json(bool(self.get_question()))
+            await self.send_json(bool(self.get_live_question()))
         elif content == 'reset_question':
             self.init_question()
 

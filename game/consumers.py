@@ -56,7 +56,7 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
                 await self.send_json(content='buzzer_locked')
             else:
                 self.set_buzzer_status(1)
-                await self.send_json(content='buzzed_in')
+                #await self.send_json(content='buzzed_in')
                 await self.channel_layer.group_send(self.room_group_name, {
                     'type': 'send_message',
                     'message': 'buzzed_in',
@@ -70,11 +70,11 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, close_code):
         self.remove_buzzer()
-        await self.channel_layer.group_discard('buzzer', self.channel_name)
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
-    async def send_message(self, res):
+    async def send_message(self, msg):
         # Send message to WebSocket
-        await self.send_json({"payload": res})
+        await self.send_json(msg)
 
 
 class QuestionConsumer(AsyncJsonWebsocketConsumer):
@@ -107,7 +107,7 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
         self.init_question()
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
-        self.channel_layer.group_add('question', self.channel_name)
+        self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
     async def receive_json(self, content, **kwargs):

@@ -124,18 +124,18 @@ $(document).ready( function() {
 
     // buzzer
     demultiplexerSocket.addEventListener('message', function(e) {
-        let payload = JSON.parse(e.data).payload;
+        let msg = JSON.parse(e.data).payload.message;
         let stream = JSON.parse(e.data).stream;
         //alert(payload);
         if (stream === 'buzzer'){
-            if (payload === 'buzzed_in'){
+            if (msg === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});
                 demultiplexerSocket.sendToStream('buzzer', 'buzzed_in_player:' + currentPlayer);
             }
-            else if (payload === 'buzzer_locked'){
+            else if (msg === 'buzzer_locked'){
                 alert('Player already buzzed in!');
             }
-            else if (payload.startsWith('buzzed_in_player')){
+            else if (msg.startsWith('buzzed_in_player')){
                 $('#buzzerPlayer').text(e.data.split(':')[1]);
             }
         }

@@ -56,9 +56,8 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
                 await self.send_json(content='buzzer_locked')
             else:
                 self.set_buzzer_status(1)
-                #await self.send_json(content='buzzed_in')
                 await self.channel_layer.group_send(self.room_group_name, {
-                    'type': 'send_message',
+                    'type': 'send.message',
                     'message': 'buzzed_in',
                     'event': "buzzer"
                 })
@@ -74,6 +73,7 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
 
     async def send_message(self, msg):
         # Send message to WebSocket
+        print(self.__name__)
         await self.send_json(msg)
 
 
@@ -125,22 +125,30 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
                 'date': new_question.date
             }
             self.set_live_question(question_json)
-            await self.send_json(question_json)
             await self.channel_layer.group_send(self.room_group_name, {
-                'type': 'send_message',
+                'type': 'send.message',
                 'message': question_json,
-                'event': 'question'
+                'event': 'question',
             })
             # DEBUG
             print(question_json['answer'])
         elif content == 'question_status':
-            await self.send_json(bool(self.get_live_question()))
+            await self.channel_layer.group_send(self.room_group_name, {
+                'type': 'send.message',
+                'message': bool(self.get_live_question()),
+                'event': 'question'
+            })
         elif content == 'reset_question':
             self.init_question()
 
     async def disconnect(self, close_code):
         self.remove_question()
         await self.channel_layer.group_discard('question', self.channel_name)
+
+    async def send_message(self, msg):
+        # Send message to WebSocket
+        print(self.__name__)
+        await self.send_json(msg)
 
 
 class AnswerConsumer(JsonWebsocketConsumer):

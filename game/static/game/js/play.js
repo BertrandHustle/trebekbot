@@ -102,10 +102,10 @@ $(document).ready( function() {
 
     // receive a new question
     demultiplexerSocket.addEventListener('message', function(e) {
-        let payload = JSON.parse(e.data).payload;
+        let msg = JSON.parse(e.data).payload.message;
         let stream = JSON.parse(e.data).stream;
         if (stream === 'question') {
-            liveQuestion = payload;
+            liveQuestion = msg;
             $('#questionText').text(liveQuestion['text']);
             if (liveQuestion['valid_links']) {
                 $('#validLinks').text(liveQuestion['valid_links']);
@@ -126,7 +126,6 @@ $(document).ready( function() {
     demultiplexerSocket.addEventListener('message', function(e) {
         let msg = JSON.parse(e.data).payload.message;
         let stream = JSON.parse(e.data).stream;
-        //alert(payload);
         if (stream === 'buzzer'){
             if (msg === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});

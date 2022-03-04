@@ -5,7 +5,7 @@ from random import randint
 from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
 from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
-from channels.generic.websocket import AsyncJsonWebsocketConsumer, JsonWebsocketConsumer, WebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer, JsonWebsocketConsumer
 # Project
 from game.models import Player, Question
 from src.judge import Judge
@@ -73,7 +73,6 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
 
     async def send_message(self, msg):
         # Send message to WebSocket
-        print(self.__name__)
         await self.send_json(msg)
 
 
@@ -107,7 +106,7 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
         self.init_question()
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'game_{self.room_name}'
-        self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
     async def receive_json(self, content, **kwargs):
@@ -147,7 +146,6 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
 
     async def send_message(self, msg):
         # Send message to WebSocket
-        print(self.__name__)
         await self.send_json(msg)
 
 

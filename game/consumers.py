@@ -3,9 +3,8 @@ import json
 from random import randint
 # Third Party
 from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
-from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
-from channels.generic.websocket import AsyncJsonWebsocketConsumer, JsonWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
 # Project
 from game.models import Player, Question
 from src.judge import Judge
@@ -40,7 +39,8 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
 
     def set_buzzed_in_player(self, player: str):
         redis_interfacer.hset(get_shared_channel_name(self.channel_name), 'buzzed_in_player', player)
-    
+
+    #TODO: check if rest of connect func needs to be awaited
     async def connect(self):
         self.init_buzzer()
         self.room_name = self.scope['url_route']['kwargs']['room_name']
@@ -149,26 +149,35 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(msg)
 
 
-class AnswerConsumer(JsonWebsocketConsumer):
+class AnswerConsumer(AsyncJsonWebsocketConsumer):
     judge = Judge()
 
-    def connect(self):
-        async_to_sync(self.channel_layer.group_add)('answer', self.channel_name)
-        self.accept()
+    async def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f'game_{self.room_name}'
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
 
-    def receive_json(self, text_data=None, bytes_data=None):
+    async def receive_json(self, text_data=None, bytes_data=None):
+        text_data = json.loads(text_data)
+        print(text_data)
         given_answer = text_data['givenAnswer']
         correct_answer = text_data['correctAnswer']
         question_value = text_data['questionValue']
-        response, correct, player_score = self.eval_answer(given_answer, correct_answer, question_value)
+        response, correct, player_score = await self.eval_answer(given_answer, correct_answer, question_value)
         payload = {
             'type': 'answer',
             'response': response,
             'correct': correct,
             'player_score': player_score
         }
-        self.send_json(payload)
+        await self.channel_layer.group_send(self.room_group_name, {
+            'type': 'send.message',
+            'message': payload,
+            'event': 'answer',
+        })
 
+    @database_sync_to_async
     def eval_answer(self, given_answer, correct_answer, question_value):
         player = Player.objects.get(user=self.scope['user'])
         question_value = int(question_value)
@@ -189,8 +198,12 @@ class AnswerConsumer(JsonWebsocketConsumer):
             player.save()
         return response, correct, player.score
 
-    def disconnect(self, code):
-        async_to_sync(self.channel_layer.group_discard)('answer', self.channel_name)
+    async def disconnect(self, code):
+        await self.channel_layer.group_discard('answer', self.channel_name)
+
+    async def send_message(self, msg):
+        # Send message to WebSocket
+        await self.send_json(msg)
 
 
 class GameDemultiplexer(AsyncJsonWebsocketDemultiplexer):

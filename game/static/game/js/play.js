@@ -1,5 +1,5 @@
 var timeLimit = 60;
-var currentTime = 0;
+var currentTime = 60;
 var currentWager = 0;
 var dailyDoubleAsker;
 var categorizedQuestions;
@@ -34,7 +34,7 @@ $(document).ready( function() {
         $('.dot').css({'background-color': 'gray'});
         clearInterval(timerInterval);
         liveQuestion = null;
-        currentTime = 0;
+        currentTime = timeLimit;
     }
 
     function tickTimer() {
@@ -57,44 +57,22 @@ $(document).ready( function() {
 
     // judge whether an answer is correct
     demultiplexerSocket.addEventListener('message', function(e) {
-        const payload = JSON.parse(e.data);
-        //alert(payload.response);
-        $('#answerResult').text(payload.response);
-        // TODO: make sure player score under ACTIVE PLAYERS is updated as well
-        $('#playerScore').text('Score: ' + payload.player_score);
-        // clear timer and reset buzzer if answer is correct
-        if (payload.correct === true) {
-            terminateQuestion();
-            $('.questionTimer').text('Correct!');
-            $('.dot').css({'background-color': 'gray'});
-        }
-        else if (payload.correct === 'close' || payload.correct === false) {
-            demultiplexerSocket.sendToStream('buzzer', 'reset_buzzer');
-        }
-    })
-
-    // timer
-    demultiplexerSocket.addEventListener('message', function(e) {
-        let payload = JSON.parse(e.data).payload;
-        let stream = JSON.parse(e.data).stream;
-        if (stream === 'timer') {
-            if (payload.message === 'Timer Started!'){
-                currentTime = timeLimit;
-                //$('.questionTimer').html(currentTime).show();
-            }
-            else if (payload.message === 'tick'){
-                currentTime--;
-                $('.questionTimer').html(currentTime).show();
-            }
-            else if (payload.message === 'Timer Up!'){
-                buzzerSocket.send('reset_buzzer');
-                alert('Time Up!')
+        let msg = JSON.parse(e.data).payload.message;
+        let eventType = JSON.parse(e.data).payload.event;
+        if (eventType === 'answer') {
+            $('#answerResult').text(msg.response);
+            // TODO: make sure player score under ACTIVE PLAYERS is updated as well
+            $('#playerScore').text('Score: ' + msg.player_score);
+            // clear timer and reset buzzer if answer is correct
+            if (msg.correct === true) {
+                terminateQuestion();
+                $('.questionTimer').text('Correct!');
                 $('.dot').css({'background-color': 'gray'});
-                $('.questionTimer').text('Ready');
-                // set answer to make available to tickTimer
-                correctAnswer = liveQuestion['answer'];
-                $('#answerResult').text('Answer: ' + correctAnswer);
-                $('.question').text('')
+            }
+            else if (msg.correct === 'close' || msg.correct === false) {
+                demultiplexerSocket.sendToStream('buzzer', 'reset_buzzer');
+                currentTime = timeLimit;
+                $('.dot').css({'background-color': 'gray'});
             }
         }
     })
@@ -103,8 +81,8 @@ $(document).ready( function() {
     // receive a new question
     demultiplexerSocket.addEventListener('message', function(e) {
         let msg = JSON.parse(e.data).payload.message;
-        let stream = JSON.parse(e.data).stream;
-        if (stream === 'question') {
+        let eventType = JSON.parse(e.data).payload.event;
+        if (eventType === 'question') {
             liveQuestion = msg;
             $('#questionText').text(liveQuestion['text']);
             if (liveQuestion['valid_links']) {
@@ -125,8 +103,8 @@ $(document).ready( function() {
     // buzzer
     demultiplexerSocket.addEventListener('message', function(e) {
         let msg = JSON.parse(e.data).payload.message;
-        let stream = JSON.parse(e.data).stream;
-        if (stream === 'buzzer'){
+        let eventType = JSON.parse(e.data).payload.event;
+        if (eventType === 'buzzer'){
             if (msg === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});
                 demultiplexerSocket.sendToStream('buzzer', 'buzzed_in_player:' + currentPlayer);
@@ -156,7 +134,7 @@ $(document).ready( function() {
 //            }
 
     $("#getQuestion").click(function () {
-        if (currentTime <= 0) {
+        if (typeof liveQuestion === 'undefined') {
             // remove answer from previous question
             $('#answer').text('')
             sendToStream('question', 'get_question')
@@ -167,7 +145,7 @@ $(document).ready( function() {
     });
 
     $("#buzzer").click(function () {
-        if (liveQuestion == null) {
+        if (typeof liveQuestion === 'undefined') {
             alert('Question not active!')
             return;
         }

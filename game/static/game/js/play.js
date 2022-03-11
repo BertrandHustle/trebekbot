@@ -1,5 +1,6 @@
 var timeLimit = 60;
-var currentTime = 60;
+var currentTime = timeLimit;
+var timerActive = false;
 var currentWager = 0;
 var dailyDoubleAsker;
 var categorizedQuestions;
@@ -33,6 +34,8 @@ $(document).ready( function() {
         // client-side resets
         $('.dot').css({'background-color': 'gray'});
         clearInterval(timerInterval);
+        timerInterval = null;
+        timerActive = false;
         liveQuestion = null;
         currentTime = timeLimit;
     }
@@ -43,14 +46,12 @@ $(document).ready( function() {
             currentTime--;
         }
         else {
-            clearInterval(timerInterval);
-            alert('Time Up!')
+            terminateQuestion();
+            alert('Time Up!');
             $('.dot').css({'background-color': 'gray'});
             $('.questionTimer').text('Ready');
-            // set answer to make available to tickTimer
-            correctAnswer = liveQuestion['answer'];
             $('#answerResult').text('Answer: ' + correctAnswer);
-            $('.question').text('')
+            $('.question').text('');
         }
     }
 
@@ -95,7 +96,10 @@ $(document).ready( function() {
             correctAnswer = liveQuestion['answer'];
             // set and start timer
             currentTime = timeLimit;
-            timerInterval = setInterval(tickTimer, 1000);
+            if (timerActive === false){
+                timerInterval = setInterval(tickTimer, 1000);
+                timerActive = true;
+            }
         }
     })
 
@@ -105,6 +109,7 @@ $(document).ready( function() {
         let msg = JSON.parse(e.data).payload.message;
         let eventType = JSON.parse(e.data).payload.event;
         if (eventType === 'buzzer'){
+            alert(JSON.parse(e.data).stream)
             if (msg === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});
                 demultiplexerSocket.sendToStream('buzzer', 'buzzed_in_player:' + currentPlayer);

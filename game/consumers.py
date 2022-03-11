@@ -142,7 +142,7 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
 
     async def disconnect(self, close_code):
         self.remove_question()
-        await self.channel_layer.group_discard('question', self.channel_name)
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def send_message(self, msg):
         # Send message to WebSocket
@@ -199,7 +199,7 @@ class AnswerConsumer(AsyncJsonWebsocketConsumer):
         return response, correct, player.score
 
     async def disconnect(self, code):
-        await self.channel_layer.group_discard('answer', self.channel_name)
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def send_message(self, msg):
         # Send message to WebSocket

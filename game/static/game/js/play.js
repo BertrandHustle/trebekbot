@@ -26,6 +26,16 @@ $(document).ready( function() {
         }))
     }
 
+    demultiplexerSocket.onopen = function() {
+        sendToStream('question', 'init');
+        sendToStream('answer', JSON.stringify({
+            'givenAnswer': 'init',
+            'correctAnswer': 'init',
+            'questionValue': 10
+        }));
+        sendToStream('buzzer', 'init');
+    }
+
     // used to reset relevant vars after question is completed, either by correct answer or timer
     function terminateQuestion() {
         // server-side resets

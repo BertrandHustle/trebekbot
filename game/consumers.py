@@ -1,5 +1,6 @@
 # Native
 import json
+from contextlib import suppress
 from random import randint
 # Third Party
 from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
@@ -160,7 +161,6 @@ class AnswerConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, text_data=None, bytes_data=None):
         text_data = json.loads(text_data)
-        print(text_data)
         given_answer = text_data['givenAnswer']
         correct_answer = text_data['correctAnswer']
         question_value = text_data['questionValue']
@@ -176,6 +176,7 @@ class AnswerConsumer(AsyncJsonWebsocketConsumer):
             'message': payload,
             'event': 'answer',
         })
+
 
     @database_sync_to_async
     def eval_answer(self, given_answer, correct_answer, question_value):

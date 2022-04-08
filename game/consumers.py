@@ -1,9 +1,7 @@
 # Native
 import json
-from contextlib import suppress
 from random import randint
 # Third Party
-from channelsmultiplexer import AsyncJsonWebsocketDemultiplexer
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 # Project
@@ -160,7 +158,6 @@ class AnswerConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
 
     async def receive_json(self, text_data=None, bytes_data=None):
-        text_data = json.loads(text_data)
         given_answer = text_data['givenAnswer']
         correct_answer = text_data['correctAnswer']
         question_value = text_data['questionValue']
@@ -176,7 +173,6 @@ class AnswerConsumer(AsyncJsonWebsocketConsumer):
             'message': payload,
             'event': 'answer',
         })
-
 
     @database_sync_to_async
     def eval_answer(self, given_answer, correct_answer, question_value):
@@ -205,14 +201,6 @@ class AnswerConsumer(AsyncJsonWebsocketConsumer):
     async def send_message(self, msg):
         # Send message to WebSocket
         await self.send_json(msg)
-
-
-class GameDemultiplexer(AsyncJsonWebsocketDemultiplexer):
-    applications = {
-        "buzzer": BuzzerConsumer.as_asgi(),
-        "question": QuestionConsumer.as_asgi(),
-        "answer": AnswerConsumer.as_asgi(),
-    }
 
 
 

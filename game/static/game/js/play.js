@@ -6,41 +6,41 @@ var dailyDoubleAsker;
 var categorizedQuestions;
 var correctAnswer;
 var liveQuestion;
+var timerInterval;
 
 $(document).ready( function() {
 
     const roomName = document.getElementById('roomName').textContent.split(':')[1].trim();
 
-    const demultiplexerSocket = new WebSocket(
+    const buzzerSocket = new WebSocket(
         'ws://'
         + window.location.host
-        + '/ws/game/demultiplexer/'
+        + '/ws/game/buzzer/'
         + roomName
         + '/'
     );
 
-    function sendToStream(streamName, payload) {
-        demultiplexerSocket.send(JSON.stringify({
-            'stream': streamName,
-            'payload': payload
-        }))
-    }
+    const answerSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/game/answer/'
+        + roomName
+        + '/'
+    );
 
-    demultiplexerSocket.onopen = function() {
-        sendToStream('question', 'init');
-        sendToStream('answer', JSON.stringify({
-            'givenAnswer': 'init',
-            'correctAnswer': 'init',
-            'questionValue': 10
-        }));
-        sendToStream('buzzer', 'init');
-    }
+    const questionSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/game/question/'
+        + roomName
+        + '/'
+    );
 
     // used to reset relevant vars after question is completed, either by correct answer or timer
     function terminateQuestion() {
         // server-side resets
-        sendToStream('question', 'reset_question')
-        sendToStream('buzzer', 'reset_buzzer')
+        questionSocket.send(JSON.stringify('reset_question'));
+        buzzerSocket.send(JSON.stringify('reset_buzzer'));
         // client-side resets
         $('.dot').css({'background-color': 'gray'});
         clearInterval(timerInterval);
@@ -67,10 +67,11 @@ $(document).ready( function() {
 
 
     // judge whether an answer is correct
-    demultiplexerSocket.addEventListener('message', function(e) {
-        let msg = JSON.parse(e.data).payload.message;
-        let eventType = JSON.parse(e.data).payload.event;
-        if (eventType === 'answer') {
+    answerSocket.addEventListener('message', function(e) {
+        let payload = JSON.parse(e.data)
+        let msg = payload.message
+        let event = payload.event
+        if (event === 'answer') {
             $('#answerResult').text(msg.response);
             // TODO: make sure player score under ACTIVE PLAYERS is updated as well
             $('#playerScore').text('Score: ' + msg.player_score);
@@ -81,7 +82,7 @@ $(document).ready( function() {
                 $('.dot').css({'background-color': 'gray'});
             }
             else if (msg.correct === 'close' || msg.correct === false) {
-                demultiplexerSocket.sendToStream('buzzer', 'reset_buzzer');
+                buzzerSocket.send(JSON.stringify('reset_buzzer'))
                 currentTime = timeLimit;
                 $('.dot').css({'background-color': 'gray'});
             }
@@ -90,10 +91,11 @@ $(document).ready( function() {
 
 
     // receive a new question
-    demultiplexerSocket.addEventListener('message', function(e) {
-        let msg = JSON.parse(e.data).payload.message;
-        let eventType = JSON.parse(e.data).payload.event;
-        if (eventType === 'question') {
+    questionSocket.addEventListener('message', function(e) {
+        let payload = JSON.parse(e.data)
+        let msg = payload.message
+        let event = payload.event
+        if (event === 'question') {
             liveQuestion = msg;
             $('#questionText').text(liveQuestion['text']);
             if (liveQuestion['valid_links']) {
@@ -115,14 +117,14 @@ $(document).ready( function() {
 
 
     // buzzer
-    demultiplexerSocket.addEventListener('message', function(e) {
-        let msg = JSON.parse(e.data).payload.message;
-        let eventType = JSON.parse(e.data).payload.event;
-        if (eventType === 'buzzer'){
-            alert(JSON.parse(e.data).stream)
+    buzzerSocket.addEventListener('message', function(e) {
+        let payload = JSON.parse(e.data)
+        let msg = payload.message
+        let event = payload.event
+        if (event === 'buzzer'){
             if (msg === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});
-                demultiplexerSocket.sendToStream('buzzer', 'buzzed_in_player:' + currentPlayer);
+                buzzerSocket.send(JSON.stringify({'buzzed_in_player': currentPlayer}));
             }
             else if (msg === 'buzzer_locked'){
                 alert('Player already buzzed in!');
@@ -152,7 +154,7 @@ $(document).ready( function() {
         if (typeof liveQuestion === 'undefined') {
             // remove answer from previous question
             $('#answer').text('')
-            sendToStream('question', 'get_question')
+            questionSocket.send(JSON.stringify('get_question'))
         }
         else {
             alert('Question is still live!')
@@ -164,12 +166,12 @@ $(document).ready( function() {
             alert('Question not active!')
             return;
         }
-        sendToStream('buzzer', 'buzz_in')
+        buzzerSocket.send(JSON.stringify('buzz_in'));
     });
 
     $("#answerButton").click(function () {
         const givenAnswer = $('form').serializeArray()[1].value;
-        sendToStream('answer', JSON.stringify({
+        answerSocket.send(JSON.stringify({
             'givenAnswer': givenAnswer,
             'correctAnswer': correctAnswer,
             'questionValue': liveQuestion['value']

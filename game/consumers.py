@@ -48,31 +48,35 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
 
     async def receive_json(self, content, **kwargs):
+        content = content['content']
         if content == 'status':
-            await self.send(text_data=self.get_buzzed_in_player())
+            await self.send_message_to_channel_group(self.get_buzzed_in_player())
         elif content == 'buzz_in':
             if self.get_buzzer_status():
-                await self.send_json(content='buzzer_locked')
+                await self.send_message_to_channel_group('buzzer_locked')
             else:
                 self.set_buzzer_status(1)
-                await self.channel_layer.group_send(self.room_group_name, {
-                    'type': 'send.message',
-                    'message': 'buzzed_in',
-                    'event': "buzzer"
-                })
+                await self.send_message_to_channel_group('buzzed_in')
         elif content == 'reset_buzzer':
             self.set_buzzer_status(0)
         elif content.startswith('buzzed_in_player:'):
             self.set_buzzed_in_player(content.split(':')[1])
-            await self.send(text_data='buzzed_in_player:' + self.get_buzzed_in_player())
+            await self.send_message_to_channel_group('buzzed_in_player:' + self.get_buzzed_in_player())
 
     async def disconnect(self, close_code):
         self.remove_buzzer()
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
-    async def send_message(self, msg):
+    async def send_message(self, msg: str):
         # Send message to WebSocket
         await self.send_json(msg)
+
+    async def send_message_to_channel_group(self, msg: str):
+        await self.channel_layer.group_send(self.room_group_name, {
+            'type': 'send.message',
+            'message': msg,
+            'event': 'buzzer'
+        })
 
 
 class QuestionConsumer(AsyncJsonWebsocketConsumer):
@@ -110,7 +114,7 @@ class QuestionConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content, **kwargs):
         # for some reason JSON.stringify adds double quotes
-        content = content.replace('"', '')
+        content = content['content']
         if content == 'get_question':
             new_question = await self.get_new_question()
             question_json = {

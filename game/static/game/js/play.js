@@ -11,6 +11,7 @@ var timerInterval;
 $(document).ready( function() {
 
     const roomName = document.getElementById('roomName').textContent.split(':')[1].trim();
+    const playerName = document.getElementById('playerName').textContent.split(':')[1].trim();
 
     const buzzerSocket = new WebSocket(
         'ws://'
@@ -36,11 +37,15 @@ $(document).ready( function() {
         + '/'
     );
 
+    function sendStringAsJson(websocket, message) {
+        websocket.send(JSON.stringify({'content': message}));
+    }
+
     // used to reset relevant vars after question is completed, either by correct answer or timer
     function terminateQuestion() {
         // server-side resets
-        questionSocket.send(JSON.stringify('reset_question'));
-        buzzerSocket.send(JSON.stringify('reset_buzzer'));
+        sendStringAsJson(questionSocket, 'reset_question');
+        sendStringAsJson(buzzerSocket, 'reset_buzzer');
         // client-side resets
         $('.dot').css({'background-color': 'gray'});
         clearInterval(timerInterval);
@@ -82,7 +87,7 @@ $(document).ready( function() {
                 $('.dot').css({'background-color': 'gray'});
             }
             else if (msg.correct === 'close' || msg.correct === false) {
-                buzzerSocket.send(JSON.stringify('reset_buzzer'))
+                sendStringAsJson(buzzerSocket, 'reset_buzzer');
                 currentTime = timeLimit;
                 $('.dot').css({'background-color': 'gray'});
             }
@@ -124,7 +129,7 @@ $(document).ready( function() {
         if (event === 'buzzer'){
             if (msg === 'buzzed_in'){
                 $('.dot').css({'background-color': 'red'});
-                buzzerSocket.send(JSON.stringify({'buzzed_in_player': currentPlayer}));
+                sendStringAsJson(buzzerSocket, 'buzzed_in_player: ' + currentPlayer);
             }
             else if (msg === 'buzzer_locked'){
                 alert('Player already buzzed in!');
@@ -151,30 +156,36 @@ $(document).ready( function() {
 //            }
 
     $("#getQuestion").click(function () {
-        if (typeof liveQuestion === 'undefined') {
+        if (liveQuestion == null) {
             // remove answer from previous question
-            $('#answer').text('')
-            questionSocket.send(JSON.stringify('get_question'))
+            $('#answer').text('');
+            sendStringAsJson(questionSocket, 'get_question');
         }
         else {
-            alert('Question is still live!')
+            alert('Question is still live!');
         }
     });
 
     $("#buzzer").click(function () {
-        if (typeof liveQuestion === 'undefined') {
-            alert('Question not active!')
+        if (liveQuestion == null) {
+            alert('Question not active!');
             return;
         }
-        buzzerSocket.send(JSON.stringify('buzz_in'));
+        sendStringAsJson(buzzerSocket, 'buzz_in');
     });
 
     $("#answerButton").click(function () {
-        const givenAnswer = $('form').serializeArray()[1].value;
-        answerSocket.send(JSON.stringify({
-            'givenAnswer': givenAnswer,
-            'correctAnswer': correctAnswer,
-            'questionValue': liveQuestion['value']
-        }));
+        let buzzed_in_player = sendStringAsJson(buzzerSocket, 'status');
+        if (buzzed_in_player === playerName) {
+            let givenAnswer = $('form').serializeArray()[1].value;
+            answerSocket.send(JSON.stringify({
+                'givenAnswer': givenAnswer,
+                'correctAnswer': correctAnswer,
+                'questionValue': liveQuestion['value']
+            }));
+        }
+        else {
+            alert('A player is already buzzed in!');
+        }
     });
 });

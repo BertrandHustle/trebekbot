@@ -51,17 +51,16 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
         content = content['content']
         if content == 'status':
             await self.send_message_to_channel_group(self.get_buzzed_in_player())
-        elif content == 'buzz_in':
+        elif content.startswith('buzz_in'):
+            # if we get anything truthy, buzzer is locked
             if self.get_buzzer_status():
                 await self.send_message_to_channel_group('buzzer_locked')
             else:
                 self.set_buzzer_status(1)
-                await self.send_message_to_channel_group('buzzed_in')
+                self.set_buzzed_in_player(content.split(':')[1])
+                await self.send_message_to_channel_group(f'buzzed_in: {self.get_buzzed_in_player()}')
         elif content == 'reset_buzzer':
             self.set_buzzer_status(0)
-        elif content.startswith('buzzed_in_player:'):
-            self.set_buzzed_in_player(content.split(':')[1])
-            await self.send_message_to_channel_group('buzzed_in_player:' + self.get_buzzed_in_player())
 
     async def disconnect(self, close_code):
         self.remove_buzzer()

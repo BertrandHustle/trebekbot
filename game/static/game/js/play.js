@@ -127,15 +127,16 @@ $(document).ready( function() {
         let msg = payload.message
         let event = payload.event
         if (event === 'buzzer'){
-            if (msg === 'buzzed_in'){
+            if (msg.startsWith('buzzed_in')){
+                let buzzedInPlayer = msg.split(':')[1].trim();
                 $('.dot').css({'background-color': 'red'});
-                sendStringAsJson(buzzerSocket, 'buzzed_in_player: ' + currentPlayer);
+                $('#buzzerPlayer').text(buzzedInPlayer);
+                if (buzzedInPlayer ===  playerName){
+                    sendStringAsJson(buzzerSocket, 'buzzed_in_player: ' + playerName);
+                }
             }
             else if (msg === 'buzzer_locked'){
                 alert('Player already buzzed in!');
-            }
-            else if (msg.startsWith('buzzed_in_player')){
-                $('#buzzerPlayer').text(e.data.split(':')[1]);
             }
         }
     })
@@ -171,12 +172,12 @@ $(document).ready( function() {
             alert('Question not active!');
             return;
         }
-        sendStringAsJson(buzzerSocket, 'buzz_in');
+        sendStringAsJson(buzzerSocket, 'buzz_in: ' + playerName);
     });
 
     $("#answerButton").click(function () {
-        let buzzed_in_player = sendStringAsJson(buzzerSocket, 'status');
-        if (buzzed_in_player === playerName) {
+        let buzzedInPlayer = sendStringAsJson(buzzerSocket, 'status');
+        if (buzzedInPlayer === playerName) {
             let givenAnswer = $('form').serializeArray()[1].value;
             answerSocket.send(JSON.stringify({
                 'givenAnswer': givenAnswer,

@@ -19,19 +19,10 @@ def get_shared_channel_name(channel_name: str):
 class BuzzerConsumer(AsyncJsonWebsocketConsumer):
 
     def init_buzzer(self):
-        redis_interfacer.hset(f'{get_shared_channel_name(self.channel_name)}', 'buzzer_locked', 0)
         redis_interfacer.hset(f'{get_shared_channel_name(self.channel_name)}', 'buzzed_in_player', '')
 
     def remove_buzzer(self):
-        redis_interfacer.hdel(f'{get_shared_channel_name(self.channel_name)}', 'buzzer_locked')
         redis_interfacer.hdel(f'{get_shared_channel_name(self.channel_name)}', 'buzzed_in_player')
-
-    def get_buzzer_status(self):
-        return int(redis_interfacer.hget(get_shared_channel_name(self.channel_name), 'buzzer_locked').decode())
-
-    def set_buzzer_status(self, status: int):
-        # use 0 for False, 1 for True
-        redis_interfacer.hset(get_shared_channel_name(self.channel_name), 'buzzer_locked', status)
 
     def get_buzzed_in_player(self):
         return redis_interfacer.hget(get_shared_channel_name(self.channel_name), 'buzzed_in_player').decode()
@@ -49,18 +40,17 @@ class BuzzerConsumer(AsyncJsonWebsocketConsumer):
 
     async def receive_json(self, content, **kwargs):
         content = content['content']
-        if content == 'status':
+        if content == 'get_buzzed_in_player':
             await self.send_message_to_channel_group(self.get_buzzed_in_player())
         elif content.startswith('buzz_in'):
             # if we get anything truthy, buzzer is locked
-            if self.get_buzzer_status():
+            if self.get_buzzed_in_player():
                 await self.send_message_to_channel_group('buzzer_locked')
             else:
-                self.set_buzzer_status(1)
                 self.set_buzzed_in_player(content.split(':')[1])
                 await self.send_message_to_channel_group(f'buzzed_in: {self.get_buzzed_in_player()}')
         elif content == 'reset_buzzer':
-            self.set_buzzer_status(0)
+            self.set_buzzed_in_player('')
 
     async def disconnect(self, close_code):
         self.remove_buzzer()

@@ -6,40 +6,13 @@ syspath.append(
 os.path.abspath(
 os.path.join(
 os.path.dirname(__file__), os.path.pardir)))
-from threading import Timer
 from re import findall
 # project
 from src.question import Question
 # third-party
 import pytest
 
-
-test_timer = Timer(1, None)
-test_question = Question(Question.get_random_question(), test_timer)
-
-
-def mock_question(question_string: str, ret_json=None):
-    """
-    creates a test question based on a slack-formatted string
-    :param question_string: slack-formatted question string, e.g.
-    "[NOW HEAR THIS!] [$500] [2001-01-09] 'It's the native wind instrument heard here, mate'"
-    :param ret_json: optional, outputs as json formatted string if set to true
-    :return: Question
-    """
-    reg_question = findall(r'(\[(.*?)\]|\'(.*?)$)', question_string)
-    category = reg_question[0][1]
-    value = reg_question[1][1]
-    date = reg_question[2][1]
-    text = reg_question[3][2]
-
-    if ret_json:
-        return {"category": category, "air_date": date, "question": text, "value": value}
-    else:
-        new_question = Question(Question.get_random_question(), test_timer)
-        new_question.category, new_question.value, new_question.date, new_question.text, new_question.daily_double = \
-            category, value, date, text, Question.is_daily_double(new_question.value)
-        new_question.slack_text = new_question.format_slack_text(new_question)
-        return new_question
+test_question = Question.get_random_question()
 
 
 def test_get_value():
@@ -167,7 +140,7 @@ def test_convert_value_to_int(test_value, expected_value):
 
 
 def test_get_questions_by_category():
-    categorized_questions = Question.get_questions_by_category('history', test_timer)
+    categorized_questions = Question.get_questions_by_category('history')
     category_list = [q.category for q in categorized_questions]
     # if all categories are not the same the length of category_list set will be more than one
     assert len(set(category_list)) == 1

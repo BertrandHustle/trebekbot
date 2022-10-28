@@ -31,17 +31,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'channels',
-    'game.apps.GameConfig',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'game.apps.GameConfig',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -136,13 +138,6 @@ LOGIN_REDIRECT_URL = '/game/play'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-# Channels
-ASGI_APPLICATION = 'trebekbot.asgi.application'
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
-    },
-}
+CORS_ORIGIN_WHITELIST = [
+     'http://localhost:3000'
+]

@@ -39,30 +39,20 @@ class Question:
     banned_categories = 'missing this category'
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    # TODO: refactor this to be a true constructor (e.g. not always a random question)
-    def __init__(self, question_json, timer):
+    def __init__(self, question_json):
         # text with html links separated out
-        scrubbed_text = Question.separate_html(question_json['question'])
-        self.text = ''
-        self.valid_links = []
-        if type(scrubbed_text) == str:
-            self.text = scrubbed_text
-        # if there are valid html links included in question text
-        elif type(scrubbed_text) == list:
-            self.text = scrubbed_text[0]
-            self.valid_links = scrubbed_text[1:]
+        self.text, self.valid_links = Question.separate_html(question_json['question'])
         self.value = Question.convert_value_to_int(question_json['value'])
         self.category = question_json['category']
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question_json['answer']
         self.date = question_json['air_date']
-        self.slack_text = Question.format_slack_text(self)
-        self.timer = timer
 
     # gets random question from given json file
     @staticmethod
     def get_random_question(category=None):
         jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
+        # TODO: load this into memory once, not every time
         question_list = Question.filter_questions(
             json.loads(jeopardy_json_file),
             banned_categories=Question.banned_categories,
@@ -71,23 +61,6 @@ class Question:
         )
         question = question_list[randint(0, len(question_list))]
         return question
-
-    # formats text to be pretty for slack
-    @staticmethod
-    def format_slack_text(question):
-        if question.daily_double:
-            question_text = '[*'+question.category+'*] ' + \
-            '['+question.date+'] ' + \
-            '_'+question.text+'_'
-        else:
-            question_text = '[*'+question.category+'*] ' + \
-            '['+question.get_value()+'] ' + \
-            '['+question.date+'] ' + \
-            '_'+question.text+'_'
-        if question.valid_links:
-            for link in question.valid_links:
-                question_text += '\n'+link
-        return question_text
 
     def get_value(self):
         return '$' + str(self.value)
@@ -109,25 +82,20 @@ class Question:
         # if list of phrases is passed in as arg
         if banned_phrases and type(banned_phrases) is list:
             for phrase in banned_phrases:
-                question_list = list(filter(lambda x: phrase.lower() not in \
-                x['question'].lower(), question_list))
+                question_list = list(filter(lambda x: phrase.lower() not in x['question'].lower(), question_list))
         # if single phrase is passed in as a string
         elif banned_phrases and type(banned_phrases) is str:
-            question_list = list(filter(lambda x: phrase.lower() not in \
-            x['question'].lower(), question_list))
+            question_list = list(filter(lambda x: phrase.lower() not in x['question'].lower(), question_list))
         # if list of categories is passed in, these are in upper case in json
         if banned_categories and type(banned_categories) is list:
             # 'missing this category' is the only non-capitalized category
-            banned_categories = [c.upper() for c in banned_categories \
-            if c != 'missing this category']
-            question_list = list(filter(lambda x: x['category'] not in\
-            banned_categories, question_list))
+            banned_categories = [c.upper() for c in banned_categories if c != 'missing this category']
+            question_list = list(filter(lambda x: x['category'] not in banned_categories, question_list))
         # if single category is passed in as a string
         elif banned_categories and type(banned_categories) is str:
             if banned_categories != 'missing this category':
                 banned_categories = banned_categories.upper()
-            question_list = list(filter(lambda x: x['category'] !=\
-            banned_categories, question_list))
+            question_list = list(filter(lambda x: x['category'] != banned_categories, question_list))
         return question_list
 
     # to remove $ and commas from question values, e.g. '$2,500'
@@ -182,7 +150,7 @@ class Question:
             # only return links if they're valid, otherwise we just want the
             # scrubbed text
             if valid_links:
-                return [question_text] + valid_links
+                return question_text, valid_links
             else:
                 return question_text
 
@@ -214,4 +182,16 @@ class Question:
         question_list = json.loads(jeopardy_json_file)
         categorized_question_jsons = list(filter(lambda x: search_category == x['category'], question_list))
         return [Question(q, timer) for q in categorized_question_jsons]
+
+    def to_json(self) -> dict:
+        question_dict = {
+            'text': self.text,
+            'valid_links': self.valid_links,
+            'value': self.value,
+            'category': self.category,
+            'daily_double': self.daily_double,
+            'answer': self.answer,
+            'date': self.date
+        }
+        return question_dict
 

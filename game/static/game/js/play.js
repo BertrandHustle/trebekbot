@@ -176,7 +176,8 @@ $(document).ready( function() {
     });
 
     $("#answerButton").click(function () {
-        let buzzedInPlayer = sendStringAsJson(buzzerSocket, 'status');
+        // TODO: fix this so it returns actual value
+        let buzzedInPlayer = sendStringAsJson(buzzerSocket, 'get_buzzed_in_player');
         if (buzzedInPlayer === playerName) {
             let givenAnswer = $('form').serializeArray()[1].value;
             answerSocket.send(JSON.stringify({

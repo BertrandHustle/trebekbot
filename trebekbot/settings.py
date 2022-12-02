@@ -31,7 +31,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,11 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'game.apps.GameConfig',
-    'rest_framework'
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,7 +74,7 @@ WSGI_APPLICATION = 'trebekbot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql', 'PORT': '5432'}}
+DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql', 'PORT': '5433'}}
 try:
     result = urlparse.urlparse(os.environ['DATABASE_URL'])
     DATABASES['default'].update({
@@ -138,6 +135,5 @@ LOGIN_REDIRECT_URL = '/game/play'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-CORS_ORIGIN_WHITELIST = [
-     'http://localhost:3000'
-]
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+

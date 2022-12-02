@@ -216,7 +216,7 @@ class Host:
         user_address = self.create_user_address(user_name, user_id)
         correct_answer = question.answer
         # check if answer is correct
-        answer_check = Judge.fuzz_answer(user_answer, correct_answer)
+        answer_check = Judge.judge_answer(user_answer, correct_answer)
         # if answer is close but not wrong
         if answer_check == 'close':
             return user_address + ' ' + \

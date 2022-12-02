@@ -20,8 +20,6 @@ class Judge:
         :string user_answer: answer given by user
         :string correct_answer: correct answer to question
         """
-        # this will be either 'more' or 'less' depending on closeness to answer
-        closeness = None
         # if user answer has equal or less words than correct answer
         if len(user_answer.split(' ')) <= len(correct_answer.split(' ')):
             closeness = 'more'
@@ -32,7 +30,7 @@ class Judge:
         # if user answer has more words than correct answer
         else:
             closeness = 'less'
-        return 'Please be {} specific.'.format(closeness)
+        return f'Please be {closeness} specific.'
 
     # strips answers of extraneous punctuation, whitespace, etc.
     @staticmethod
@@ -97,7 +95,7 @@ class Judge:
     then it's close enough
     '''
     @staticmethod
-    def _fuzz_word(given_word, correct_word):
+    def _check_word_closeness(given_word, correct_word):
         given_word, correct_word = given_word.lower(), correct_word.lower()
         if given_word == correct_word:
             return True
@@ -142,9 +140,8 @@ class Judge:
             else:
                 return False
 
-    # TODO: rename this
     @staticmethod
-    def fuzz_answer(given_answer, correct_answer):
+    def judge_answer(given_answer, correct_answer):
         """
         checks if given answer is close enough to correct answer
         :param self:
@@ -175,7 +172,7 @@ class Judge:
             if len(given_answer.split(' ')) == 1 and \
                len(correct_answer.split(' ')) == 1 and \
                (given_answer + correct_answer).isalnum():
-                return Judge._fuzz_word(correct_answer, given_answer)
+                return Judge._check_word_closeness(correct_answer, given_answer)
             # totals for how many word pair comparisons are right, wrong, etc.
             # that is: is the word close enough to the word we're comparing it to?
             right, close = 0, 0
@@ -207,7 +204,7 @@ class Judge:
                 # compare pairs and adjust totals accordingly
                 for pair in pair_list:
                     # check equality first for performance boost
-                    result = pair[0] == pair[1] or Judge._fuzz_word(pair[0], pair[1])
+                    result = pair[0] == pair[1] or Judge._check_word_closeness(pair[0], pair[1])
                     if result == 'close':
                         close += 1
                     elif result == True:

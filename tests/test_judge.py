@@ -128,7 +128,7 @@ category": "MYTHOLOGICAL CROSSWORD CLUES \"M\"", "air_date": "1998-10-13",
  ('Jim Pete', 'Jim/Jim (Easy) Pete', True)
 ])
 def test_fuzz_answer(given_answer, expected_answer, expected_value):
-    assert test_judge.fuzz_answer(given_answer, expected_answer) == expected_value
+    assert test_judge.judge_answer(given_answer, expected_answer) == expected_value
 
 
 @pytest.mark.parametrize("given_answer, correct_answer, expected_reply", [

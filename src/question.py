@@ -41,12 +41,12 @@ class Question:
 
     def __init__(self, question_json):
         # text with html links separated out
-        self.text, self.valid_links = Question.separate_html(question_json['question'])
+        self.question, self.valid_links = Question.separate_html(question_json['question'])
         self.value = Question.convert_value_to_int(question_json['value'])
         self.category = question_json['category']
         self.daily_double = Question.is_daily_double(self.value)
         self.answer = question_json['answer']
-        self.date = question_json['air_date']
+        self.air_date = question_json['air_date']
 
     # gets random question from given json file
     @staticmethod
@@ -59,8 +59,8 @@ class Question:
             banned_phrases=Question.banned_phrases,
             category=category
         )
-        question = question_list[randint(0, len(question_list))]
-        return question
+        question_json = question_list[randint(0, len(question_list))]
+        return Question(question_json)
 
     def get_value(self):
         return '$' + str(self.value)
@@ -147,12 +147,7 @@ class Question:
             question_text = re.sub(r'\s{2,}', ' ', question_text)
             # remove leading and trailing spaces
             question_text = question_text.strip()
-            # only return links if they're valid, otherwise we just want the
-            # scrubbed text
-            if valid_links:
-                return question_text, valid_links
-            else:
-                return question_text
+            return question_text, valid_links
 
     @staticmethod
     def is_daily_double(value):
@@ -185,13 +180,13 @@ class Question:
 
     def to_json(self) -> dict:
         question_dict = {
-            'text': self.text,
+            'question': self.question,
             'valid_links': self.valid_links,
             'value': self.value,
             'category': self.category,
             'daily_double': self.daily_double,
             'answer': self.answer,
-            'date': self.date
+            'air_date': self.air_date
         }
         return question_dict
 

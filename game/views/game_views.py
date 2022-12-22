@@ -13,7 +13,7 @@ redis_handler = RedisInterface()
 # TODO: unit test view
 class QuestionView(View):
     def get(self, request):
-        active_question_json = json.dumps(Question.get_random_question().to_json())
+        active_question_json = Question.get_random_question().to_json()
         redis_handler.set_active_question(active_question_json)
         # transform Question attrs into dict
         return JsonResponse(active_question_json)
@@ -38,12 +38,12 @@ class JudgeView(View):
         answer_result = {'result': '', 'text': '', 'score': 0}
         if judging_result == 'close':
             answer_result['text'] = self.judge.check_closeness(user_answer, question.answer)
-        elif judging_result == True:
+        elif judging_result is True:
             answer_result['text'] = self.response_templates['correct'] + question.answer
             answer_result['result'] = True
             user.score += question_value
             user.save()
-        elif judging_result == False:
+        elif judging_result is not False:
             answer_result['text'] = self.response_templates['incorrect']
             answer_result['result'] = False
             user.score -= question_value

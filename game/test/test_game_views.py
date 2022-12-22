@@ -9,7 +9,7 @@ from django.urls import reverse
 from src.question import Question
 
 from game.models import Player
-from game.views.game_views import redis_handler, JudgeView
+from game.views.game_views import redis_handler, JudgeView, QuestionView
 
 
 class GameViewTests(TestCase):
@@ -29,8 +29,9 @@ class GameViewTests(TestCase):
         self.postgresql.stop()
 
     def test_judge_view(self):
+        assert self.test_user.score == 0
         self.test_question = Question.get_random_question()
-        redis_handler.set_active_question(json.dumps(self.test_question.to_json()))
+        redis_handler.set_active_question(self.test_question.to_json())
 
         request = self.factory.post(reverse('judge'), {'user_answer': self.test_question.answer})
         request.user = self.test_user
@@ -39,3 +40,16 @@ class GameViewTests(TestCase):
         json_response = json.loads(response.content)
 
         assert json_response['result'] is True
+        assert self.test_user.score == self.test_question.value
+
+    def test_question_view(self):
+        request = self.factory.get(reverse('question'))
+        request.user = self.test_user
+        response = QuestionView.as_view()(request)
+        json_response = json.loads(response.content)
+        test_question = Question(json_response)
+        assert test_question
+        active_question = Question(json.loads(redis_handler.get_active_question()))
+        assert active_question.question == test_question.question
+        assert active_question.value == test_question.value
+        assert active_question.air_date == test_question.air_date

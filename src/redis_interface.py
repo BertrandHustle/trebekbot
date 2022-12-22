@@ -7,13 +7,10 @@ class RedisInterface:
     def __init__(self, hostname='localhost', port=6379, db=0):
         self.redis_connection = Redis(host=hostname, port=port, db=db)
 
-    def set_active_question(self, question: str):
-        try:
-            json.loads(question)
-        except ValueError:
-            raise ValueError('Question must be a string representation of a valid json object.')
-        return self.redis_connection.set('active_question', question)
+    def set_active_question(self, question: dict):
+        return self.redis_connection.set('active_question', json.dumps(question))
 
+    #TODO: rename this to reflect that it returns a json string, not a Question object
     def get_active_question(self):
         return self.redis_connection.get('active_question')
 

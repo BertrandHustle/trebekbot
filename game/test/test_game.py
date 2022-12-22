@@ -20,10 +20,13 @@ class GameViewTests(TestCase):
         redis_handler.redis_connection = FakeStrictRedis()
 
         # set up test postgres db
-        postgresql = testing.postgresql.Postgresql()
+        self.postgresql = testing.postgresql.Postgresql()
 
         # set up test user
         self.test_user = Player(name='Test Player')
+
+    def tearDown(self):
+        self.postgresql.stop()
 
     def test_judge_view(self):
         self.test_question = Question.get_random_question()
@@ -33,5 +36,6 @@ class GameViewTests(TestCase):
         request.user = self.test_user
 
         response = JudgeView.as_view()(request)
+        json_response = json.loads(response.content)
 
-        assert response['result'] is True
+        assert json_response['result'] is True

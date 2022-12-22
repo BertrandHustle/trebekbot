@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
@@ -16,23 +17,28 @@ ROOM_LIMIT = 3
 # Models
 
 
-class Player(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class Player(AbstractBaseUser):
     name = models.CharField(max_length=50, unique=True)
     score = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
+    password = ''
+
+    # fields required by AbstractBaseUser
+    REQUIRED_FIELDS = ['name']
+    USERNAME_FIELD = 'name'
+
 
     def __str__(self):
         return self.name
 
-    @receiver(post_save, sender=User)
-    def create_user_profile(self, sender, instance, created, **kwargs):
-        if created:
-            self.objects.create(user=instance)
-
-    @receiver(post_save, sender=User)
-    def save_user_profile(self, sender, instance, **kwargs):
-        instance.profile.save()
+    # @receiver(post_save, sender=User)
+    # def create_user_profile(self, sender, instance, created, **kwargs):
+    #     if created:
+    #         self.objects.create(user=instance)
+    #
+    # @receiver(post_save, sender=User)
+    # def save_user_profile(self, sender, instance, **kwargs):
+    #     instance.profile.save()
 
 
 class Question(models.Model):

@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 ROOM_LIMIT = 3
 
@@ -17,19 +18,12 @@ ROOM_LIMIT = 3
 # Models
 
 
-class Player(AbstractBaseUser):
-    name = models.CharField(max_length=50, unique=True)
+class Player(AbstractUser):
     score = models.IntegerField(default=0)
     wins = models.IntegerField(default=0)
-    password = ''
-
-    # fields required by AbstractBaseUser
-    REQUIRED_FIELDS = ['name']
-    USERNAME_FIELD = 'name'
-
 
     def __str__(self):
-        return self.name
+        return self.username
 
     # @receiver(post_save, sender=User)
     # def create_user_profile(self, sender, instance, created, **kwargs):

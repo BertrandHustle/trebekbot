@@ -1,6 +1,8 @@
 colorama==0.3.9
 decorator
 django
+djangorestframework
+django-cors-headers
 editdistance
 fakeredis
 gunicorn

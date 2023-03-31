@@ -33,7 +33,7 @@ class GameViewTests(TestCase):
         self.test_question = Question.get_random_question()
         redis_handler.set_active_question(self.test_question.to_json())
 
-        request = self.factory.post(reverse('judge'), {'user_answer': self.test_question.answer})
+        request = self.factory.post(reverse('judge'), {'userAnswer': self.test_question.answer})
         request.user = self.test_user
 
         response = JudgeView.as_view()(request)

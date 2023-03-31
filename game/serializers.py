@@ -6,7 +6,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ('user', 'name', 'score', 'wins')
+        fields = ('user', 'username', 'score', 'wins')
 
 
 #TODO: make question serializer

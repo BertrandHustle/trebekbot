@@ -1,7 +1,10 @@
 import json
 
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+
 
 from src.question import Question
 from src.judge import Judge
@@ -19,6 +22,8 @@ class QuestionView(View):
         return JsonResponse(active_question_json)
 
 
+# TODO: remove this exemption!!!
+@method_decorator(csrf_exempt, name='dispatch')
 class JudgeView(View):
 
     def __init__(self):
@@ -29,8 +34,13 @@ class JudgeView(View):
         }
 
     def post(self, request):
+        """
+        Answer a question and have player score updated accordingly
+        :param request:
+        :return: json with result of the answer (is the answer right or wrong?)
+        """
         user = request.user
-        user_answer = request.POST.get('user_answer')
+        user_answer = request.POST.get('userAnswer')
         question_json = json.loads(redis_handler.get_active_question())
         question = Question(question_json)
         judging_result = self.judge.judge_answer(user_answer, question.answer)

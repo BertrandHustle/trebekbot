@@ -1,3 +1,4 @@
+import base64
 import json
 
 from django.contrib.auth import authenticate, login, logout
@@ -11,12 +12,18 @@ from rest_framework.views import APIView
 from game.models import Player
 
 
+# TODO: change this to use TokenAuthentication
 class LoginView(APIView):
+
+    def decode_basic_auth_header(self, auth_header: str) -> tuple:
+        decoded_auth_bytes = base64.b64decode(auth_header.split()[1])
+        split_auth_string = decoded_auth_bytes.decode().split(':')
+        return tuple(split_auth_string)
 
     @method_decorator(ensure_csrf_cookie)
     def post(self, request):
-        payload = json.loads(request.data['payload'])
-        username, password = payload.get('username'), payload.get('password')
+        auth_header = request.headers['Authorization']
+        username, password = self.decode_basic_auth_header(auth_header)
         if username is None or password is None:
             return JsonResponse({'detail': 'Please provide username and password.'}, status=400)
 
@@ -34,59 +41,21 @@ class LoginView(APIView):
                 return Response({'detail': 'Invalid credentials or username already exists.'}, status=400)
 
         login(request, user)
-        response = JsonResponse({'detail': 'Successfully logged in.'})
         return Response({'detail': 'Successfully logged in.'})
 
 
-# @ensure_csrf_cookie
-# def login_view(request):
-#     data = json.loads(request.body)
-#     username = data.get('username')
-#     password = data.get('password')
-#
-#     if username is None or password is None:
-#         return JsonResponse({'detail': 'Please provide username and password.'}, status=400)
-#
-#     user = authenticate(username=username, password=password)
-#
-#     if user is None:
-#         username_exists = Player.objects.filter({'username': username}).first()
-#         if not username_exists:
-#             new_player = Player(name=username, password=password)
-#             new_player.save()
-#             return JsonResponse({'detail': f'New Player **{username}** created.'})
-#         else:
-#             return JsonResponse({'detail': 'Invalid credentials or username already exists.'}, status=400)
-#
-#     login(request, user)
-#     response = JsonResponse({'detail': 'Successfully logged in.'})
-#     response.headers = {'Access-Control-Allow-Credentials': True}
-#     return JsonResponse({'detail': 'Successfully logged in.'})
-#
-#
-# def logout_view(request):
-#     if not request.user.is_authenticated:
-#         return JsonResponse({'detail': 'You\'re not logged in.'}, status=400)
-#
-#     logout(request)
-#     return JsonResponse({'detail': 'Successfully logged out.'})
-#
-#
-# class SessionView(APIView):
-#     authentication_classes = [SessionAuthentication, BasicAuthentication]
-#     permission_classes = [IsAuthenticated]
-#
-#     @staticmethod
-#     def get():
-#         return JsonResponse({'isAuthenticated': True})
-#
-#
-# class GetUsername(APIView):
-#     authentication_classes = [SessionAuthentication, BasicAuthentication]
-#     permission_classes = [IsAuthenticated]
-#
-#     @staticmethod
-#     def get(request):
-#         return JsonResponse({'username': request.user.username})
+class LogoutView(APIView):
+
+    @method_decorator(ensure_csrf_cookie)
+    def post(self, request):
+        print(request.user)
+        if not request.user.is_authenticated:
+            return JsonResponse({'detail': 'User not logged in.'}, status=400)
+
+        logout(request)
+        return JsonResponse({'detail': 'Successfully logged out.'})
+
+
+
 
 

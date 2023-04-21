@@ -59,8 +59,9 @@ class Question:
             banned_phrases=Question.banned_phrases,
             category=category
         )
-        question_json = question_list[randint(0, len(question_list))]
-        return Question(question_json)
+        question_id = randint(0, len(question_list))
+        question_json = question_list[question_id]
+        return Question(question_json), question_id
 
     def get_value(self):
         return '$' + str(self.value)
@@ -177,6 +178,10 @@ class Question:
         question_list = json.loads(jeopardy_json_file)
         categorized_question_jsons = list(filter(lambda x: search_category == x['category'], question_list))
         return [Question(q, timer) for q in categorized_question_jsons]
+
+    def save_all_questions_to_db(self):
+        for question in open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read():
+
 
     def to_json(self) -> dict:
         question_dict = {

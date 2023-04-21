@@ -1,30 +1,26 @@
 import json
 
-from django.http import JsonResponse
 from django.utils.decorators import method_decorator
-from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from src.question import Question
 from src.judge import Judge
-from src.redis_interface import RedisInterface
-
-redis_handler = RedisInterface()
 
 
 # TODO: unit test view
-class QuestionView(View):
+class QuestionView(APIView):
     def get(self, request):
-        active_question_json = Question.get_random_question().to_json()
-        redis_handler.set_active_question(active_question_json)
+        active_question, active_question_id = Question.get_random_question()
         # transform Question attrs into dict
-        return JsonResponse(active_question_json)
+        active_question_json = active_question.to_json()
+        return Response(active_question_json)
 
 
 # TODO: remove this exemption!!!
 @method_decorator(csrf_exempt, name='dispatch')
-class JudgeView(View):
+class JudgeView(APIView):
 
     def __init__(self):
         self.judge = Judge()
@@ -53,11 +49,11 @@ class JudgeView(View):
             answer_result['result'] = True
             user.score += question_value
             user.save()
-        elif judging_result is not False:
+        elif judging_result is False:
             answer_result['text'] = self.response_templates['incorrect']
             answer_result['result'] = False
             user.score -= question_value
             user.save()
         answer_result['score'] = user.score
-        return JsonResponse(answer_result)
+        return Response(answer_result)
 

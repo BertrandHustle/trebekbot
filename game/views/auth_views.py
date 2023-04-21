@@ -1,8 +1,6 @@
 import base64
-import json
 
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework.permissions import IsAuthenticated
@@ -25,7 +23,7 @@ class LoginView(APIView):
         auth_header = request.headers['Authorization']
         username, password = self.decode_basic_auth_header(auth_header)
         if username is None or password is None:
-            return JsonResponse({'detail': 'Please provide username and password.'}, status=400)
+            return Response({'detail': 'Please provide username and password.'}, status=400)
 
         user = authenticate(username=username, password=password)
 
@@ -45,16 +43,15 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
 
     @method_decorator(ensure_csrf_cookie)
     def post(self, request):
-        print(request.user)
         if not request.user.is_authenticated:
-            return JsonResponse({'detail': 'User not logged in.'}, status=400)
+            return Response({'detail': 'User not logged in.'}, status=400)
 
         logout(request)
-        return JsonResponse({'detail': 'Successfully logged out.'})
-
+        return Response({'detail': 'Successfully logged out.'})
 
 
 

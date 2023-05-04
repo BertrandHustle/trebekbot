@@ -2,20 +2,21 @@ import json
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from src.question import Question
+from game.models import Question
+from game.serializers import QuestionSerializer
 from src.judge import Judge
 
 
 # TODO: unit test view
 class QuestionView(APIView):
     def get(self, request):
-        active_question, active_question_id = Question.get_random_question()
-        # transform Question attrs into dict
-        active_question_json = active_question.to_json()
-        return Response(active_question_json)
+        question = Question.get_random_question()
+        serializer = QuestionSerializer(question)
+        return Response(JSONRenderer().render(serializer.data))
 
 
 # TODO: remove this exemption!!!

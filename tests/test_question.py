@@ -1,21 +1,27 @@
 # native
 import os
 import json
-from sys import path as syspath
-syspath.append(
-os.path.abspath(
-os.path.join(
-os.path.dirname(__file__), os.path.pardir)))
-from re import findall
+# from sys import path as syspath
+# syspath.append(
+# os.path.abspath(
+# os.path.join(
+# os.path.dirname(__file__), os.path.pardir)))
+# from re import findall
 # project
-from src.question import Question
+from game.models import Question
 # third-party
 import pytest
 
-test_question = Question.get_random_question()
+@pytest.fixture(scope='session', autouse=True):
+def setup_test_db(postgresql_db):
 
 
-def test_get_value():
+@pytest.fixture(scope='session', autouse=True)
+def test_question():
+    yield Question.get_random_question()
+
+
+def test_get_value(test_question):
     """
     we want to make sure that it's a valid Jeopardy point value,
     so it has to be in an increment of $100
@@ -59,7 +65,7 @@ def test_get_value():
   "http://www.j-archive.com/media/2007-12-13_DJ_28.jpg",\
   "http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg"])
 ])
-def test_separate_html(test_text, expected_output):
+def test_separate_html(test_question, test_text, expected_output):
     assert test_question.separate_html(test_text) == expected_output
 
 
@@ -75,11 +81,11 @@ def test_separate_html(test_text, expected_output):
  ('0', True),
  ('$0', True)
 ])
-def test_is_daily_double(test_value, expected_value):
+def test_is_daily_double(test_question, test_value, expected_value):
     assert test_question.is_daily_double(test_value) == expected_value
 
 
-def test_filter_questions():
+def test_question_filtering():
     # set up
     test_json = open('./test_files/test_questions.json').read()
     test_question_list = json.loads(test_json)

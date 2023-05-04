@@ -1,33 +1,20 @@
-import datetime
-import json
+from __future__ import annotations
+
+import operator
 import re
-from os import path, pardir
+import random
 from contextlib import suppress
-from random import randint
+from functools import reduce
+from os import path, pardir
 
 from requests import get as get_http_code
 from requests.exceptions import RequestException
 
-from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
+from django.contrib.postgres.fields import ArrayField
 
 project_root = path.join(path.dirname(path.abspath(__file__)), pardir)
-
-ROOM_LIMIT = 3
-
-# Validators
-
-
-# def room_is_full(players):
-#     if len(players) > ROOM_LIMIT:
-#         raise ValidationError('Room limit reached!')
-
-# Models
 
 
 class Player(AbstractUser):
@@ -36,15 +23,6 @@ class Player(AbstractUser):
 
     def __str__(self):
         return self.username
-
-    # @receiver(post_save, sender=User)
-    # def create_user_profile(self, sender, instance, created, **kwargs):
-    #     if created:
-    #         self.objects.create(user=instance)
-    #
-    # @receiver(post_save, sender=User)
-    # def save_user_profile(self, sender, instance, **kwargs):
-    #     instance.profile.save()
 
 
 class Question(models.Model):
@@ -78,69 +56,49 @@ class Question(models.Model):
     category = models.CharField(max_length=100)
     daily_double = models.BooleanField(default=False)
     answer = models.CharField(max_length=250)
-    valid_links = models.CharField(max_length=500, blank=True, default='')
+    valid_links = ArrayField(
+        models.CharField(max_length=50, blank=True),
+        size=3,
+        default=list
+    )
     air_date = models.DateField()
 
     def __str__(self):
-        return f'{self.category} | {self.value} | {self.date} | {self.text}'
+        return f'{self.category} | {self.value} | {self.air_date} | {self.text}'
 
     banned_categories = 'missing this category'
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    # gets random question from given json file
-    @staticmethod
-    def get_random_question(category=None):
-        jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
-        # TODO: load this into memory once, not every time
-        question_list = Question.filter_questions(
-            json.loads(jeopardy_json_file),
-            banned_categories=Question.banned_categories,
-            banned_phrases=Question.banned_phrases,
-            category=category
-        )
-        question_id = randint(0, len(question_list))
-        question_json = question_list[question_id]
-        return Question(question_json), question_id
+    def get_random_question(self, category=None) -> Question or None:
+        """
+        gets a random question from the db and filters out unwanted categories and phrases
+        :param category: specify category for the question you want
+        :return: Question
+        """
+        if category and category not in self.banned_categories:
+            questions = self.objects.filter(category=category)
+            if all(q.text in self.banned_phrases for q in questions):
+                # add logging/warning here?
+                return None
+            else:
+                return random.choice(questions)
+        else:
+            pks = self.objects.exclude(
+                reduce(operator.and_, (Q(text__contains=phrase) for phrase in self.banned_phrases)),
+                category__in=self.banned_categories
+            ).values_list('pk', flat=True)
+            return Question.objects.get(pk=random.choice(pks))
 
     def get_value(self):
         return '$' + str(self.value)
 
     @staticmethod
-    def filter_questions(question_list, banned_categories=None, banned_phrases=None, category=None) -> list:
+    def convert_value_to_int(value) -> int:
         """
-        filters list of questions and returns filtered list
-        :param question_list: list of questions we pass in (in json form)
-        :param banned_categories: list of categories to filter out, can be a single
-        str category instead
-        :param banned_phrases: filters questions by key phrases, such as
-        "seen here" or "heard here"
-        :param category: filters list to questions from the given category
-        :return list
+        removes $ and commas from question values, e.g. '$2,500'
+        :param value: string representation of dollar value
+        :return: int of value
         """
-        if category:
-            question_list = list(filter(lambda x: category.lower() == x['category'].lower(), question_list))
-        # if list of phrases is passed in as arg
-        if banned_phrases and type(banned_phrases) is list:
-            for phrase in banned_phrases:
-                question_list = list(filter(lambda x: phrase.lower() not in x['question'].lower(), question_list))
-        # if single phrase is passed in as a string
-        elif banned_phrases and type(banned_phrases) is str:
-            question_list = list(filter(lambda x: phrase.lower() not in x['question'].lower(), question_list))
-        # if list of categories is passed in, these are in upper case in json
-        if banned_categories and type(banned_categories) is list:
-            # 'missing this category' is the only non-capitalized category
-            banned_categories = [c.upper() for c in banned_categories if c != 'missing this category']
-            question_list = list(filter(lambda x: x['category'] not in banned_categories, question_list))
-        # if single category is passed in as a string
-        elif banned_categories and type(banned_categories) is str:
-            if banned_categories != 'missing this category':
-                banned_categories = banned_categories.upper()
-            question_list = list(filter(lambda x: x['category'] != banned_categories, question_list))
-        return question_list
-
-    # to remove $ and commas from question values, e.g. '$2,500'
-    @staticmethod
-    def convert_value_to_int(value):
         try:
             # remove special characters if this is a string
             if type(value) == str:
@@ -159,14 +117,13 @@ class Question(models.Model):
         except (ValueError, TypeError) as error:
             return 0
 
-    '''
-    separates html links from questions
-    returns a tuple of the question text and link if link is valid,
-    otherwise just returns the text
-    '''
-
     @staticmethod
-    def separate_html(question_text):
+    def separate_html(question_text) -> tuple or str:
+        """
+        separates html links from questions
+        :param question_text: content of given question
+        :return: tuple of the question text and link if link is valid, otherwise just returns the text
+        """
         with suppress(RequestException):
             # scrub newline chars from question text
             question_text = re.sub(r'\n', '', question_text)
@@ -206,41 +163,9 @@ class Question(models.Model):
             else:
                 return False
 
-    @staticmethod
-    def get_questions_by_category(category: str, timer) -> list:
-        """returns all questions for a given category
-        :param category
-        :param timer: timer object used to construct Question
-        :return: list of questions
-        """
-        search_category = category.upper()
-        jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
-        question_list = json.loads(jeopardy_json_file)
-        categorized_question_jsons = list(filter(lambda x: search_category == x['category'], question_list))
-        return [Question(q, timer) for q in categorized_question_jsons]
-
-    def save_all_questions_to_db(self):
-        jeopardy_json_file = open(path.join(project_root, 'support_files', 'JEOPARDY_QUESTIONS1.json')).read()
-        filtered_question_list = self.filter_questions(
-            json.loads(jeopardy_json_file),
-            banned_categories=Question.banned_categories,
-            banned_phrases=Question.banned_phrases,
-        )
-        for question_json in filtered_question_list:
-            text, valid_links = self.separate_html(question_json['question'])
-            new_question = Question(
-                text=text,
-                value=self.convert_value_to_int(question_json['value']),
-                category=question_json['category'],
-                daily_double=self.is_daily_double(self.value),
-                answer=question_json['answer'],
-                valid_links=json.dumps(valid_links),
-                air_date=datetime.datetime.strptime(question_json['air_date'], '%Y-%m-%d').date()
-            )
-
     def to_json(self) -> dict:
         question_dict = {
-            'question': self.question,
+            'question': self.text,
             'valid_links': self.valid_links,
             'value': self.value,
             'category': self.category,
@@ -249,7 +174,3 @@ class Question(models.Model):
             'air_date': self.air_date
         }
         return question_dict
-
-
-# class Room(models.Model):
-#     players = models.ForeignKey(Player, validators=[room_is_full()])

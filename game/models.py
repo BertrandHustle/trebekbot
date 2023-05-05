@@ -163,14 +163,3 @@ class Question(models.Model):
             else:
                 return False
 
-    def to_json(self) -> dict:
-        question_dict = {
-            'question': self.text,
-            'valid_links': self.valid_links,
-            'value': self.value,
-            'category': self.category,
-            'daily_double': self.daily_double,
-            'answer': self.answer,
-            'air_date': self.air_date
-        }
-        return question_dict

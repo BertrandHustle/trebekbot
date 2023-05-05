@@ -1,5 +1,14 @@
-[
-  {
+{
+  "valid_question": {
+    "category": "HISTORY",
+    "air_date": "2004-12-31",
+    "question": "For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory",
+    "value": "$2000",
+    "answer": "Copernicus",
+    "round": "Jeopardy!",
+    "show_number": 4680
+  },
+  "seen_here": {
     "category": "HISTORY",
     "air_date": "2004-12-31",
     "question": "'For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory, seen here'",
@@ -8,7 +17,7 @@
     "round": "Jeopardy!",
     "show_number": 4680
   },
-  {
+  "invalid_value": {
     "category": "SCIENCE",
     "air_date": "2004-12-31",
     "question": "'For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory, heard here'",
@@ -17,7 +26,7 @@
     "round": "Jeopardy!",
     "show_number": 4680
   },
-  {
+  "zero_value": {
     "category": "BIOLOGY",
     "air_date": "2004-12-31",
     "question": "'For the last 8 years of his life, Galileo was under house arrest for espousing this man's theory'",
@@ -26,7 +35,7 @@
     "round": "Jeopardy!",
     "show_number": 4680
   },
-  {
+  "heard_here": {
     "category": "BIOLOGY",
     "air_date": "2004-12-31",
     "question": "'Heard here, for the last 8 years of his life, Galileo was under house arrest for espousing this man's theory'",
@@ -35,7 +44,7 @@
     "round": "Jeopardy!",
     "show_number": 4680
   },
-  {
+  "test_category": {
     "category": "test",
     "air_date": "2000-00-00",
     "question": "He's the beloved comic strip character seen here text text",
@@ -44,7 +53,7 @@
     "round": "round",
     "show_number": 21389183
   },
-  {
+  "seen_here_2": {
     "category": "MAX FACTOR",
     "air_date": "2010-07-23",
     "question": "He's the Jacobin leader seen here",
@@ -53,7 +62,7 @@
     "round": "round",
     "show_number": 21389183
   },
-  {
+  "missing_category": {
     "category": "missing this category",
     "air_date": "2010-07-23",
     "question": "He's the Jacobin leader",
@@ -61,5 +70,18 @@
     "answer": "bubbo",
     "round": "round",
     "show_number": 21389183
+  },
+  "working_link": {
+    "category": "test",
+    "air_date": "2000-00-00",
+    "question": "He's the beloved comic strip character seen here text text",
+    "value": "$2000",
+    "answer": "bubbo",
+    "round": "round",
+    "show_number": 21389183,
+    "valid_links": [
+
+    ]
   }
-]
+}
+

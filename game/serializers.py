@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
+from game.models import Question
+
 
 class QuestionSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(max_length=750)
-    value = serializers.IntegerField()
-    category = serializers.CharField(max_length=100)
-    daily_double = serializers.BooleanField()
-    answer = serializers.CharField(max_length=250)
-    valid_links = serializers.ListField(
-        child=serializers.CharField(max_length=50, allow_blank=True),
-    )
-    air_date = serializers.DateField()
+    class Meta:
+        model = Question
+        fields = '__all__'
+
+    def create(self, validated_data):
+        validated_data['value'] = Question.convert_value_to_int(validated_data['value'])
+        return Question(**validated_data)

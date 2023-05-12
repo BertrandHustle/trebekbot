@@ -1,23 +1,20 @@
 import json
 
 import testing.postgresql
-from fakeredis import FakeStrictRedis
 
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from src.question import Question
+from game.models.Question import Question
 
-from game.models import Player
-from game.views.game_views import redis_handler, JudgeView, QuestionView
+from game.models.Player import Player
+from game.views.game_views import JudgeView, QuestionView
 
 
 class GameViewTests(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
-        # override redis connection w/fake
-        redis_handler.redis_connection = FakeStrictRedis()
 
         # set up test postgres db
         self.postgresql = testing.postgresql.Postgresql()

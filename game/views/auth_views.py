@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from game.models import Player
+from game.models.Player import Player
 
 
 # TODO: change this to use TokenAuthentication

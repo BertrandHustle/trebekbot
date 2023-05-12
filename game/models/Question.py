@@ -5,24 +5,12 @@ import re
 import random
 from contextlib import suppress
 from functools import reduce
-from os import path, pardir
 
 from requests import get as get_http_code
 from requests.exceptions import RequestException
 
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
-
-project_root = path.join(path.dirname(path.abspath(__file__)), pardir)
-
-
-class Player(AbstractUser):
-    score = models.IntegerField(default=0)
-    wins = models.IntegerField(default=0)
-
-    def __str__(self):
-        return self.username
 
 
 class Question(models.Model):

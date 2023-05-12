@@ -1,5 +1,5 @@
 import pytest
-import src.judge as judge
+import util.judge as judge
 test_judge = judge.Judge()
 
 
@@ -8,7 +8,7 @@ test_judge = judge.Judge()
  ('Hello!', ['hello'])
 ])
 def test_strip_answer(test_value, expected_value):
-    assert test_judge.strip_answer(test_value) == expected_value
+    assert test_judge._strip_answer(test_value) == expected_value
 
 
 @pytest.mark.parametrize("given_answer, expected_answer, expected_list", [
@@ -39,10 +39,10 @@ def test_strip_answer(test_value, expected_value):
 ])
 def test_pair_off_answers(given_answer, expected_answer, expected_list):
   # it's assumed that we'll be doing this first in our regular answer checking
-  given_answer = test_judge.strip_answer(given_answer)
-  expected_answer = test_judge.strip_answer(expected_answer)
+  given_answer = test_judge._strip_answer(given_answer)
+  expected_answer = test_judge._strip_answer(expected_answer)
   # convert to set so we don't need to worry about ordering
-  test_list = set(test_judge.pair_off_answers(given_answer, expected_answer))
+  test_list = set(test_judge._pair_off_answers(given_answer, expected_answer))
   expected_list = set(expected_list)
   assert test_list == expected_list
 
@@ -58,7 +58,7 @@ def test_pair_off_answers(given_answer, expected_answer, expected_list):
   ('Mr. Roerss', 'Mr. Rogers', 'close')
 ])
 def test_fuzz_word(given_word, expected_word, expected_value):
-    assert test_judge.fuzz_word(given_word, expected_word) == expected_value
+    assert test_judge._check_word_closeness(given_word, expected_word) == expected_value
 
 # TODO: test this for crashing
 '''

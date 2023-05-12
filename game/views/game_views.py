@@ -6,9 +6,9 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from game.models import Question
+from game.models.Question import Question
 from game.serializers import QuestionSerializer
-from src.judge import Judge
+from util.judge import Judge
 
 
 # TODO: unit test view

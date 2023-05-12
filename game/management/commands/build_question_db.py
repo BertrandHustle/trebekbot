@@ -1,9 +1,19 @@
 import datetime
 import json
 
+import ipdb
 from django.core.management.base import BaseCommand, CommandError
 
 from game.models import Question
+
+# TODO: fix this error
+"""
+88408
+(<Question: A STATE OF CIVIL WAR | 800 | 2005-10-24 | 'On September 17, 1862 Gen. Robert E. Lee's Northern march was halted in this slave-holding Union state'>, False) saved
+88409
+(<Question: THE "I"s HAVE IT | 800 | 2005-10-24 | 'Christopher Buckley quipped that the name of these theatres stands for "I make the audience cross-eyed"'>, False) saved
+CommandError: cannot unpack non-iterable NoneType object
+"""
 
 
 class Command(BaseCommand):
@@ -75,4 +85,5 @@ class Command(BaseCommand):
                 print(question_counter)
                 print(f'{new_question} saved')
         except Exception as e:
+            ipdb.set_trace(context=5)
             raise CommandError(e)

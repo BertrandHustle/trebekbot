@@ -1,10 +1,8 @@
-import json
-
 import pytest
 
 from django.test import RequestFactory
 
-from .fixtures import test_questions
+from .fixtures import question_text_with_links, test_questions
 from game.models import Question
 
 
@@ -27,43 +25,11 @@ def test_get_value(test_questions):
     assert int(value_no_dollar_sign) % 100 != 0
 
 
-@pytest.mark.parametrize("test_text, expected_output", [
- # test working link
- ('''
- This patron saint of Lourdes'
- <a href="http://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
- target="_blank">body</a>
- has remained unchanged in its glass display case since her death in 1879
- ''',
- ['This patron saint of Lourdes\' body has remained unchanged in its glass\
- display case since her death in 1879',
- 'http://www.j-archive.com/media/2004-11-17_DJ_21.jpg']),
-
- # test 404 link
- ('''
- <a href="http://www.j-archive.com/media/2010-06-15_DJ_20.jpg" \
- target="_blank">What</a> the ant had in song
- ''',
- 'What the ant had in song'),
-
- ('wrongtext  <a href="thisisntavalidlink"</a>  morewrongtext', 'wrongtext morewrongtext'),
-
- ('This is the first king of Poland', 'This is the first king of Poland'),
-
- # spacing looks ugly, but we need it so the test doesn't have extra spaces
- ('<a href="http://www.j-archive.com/media/2007-12-13_DJ_28.jpg" \
- target="_blank">Jon of the Clue Crew holds a purple gem in a pair of tweezers.</a> \
-  It has more iron oxide than any other variety of quartz, which is believed to \
-  account for its rich \
-  <a href="http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg" target="_blank">\
-  color</a>', ['Jon of the Clue Crew holds a purple gem in a pair of tweezers.\
- It has more iron oxide than any other variety of quartz,\
- which is believed to account for its rich color',\
-  "http://www.j-archive.com/media/2007-12-13_DJ_28.jpg",\
-  "http://www.j-archive.com/media/2007-12-13_DJ_28a.jpg"])
-])
-def test_separate_html(test_text, expected_output):
-    assert Question.separate_html(test_text) == expected_output
+def test_separate_html(question_text_with_links):
+    for question in question_text_with_links:
+        text, valid_links = Question.separate_html(question['raw_text'])
+        assert text == question['cleaned_text']
+        assert valid_links == question['cleaned_links']
 
 
 @pytest.mark.parametrize("test_value, expected_value", [

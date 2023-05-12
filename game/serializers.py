@@ -1,9 +1,12 @@
 from rest_framework import serializers
 
-from game.models import Question
+from game.models.Question import Question
 
 
 class QuestionSerializer(serializers.ModelSerializer):
+
+    text = serializers.CharField(source='question')
+
     class Meta:
         model = Question
         fields = '__all__'

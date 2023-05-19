@@ -5,9 +5,9 @@ import testing.postgresql
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
-from game.models.Question import Question
-
+from .fixtures import test_questions
 from game.models.Player import Player
+from game.models.Question import Question
 from game.views.game_views import JudgeView, QuestionView
 
 

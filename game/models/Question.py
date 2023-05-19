@@ -57,23 +57,24 @@ class Question(models.Model):
     banned_categories = 'missing this category'
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
-    def get_random_question(self, category=None) -> Question or None:
+    @staticmethod
+    def get_random_question(category=None) -> Question or None:
         """
         gets a random question from the db and filters out unwanted categories and phrases
         :param category: specify category for the question you want
         :return: Question
         """
-        if category and category not in self.banned_categories:
-            questions = self.objects.filter(category=category)
-            if all(q.text in self.banned_phrases for q in questions):
+        if category and category not in Question.banned_categories:
+            questions = Question.objects.filter(category=category)
+            if all(q.text in Question.banned_phrases for q in questions):
                 # add logging/warning here?
                 return None
             else:
                 return random.choice(questions)
         else:
-            pks = self.objects.exclude(
-                reduce(operator.and_, (Q(text__contains=phrase) for phrase in self.banned_phrases)),
-                category__in=self.banned_categories
+            pks = Question.objects.exclude(
+                reduce(operator.and_, (models.Q(text__contains=phrase) for phrase in Question.banned_phrases)),
+                category__in=Question.banned_categories
             ).values_list('pk', flat=True)
             return Question.objects.get(pk=random.choice(pks))
 

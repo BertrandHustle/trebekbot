@@ -5,8 +5,6 @@ from game.models.Question import Question
 
 class QuestionSerializer(serializers.ModelSerializer):
 
-    text = serializers.CharField(source='question')
-
     class Meta:
         model = Question
         fields = '__all__'

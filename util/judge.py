@@ -1,7 +1,11 @@
+from re import sub, match
+
 import difflib
 import editdistance
-from re import sub, match
 from unidecode import unidecode
+
+from django.conf import settings
+
 from paths import WORDS
 
 
@@ -149,6 +153,8 @@ class Judge:
         :param correct_answer: correct answer to the Question
         :return: True, False, or 'close' (if answer is close enough but not correct)
         """
+        if settings.DEBUG:
+            print(f'Correct answer: {correct_answer}')
 
         # words/symbols that signify that either answer is correct
         or_words = [' or ', '/', ' / ']
@@ -209,9 +215,7 @@ class Judge:
                         close += 1
                     elif result == True:
                         right += 1
-                # this lets us get len() by number of words in answer
-                print(correct_answer)
-                # in case correct_answer is a list
+                # this lets us get len() by number of words in answer in case correct_answer is a list
                 if type(correct_answer) == str:
                     correct_answer = correct_answer.split()
                 # check if the answer is close enough

@@ -37,9 +37,8 @@ class JudgeView(APIView):
         :return: json with result of the answer (is the answer right or wrong?)
         """
         user = request.user
-        user_answer = request.POST.get('userAnswer')
-        question_json = json.loads(redis_handler.get_active_question())
-        question = Question(question_json)
+        user_answer = request.data.get('userAnswer')
+        question = Question.objects.get(id=request.data.get('questionId'))
         judging_result = self.judge.judge_answer(user_answer, question.answer)
         question_value = question.value
         answer_result = {'result': '', 'text': '', 'score': 0}

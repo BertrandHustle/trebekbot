@@ -1,15 +1,7 @@
 import pytest
 
-from django.test import RequestFactory
-
 from .fixtures import question_text_with_links, test_questions
 from game.models import Question
-
-
-@pytest.fixture(scope='session', autouse=True)
-def setup_question_get():
-    req_factory = RequestFactory()
-    yield req_factory.get('/game/question')
 
 
 def test_get_value(test_questions):
@@ -46,53 +38,6 @@ def test_separate_html(question_text_with_links):
 ])
 def test_is_daily_double(test_value, expected_value):
     assert Question.is_daily_double(test_value) == expected_value
-
-
-# def test_question_filtering():
-#     # set up
-#     test_json = open('test_files/test_questions.json').read()
-#     test_question_list = json.loads(test_json)
-#     test_category = 'HISTORY'
-#
-#     mock_question_1 = mock_question('[POP CULTURE] [$2000] [2004-02-02] '
-#                                     '\'He\'s the beloved comic strip character seen here with his friend Albert, '
-#                                     'back in 1948', ret_json=True)
-#     mock_question_2 = mock_question('[NOW HEAR THIS!] [$500] [2001-01-09] '
-#                                     '\'It\'s the native wind instrument heard here, mate', ret_json=True)
-#
-#     mock_question_list = [mock_question_1, mock_question_2]
-#
-#     # act
-#     history_filter = test_question.filter_questions(test_question_list, banned_categories='history')
-#     science_filter = test_question.filter_questions(test_question_list, banned_categories=[
-#         'science', 'biology', 'chemistry'
-#     ])
-#     heard_seen_here_filter = test_question.filter_questions(
-#         test_question_list,
-#         banned_phrases=['heard here', 'seen here']
-#     )
-#     # tests filtering both, as we do when we init a Question instance
-#     category_and_phrase_filter = test_question.filter_questions(
-#         test_question_list,
-#         banned_categories='missing this category',
-#         banned_phrases=['heard here', 'seen here'],
-#     )
-#     category_filter = test_question.filter_questions(test_question_list, category=test_category)
-#     mock_filter = test_question.filter_questions(mock_question_list, banned_phrases=['heard here', 'seen here'])
-#
-#     # assert
-#     for c in history_filter: assert c['category'] != 'HISTORY'
-#     for c in science_filter: assert c['category'] != 'SCIENCE'
-#     for q in heard_seen_here_filter: assert 'heard here' not in q['question']\
-#         and 'seen here' not in q['question']
-#     for q in category_and_phrase_filter: \
-#         assert 'heard here' not in q['question'] \
-#         and 'seen here' not in q['question'] \
-#         and q['category'] != 'missing this category'
-#     assert len(category_filter) > 0
-#     for q in category_filter:
-#         assert q['category'].lower() == test_category.lower()
-#     assert len(mock_filter) == 0
 
 
 @pytest.mark.parametrize("test_value, expected_value", [

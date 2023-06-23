@@ -34,11 +34,17 @@ class LoginView(APIView):
                 new_player.set_password(password)
                 new_player.is_active = True
                 new_player.save()
-                return Response({'detail': f'New Player {username} created.'})
+                authenticate(username=username, password=password)
+                login(request, user)
+                return Response({
+                    'detail': f'New Player {username} created.',
+                    'new': True
+                })
             else:
                 return Response({'detail': 'Invalid credentials or username already exists.'}, status=400)
 
-        login(request, user)
+        if user.is_authenticated:
+            login(request, user)
         return Response({'detail': 'Successfully logged in.'})
 
 

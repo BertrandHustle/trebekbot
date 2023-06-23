@@ -1,11 +1,12 @@
-import json
-
+from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from game.models.Player import Player
 from game.models.Question import Question
 from game.serializers import QuestionSerializer
 from util.judge import Judge
@@ -15,6 +16,8 @@ from util.judge import Judge
 class QuestionView(APIView):
     def get(self, request):
         question = Question.get_random_question()
+        if settings.DEBUG:
+            print(question.answer)
         serializer = QuestionSerializer(question)
         return Response(JSONRenderer().render(serializer.data))
 
@@ -57,3 +60,19 @@ class JudgeView(APIView):
         answer_result['score'] = user.score
         return Response(answer_result)
 
+
+class ScoreViewSet(viewsets.ViewSet):
+
+    def get_user_score(self, request) -> Response:
+        """
+        get score of the current user
+        """
+        return Response(request.user.score)
+
+    def get_top_ten(self, request) -> Response:
+        """
+        return a list of the top ten players by score
+        """
+        top_ten = Player.objects.order_by('score')[:10]
+        top_ten_dict = {player.username: player.score for player in top_ten}
+        return Response(top_ten_dict)

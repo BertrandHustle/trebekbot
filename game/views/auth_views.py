@@ -35,7 +35,7 @@ class LoginView(APIView):
                 new_player.is_active = True
                 new_player.save()
                 authenticate(username=username, password=password)
-                login(request, user)
+                login(request, new_player)
                 return Response({
                     'detail': f'New Player {username} created.',
                     'new': True

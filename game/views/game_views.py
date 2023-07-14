@@ -73,6 +73,6 @@ class ScoreViewSet(viewsets.ViewSet):
         """
         return a list of the top ten players by score
         """
-        top_ten = Player.objects.order_by('score')[:10]
+        top_ten = Player.objects.order_by('-score')[:10]
         top_ten_dict = {player.username: player.score for player in top_ten}
         return Response(top_ten_dict)

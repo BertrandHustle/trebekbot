@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,9 +15,11 @@ from util.judge import Judge
 # TODO: unit test view
 class QuestionView(APIView):
     def get(self, request):
-        question = Question.get_random_question()
+        #question = Question.get_random_question()
+        question = Question.get_daily_double()
         if settings.DEBUG:
             print(question.answer)
+            print(f'Daily Double: {question.daily_double}')
         serializer = QuestionSerializer(question)
         return Response(JSONRenderer().render(serializer.data))
 
@@ -41,9 +43,10 @@ class JudgeView(APIView):
         """
         user = request.user
         user_answer = request.data.get('userAnswer')
+        wager = request.data.get('wager')
         question = Question.objects.get(id=request.data.get('questionId'))
         judging_result = self.judge.judge_answer(user_answer, question.answer)
-        question_value = question.value
+        question_value = wager if question.daily_double else question.value
         answer_result = {'result': '', 'text': '', 'score': 0}
         if judging_result == 'close':
             answer_result['text'] = self.judge.check_closeness(user_answer, question.answer)
@@ -67,7 +70,10 @@ class ScoreViewSet(viewsets.ViewSet):
         """
         get score of the current user
         """
-        return Response(request.user.score)
+        if hasattr(request.user, 'score'):
+            return Response(request.user.score)
+        else:
+            return Response('User must be signed in', status=status.HTTP_403_FORBIDDEN)
 
     def get_top_ten(self, request) -> Response:
         """

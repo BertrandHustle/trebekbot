@@ -10,6 +10,7 @@ from requests import get as get_http_code
 from requests.exceptions import RequestException
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.postgres.fields import ArrayField
 
 
@@ -58,25 +59,29 @@ class Question(models.Model):
     banned_phrases = ['seen here', 'heard here', 'audio clue']
 
     @staticmethod
-    def get_random_question(category=None) -> Question or None:
+    def get_random_question() -> Question:
         """
         gets a random question from the db and filters out unwanted categories and phrases
-        :param category: specify category for the question you want
         :return: Question
         """
-        if category and category not in Question.banned_categories:
-            questions = Question.objects.filter(category=category)
-            if all(q.text in Question.banned_phrases for q in questions):
-                # add logging/warning here?
-                return None
-            else:
-                return random.choice(questions)
-        else:
-            pks = Question.objects.exclude(
-                reduce(operator.and_, (models.Q(text__contains=phrase) for phrase in Question.banned_phrases)),
-                category__in=Question.banned_categories
-            ).values_list('pk', flat=True)
-            return Question.objects.get(pk=random.choice(pks))
+        pks = Question.objects.exclude(
+            reduce(operator.and_, (Q(text__contains=phrase) for phrase in Question.banned_phrases)),
+            category__in=Question.banned_categories
+        ).values_list('pk', flat=True)
+        return Question.objects.get(pk=random.choice(pks))
+
+    @staticmethod
+    def get_daily_double() -> Question:
+        """
+        gets a random daily double question (for testing)
+        :return: Question
+        """
+        pks = Question.objects.filter(
+            reduce(operator.and_, (~Q(text__contains=phrase) for phrase in Question.banned_phrases)) &
+            ~Q(category__in=Question.banned_categories) &
+            Q(daily_double=True)
+        ).values_list('pk', flat=True)
+        return Question.objects.get(pk=random.choice(pks))
 
     def get_value(self):
         return '$' + str(self.value)

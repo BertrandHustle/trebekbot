@@ -15,8 +15,8 @@ from util.judge import Judge
 # TODO: unit test view
 class QuestionView(APIView):
     def get(self, request):
-        #question = Question.get_random_question()
-        question = Question.get_daily_double()
+        question = Question.get_random_question()
+        #question = Question.get_daily_double()
         if settings.DEBUG:
             print(question.answer)
             print(f'Daily Double: {question.daily_double}')
@@ -30,10 +30,6 @@ class JudgeView(APIView):
 
     def __init__(self):
         self.judge = Judge()
-        self.response_templates = {
-            'correct': 'That is correct. The answer is ',
-            'incorrect': 'Sorry, that is incorrect.'
-        }
 
     def post(self, request):
         """
@@ -51,12 +47,12 @@ class JudgeView(APIView):
         if judging_result == 'close':
             answer_result['text'] = self.judge.check_closeness(user_answer, question.answer)
         elif judging_result is True:
-            answer_result['text'] = self.response_templates['correct'] + question.answer
+            answer_result['text'] = f'That is correct. The answer is "{question.answer}"'
             answer_result['result'] = True
             user.score += question_value
             user.save()
         elif judging_result is False:
-            answer_result['text'] = self.response_templates['incorrect']
+            answer_result['text'] = f'Sorry, "{user_answer}" is incorrect.'
             answer_result['result'] = False
             user.score -= question_value
             user.save()

@@ -1,13 +1,14 @@
 decorator
+dj-database-url
 django
 djangorestframework
 django-cors-headers
 editdistance
 gunicorn
 psycopg2
-py==1.4.34
-pytest==3.1.2
+pytest
 pytest-django
 pytest-pgsql
+python-dotenv
 requests
 Unidecode==0.4.20

@@ -10,8 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import dj_database_url
 import os
-import urllib.parse as urlparse
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'kuc%wnd&z6t2r$2e1limsa*4$_049kpipz0=8$p$sp^41%c7ex'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # CORS/CSRF
 ALLOWED_HOSTS = ['localhost']
@@ -54,8 +55,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        #'rest_framework.authentication.TokenAuthentication',
-        #'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
@@ -95,23 +94,13 @@ WSGI_APPLICATION = 'trebekbot.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql', 'PORT': '5433'}}
-try:
-    result = urlparse.urlparse(os.environ['DATABASE_URL'])
-    DATABASES['default'].update({
-            'NAME': result.path[1:],
-            'USER': result.username,
-            'PASSWORD': result.password,
-            'HOST': result.hostname
-        })
-except KeyError:
-    DATABASES['default'].update({
-            'NAME': 'django',
-            'USER': 'postgres',
-            'PASSWORD': 'test',
-            'HOST': '127.0.0.1'
-        })
-
+DATABASES = {
+    "default": dj_database_url.config(
+        conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=True,
+    ),
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

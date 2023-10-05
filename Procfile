@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn trebekbot-python.wsgi
+web: gunicorn --chdir trebekbot trebekbot-python.wsgi

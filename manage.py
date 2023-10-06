@@ -7,6 +7,7 @@ import dotenv
 
 
 def main():
+    print(os.listdir())
     dotenv.read_dotenv()
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'trebekbot.settings')
     try:

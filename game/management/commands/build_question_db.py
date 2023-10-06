@@ -1,7 +1,6 @@
 import datetime
 import json
 
-import ipdb
 from django.core.management.base import BaseCommand, CommandError
 
 from game.models import Question
@@ -20,7 +19,9 @@ class Command(BaseCommand):
     help = 'populate db with questions from jeopardy json'
 
     def add_arguments(self, parser):
-        parser.add_argument('json_path', type=str, help='path to jeopardy json')
+        parser.add_argument(
+            'json_path', type=str, help='path to jeopardy json', default='support_files/JEOPARDY_QUESTIONS1.json'
+        )
 
     @staticmethod
     def filter_questions(question_list, banned_categories=None, banned_phrases=None, category=None) -> list:
@@ -85,5 +86,4 @@ class Command(BaseCommand):
                 print(question_counter)
                 print(f'{new_question} saved')
         except Exception as e:
-            ipdb.set_trace(context=5)
             raise CommandError(e)

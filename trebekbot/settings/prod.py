@@ -30,8 +30,8 @@ DEBUG = False
 # CORS/CSRF
 ALLOWED_HOSTS = ['localhost']
 # CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOWED_ORIGINS = ['http://localhost:3000']
-CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+CORS_ALLOWED_ORIGINS = ['https://trebekbot-react-200b3046b53e.herokuapp.com/']
+CSRF_TRUSTED_ORIGINS = ['https://trebekbot-react-200b3046b53e.herokuapp.com/']
 
 # CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 CORS_ALLOW_CREDENTIALS = True

@@ -20,7 +20,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'json_path', type=str, help='path to jeopardy json', default='support_files/JEOPARDY_QUESTIONS1.json'
+            '--json_path',
+            '-j',
+            type=str,
+            help='path to jeopardy json',
+            default='support_files/JEOPARDY_QUESTIONS1.json'
         )
 
     @staticmethod

@@ -30,8 +30,8 @@ DEBUG = False
 # CORS/CSRF
 ALLOWED_HOSTS = [
     'https://trebekbot-react-200b3046b53e.herokuapp.com',
-    'trebekbot-react.herokuapp.com',
-    'trebekbot-react*.herokuapp.com'
+    'https://trebekbot-react.herokuapp.com',
+    'https://trebekbot-react*.herokuapp.com'
 ]
 # CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOWED_ORIGINS = ALLOWED_HOSTS

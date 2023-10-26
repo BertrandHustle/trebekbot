@@ -28,17 +28,20 @@ SECRET_KEY = 'kuc%wnd&z6t2r$2e1limsa*4$_049kpipz0=8$p$sp^41%c7ex'
 DEBUG = False
 
 # CORS/CSRF
-ALLOWED_HOSTS = [
-    'trebekbot-react-200b3046b53e.herokuapp.com',
-    'trebekbot-react.herokuapp.com',
-    'trebekbot-react*.herokuapp.com'
-]
+# ALLOWED_HOSTS = [
+#     'trebekbot-react-200b3046b53e.herokuapp.com',
+#     'trebekbot-react.herokuapp.com',
+#     'trebekbot-react*.herokuapp.com'
+# ]
+# # CORS_ORIGIN_ALLOW_ALL = False
+# CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
+#     'https://trebekbot-react-200b3046b53e.herokuapp.com',
+#     'https://trebekbot-react.herokuapp.com',
+#     'https://trebekbot-react*.herokuapp.com'
+# ]
+ALLOWED_HOSTS = []
 # CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
-    'https://trebekbot-react-200b3046b53e.herokuapp.com',
-    'https://trebekbot-react.herokuapp.com',
-    'https://trebekbot-react*.herokuapp.com'
-]
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = []
 # CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -128,39 +131,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTH_USER_MODEL = 'game.Player'
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': ('%(asctime)s [%(process)d] [%(levelname)s] ' +
-                       'pathname=%(pathname)s lineno=%(lineno)s ' +
-                       'funcname=%(funcName)s %(message)s'),
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        }
-    },
-    'handlers': {
-        'null': {
-            'level': 'DEBUG',
-            'class': 'logging.NullHandler',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        }
-    },
-    'loggers': {
-        'debug_logger': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-        }
-    }
-}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

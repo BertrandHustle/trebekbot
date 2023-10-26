@@ -16,6 +16,7 @@ debug_logger = logging.getLogger('debug_logger')
 
 # TODO: change this to use TokenAuthentication
 class LoginView(APIView):
+    debug_logger.debug('TEST')
 
     def _decode_basic_auth_header(self, auth_header: str) -> tuple:
         decoded_auth_bytes = base64.b64decode(auth_header.split()[1])

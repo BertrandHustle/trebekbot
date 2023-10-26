@@ -34,14 +34,12 @@ DEBUG = False
 #     'trebekbot-react*.herokuapp.com'
 # ]
 # # CORS_ORIGIN_ALLOW_ALL = False
-# CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
-#     'https://trebekbot-react-200b3046b53e.herokuapp.com',
-#     'https://trebekbot-react.herokuapp.com',
-#     'https://trebekbot-react*.herokuapp.com'
-# ]
+CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
+    'https://trebekbot-react-200b3046b53e.herokuapp.com',
+    'https://trebekbot-react.herokuapp.com',
+    'https://trebekbot-react*.herokuapp.com'
+]
 ALLOWED_HOSTS = []
-# CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = []
 # CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 CORS_ALLOW_CREDENTIALS = True
 

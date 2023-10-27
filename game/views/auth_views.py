@@ -11,8 +11,6 @@ from rest_framework.views import APIView
 
 from game.models.Player import Player
 
-debug_logger = logging.getLogger('debug_logger')
-
 
 # TODO: change this to use TokenAuthentication
 class LoginView(APIView):
@@ -24,7 +22,6 @@ class LoginView(APIView):
 
     @method_decorator(ensure_csrf_cookie)
     def post(self, request):
-        debug_logger.error(request.text)
         auth_header = request.headers['Authorization']
         username, password = self._decode_basic_auth_header(auth_header)
         if username is None or password is None:

@@ -29,6 +29,7 @@ DEBUG = False
 
 # CORS/CSRF
 ALLOWED_HOSTS = [
+    '.herokuapp.com',
     'trebekbot-python-8faaf61138b9.herokuapp.com',
     'trebekbot-python.herokuapp.com',
     'trebekbot-python*.herokuapp.com'

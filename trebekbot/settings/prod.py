@@ -152,9 +152,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-LOGIN_URL = '/registration/login'
-LOGIN_REDIRECT_URL = '/game/play'
-LOGOUT_REDIRECT_URL = LOGIN_URL
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

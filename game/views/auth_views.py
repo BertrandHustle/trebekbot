@@ -1,5 +1,4 @@
 import base64
-import logging
 
 from django.contrib.auth import authenticate, login, logout
 from django.utils.decorators import method_decorator

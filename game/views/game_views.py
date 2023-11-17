@@ -2,6 +2,7 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,6 +15,8 @@ from util.judge import Judge
 
 # TODO: unit test view
 class QuestionView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         question = Question.get_random_question()
         #question = Question.get_daily_double()
@@ -27,6 +30,7 @@ class QuestionView(APIView):
 # TODO: remove this exemption!!!
 @method_decorator(csrf_exempt, name='dispatch')
 class JudgeView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def __init__(self):
         self.judge = Judge()
@@ -61,15 +65,13 @@ class JudgeView(APIView):
 
 
 class ScoreViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
 
     def get_user_score(self, request) -> Response:
         """
         get score of the current user
         """
-        if hasattr(request.user, 'score'):
-            return Response(request.user.score)
-        else:
-            return Response('User must be signed in', status=status.HTTP_403_FORBIDDEN)
+        return Response(request.user.score)
 
     def get_top_ten(self, request) -> Response:
         """

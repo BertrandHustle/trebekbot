@@ -32,7 +32,7 @@ DEBUG = False
 # CORS/CSRF
 ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
-    'https://trebekbot.net'
+    'https://www.trebekbot.net'
 ]
 CORS_ALLOW_CREDENTIALS = True
 

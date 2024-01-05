@@ -33,7 +33,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
     'https://trebekbot.net',
-    'https://trebekbot.net/',
+    'elliptical-eagle-68g0chwtytupoo8zh53uueyb.herokudns.com'
 ]
 CORS_ALLOW_CREDENTIALS = True
 

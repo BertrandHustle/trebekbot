@@ -30,23 +30,10 @@ SECRET_KEY = get_random_secret_key()
 DEBUG = False
 
 # CORS/CSRF
-# ALLOWED_HOSTS = [
-#     '.herokuapp.com'
-#     'trebekbot-python-8faaf61138b9.herokuapp.com',
-#     'trebekbot-python.herokuapp.com',
-#     'trebekbot-python*.herokuapp.com'
-# ]
 ALLOWED_HOSTS = ['*']
-# # CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
-    'https://trebekbot-react-200b3046b53e.herokuapp.com',
-    'https://trebekbot-react.herokuapp.com',
-    'https://trebekbot-react*.herokuapp.com',
-    'https://trebekbot-python*.herokuapp.com',
-    'https://trebekbot-python.herokuapp.com',
     'https://trebekbot.net'
 ]
-# CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 CORS_ALLOW_CREDENTIALS = True
 
 # Application definition

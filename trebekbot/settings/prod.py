@@ -35,6 +35,10 @@ CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
     'https://www.trebekbot.net'
 ]
 CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
 
 # Application definition
 

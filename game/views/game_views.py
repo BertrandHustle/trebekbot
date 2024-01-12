@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -17,6 +17,7 @@ from util.judge import Judge
 class QuestionView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @method_decorator(ensure_csrf_cookie)
     def get(self, request):
         question = Question.get_random_question()
         #question = Question.get_daily_double()
@@ -27,14 +28,13 @@ class QuestionView(APIView):
         return Response(JSONRenderer().render(serializer.data))
 
 
-# TODO: remove this exemption!!!
-@method_decorator(csrf_exempt, name='dispatch')
 class JudgeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def __init__(self):
         self.judge = Judge()
 
+    @method_decorator(ensure_csrf_cookie)
     def post(self, request):
         """
         Answer a question and have player score updated accordingly
@@ -67,12 +67,14 @@ class JudgeView(APIView):
 class ScoreViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    @method_decorator(ensure_csrf_cookie)
     def get_user_score(self, request) -> Response:
         """
         get score of the current user
         """
         return Response(request.user.score)
 
+    @method_decorator(ensure_csrf_cookie)
     def get_top_ten(self, request) -> Response:
         """
         return a list of the top ten players by score

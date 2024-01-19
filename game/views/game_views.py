@@ -15,10 +15,10 @@ from util.judge import Judge
 
 
 # TODO: unit test view
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class QuestionView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(ensure_csrf_cookie)
     def get(self, request):
         question = Question.get_random_question()
         #question = Question.get_daily_double()
@@ -29,13 +29,13 @@ class QuestionView(APIView):
         return Response(JSONRenderer().render(serializer.data))
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class JudgeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def __init__(self):
         self.judge = Judge()
 
-    @method_decorator(ensure_csrf_cookie)
     def post(self, request):
         """
         Answer a question and have player score updated accordingly

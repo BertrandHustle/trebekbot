@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import viewsets
@@ -64,17 +65,16 @@ class JudgeView(APIView):
         return Response(answer_result)
 
 
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class ScoreViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(ensure_csrf_cookie)
     def get_user_score(self, request) -> Response:
         """
         get score of the current user
         """
         return Response(request.user.score)
 
-    @method_decorator(ensure_csrf_cookie)
     def get_top_ten(self, request) -> Response:
         """
         return a list of the top ten players by score

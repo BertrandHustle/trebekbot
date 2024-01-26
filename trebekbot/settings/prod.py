@@ -30,8 +30,7 @@ SECRET_KEY = get_random_secret_key()
 DEBUG = True
 
 # CORS/CSRF
-#ALLOWED_HOSTS = ['*']
-ALLOWED_HOSTS = ['www.trebekbot.net']
+ALLOWED_HOSTS = ['trebekbot-python-8faaf61138b9.herokuapp.com']
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
     'https://www.trebekbot.net'
 ]

@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import viewsets
@@ -21,6 +20,8 @@ class QuestionView(APIView):
 
     def get(self, request):
         question = Question.get_random_question()
+        print(request.data)
+        print(request.headers)
         #question = Question.get_daily_double()
         if settings.DEBUG:
             print(question.answer)

@@ -54,7 +54,6 @@ class LoginView(APIView):
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(ensure_csrf_cookie)
     def post(self, request):
         if not request.user.is_authenticated:
             return Response({'detail': 'User not logged in.'}, status=HTTP_400_BAD_REQUEST)

@@ -14,7 +14,6 @@ from util.judge import Judge
 
 
 # TODO: unit test view
-#@method_decorator(ensure_csrf_cookie, name='dispatch')
 class QuestionView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -28,7 +27,6 @@ class QuestionView(APIView):
         return Response(JSONRenderer().render(serializer.data))
 
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
 class JudgeView(APIView):
     permission_classes = [IsAuthenticated]
 

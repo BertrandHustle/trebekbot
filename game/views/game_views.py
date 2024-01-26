@@ -28,7 +28,7 @@ class QuestionView(APIView):
         return Response(JSONRenderer().render(serializer.data))
 
 
-#@method_decorator(ensure_csrf_cookie, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class JudgeView(APIView):
     permission_classes = [IsAuthenticated]
 

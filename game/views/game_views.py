@@ -20,8 +20,6 @@ class QuestionView(APIView):
 
     def get(self, request):
         question = Question.get_random_question()
-        print(request.data)
-        print(request.headers)
         #question = Question.get_daily_double()
         if settings.DEBUG:
             print(question.answer)
@@ -30,7 +28,7 @@ class QuestionView(APIView):
         return Response(JSONRenderer().render(serializer.data))
 
 
-@method_decorator(ensure_csrf_cookie, name='dispatch')
+#@method_decorator(ensure_csrf_cookie, name='dispatch')
 class JudgeView(APIView):
     permission_classes = [IsAuthenticated]
 

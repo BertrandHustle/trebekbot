@@ -34,18 +34,6 @@ CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
     'https://www.trebekbot.net'
 ]
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'X-CSRFTOKEN',
-    'x-requested-with',
-]
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'

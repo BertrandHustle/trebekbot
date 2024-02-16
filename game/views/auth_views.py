@@ -12,7 +12,6 @@ from game.models.Player import Player
 
 
 # TODO: change this to use TokenAuthentication
-@method_decorator(ensure_csrf_cookie, name='dispatch')
 class LoginView(APIView):
 
     def _decode_basic_auth_header(self, auth_header: str) -> tuple:
@@ -20,7 +19,7 @@ class LoginView(APIView):
         split_auth_string = decoded_auth_bytes.decode().split(':')
         return tuple(split_auth_string)
 
-    #@method_decorator(ensure_csrf_cookie)
+    @method_decorator(ensure_csrf_cookie)
     def post(self, request):
         auth_header = request.headers['Authorization']
         username, password = self._decode_basic_auth_header(auth_header)

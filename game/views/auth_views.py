@@ -62,12 +62,4 @@ class LogoutView(APIView):
         return Response({'detail': 'Successfully logged out.'})
 
 
-def CSRFDebugView(request, reason='DEBUG'):
-    print(request.COOKIES)
-    print('CSRF FAILED')
-    print(request.POST)
-    return Response()
-
-
-
 

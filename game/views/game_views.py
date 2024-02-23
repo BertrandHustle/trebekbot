@@ -1,6 +1,4 @@
 from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import ensure_csrf_cookie
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
@@ -40,6 +38,7 @@ class JudgeView(APIView):
         :return: json with result of the answer (is the answer right or wrong?)
         """
         user = request.user
+        print(user)
         user_answer = request.data.get('userAnswer')
         wager = request.data.get('wager')
         question = Question.objects.get(id=request.data.get('questionId'))

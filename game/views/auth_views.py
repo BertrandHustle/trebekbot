@@ -28,6 +28,9 @@ class LoginView(APIView):
 
         user = authenticate(username=username, password=password)
 
+        r = Response()
+        print(r.cookies)
+
         if user is None:
             username_exists = Player.objects.filter(username=username).first()
             if not username_exists:

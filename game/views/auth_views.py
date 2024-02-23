@@ -19,8 +19,13 @@ class LoginView(APIView):
         split_auth_string = decoded_auth_bytes.decode().split(':')
         return tuple(split_auth_string)
 
+    def set_partitioned_cookie(self, response: Response) -> Response:
+        response.set_cookie(response.cookies.get('Set-Cookie') + 'Partitioned;')
+        return response
+
     @method_decorator(ensure_csrf_cookie)
     def post(self, request):
+
         auth_header = request.headers['Authorization']
         username, password = self._decode_basic_auth_header(auth_header)
         if username is None or password is None:
@@ -37,18 +42,19 @@ class LoginView(APIView):
                 new_player.save()
                 authenticate(username=username, password=password)
                 login(request, new_player)
-                return Response({
+                resp = Response({
                     'detail': f'New Player {username} created.',
                     'new': True
                 })
+                return self.set_partitioned_cookie(resp)
             else:
                 return Response(
                     {'detail': 'Invalid credentials or username already exists.'}, status=HTTP_400_BAD_REQUEST
                 )
-
-        if user.is_authenticated:
+        elif user.is_authenticated:
             login(request, user)
-        return Response({'detail': 'Successfully logged in.'})
+            resp = Response({'detail': 'Successfully logged in.'})
+            return self.set_partitioned_cookie(resp)
 
 
 class LogoutView(APIView):

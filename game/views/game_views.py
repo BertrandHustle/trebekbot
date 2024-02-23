@@ -38,7 +38,6 @@ class JudgeView(APIView):
         :return: json with result of the answer (is the answer right or wrong?)
         """
         user = request.user
-        print(user)
         user_answer = request.data.get('userAnswer')
         wager = request.data.get('wager')
         question = Question.objects.get(id=request.data.get('questionId'))

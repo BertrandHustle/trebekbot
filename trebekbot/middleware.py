@@ -17,8 +17,12 @@ class CookiePartitioningMiddleware(MiddlewareMixin):
         session_id_name = getattr(settings, 'SESSION_COOKIE_NAME')
         csrf_cookie = response.cookies.get(csrf_cookie_name)
         session_id_cookie = response.cookies.get(session_id_name)
+        print(csrf_cookie)
+        print(session_id_cookie)
         if csrf_cookie:
             csrf_cookie['Partitioned'] = True
         if session_id_cookie:
             session_id_cookie['Partitioned'] = True
+        print(csrf_cookie)
+        print(session_id_cookie)
         return response

@@ -40,7 +40,6 @@ CSRF_COOKIE_SAMESITE = 'None'
 # Session
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'None'
-SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Application definition

@@ -29,12 +29,11 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = True
 
 # CORS/CSRF
-ALLOWED_HOSTS = ['backend.trebekbot.net']
+ALLOWED_HOSTS = ['backend.trebekbot.net', 'www.trebekbot.net']
 CORS_ALLOWED_ORIGINS = CSRF_TRUSTED_ORIGINS = [
     'https://www.trebekbot.net'
 ]
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 

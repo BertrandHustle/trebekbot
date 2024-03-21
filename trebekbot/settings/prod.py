@@ -25,8 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# TODO: turn this back off!
-DEBUG = True
+DEBUG = False
 
 # CORS/CSRF
 ALLOWED_HOSTS = ['backend.trebekbot.net']

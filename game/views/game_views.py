@@ -1,3 +1,5 @@
+from random import choice
+
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -17,7 +19,12 @@ class QuestionView(APIView):
 
     def get(self, request):
         question = Question.get_random_question()
-        #question = Question.get_daily_double()
+        # debug settings
+        if settings.DAILY_DOUBLES_ONLY:
+            question = Question.get_daily_double()
+        elif settings.RANDOM_DAILY_DOUBLES:
+            daily_double = choice([0, 1])
+            question = Question.get_daily_double() if daily_double else Question.get_random_question()
         if settings.DEBUG:
             print(question.answer)
             print(f'Daily Double: {question.daily_double}')

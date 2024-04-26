@@ -20,14 +20,16 @@ class QuestionView(APIView):
     def get(self, request):
         question = Question.get_random_question()
         # debug settings
-        if settings.DAILY_DOUBLES_ONLY:
-            question = Question.get_daily_double()
-        elif settings.RANDOM_DAILY_DOUBLES:
-            daily_double = choice([0, 1])
-            question = Question.get_daily_double() if daily_double else Question.get_random_question()
         if settings.DEBUG:
             print(question.answer)
             print(f'Daily Double: {question.daily_double}')
+            if settings.DAILY_DOUBLES_ONLY:
+                question = Question.get_daily_double()
+            elif settings.RANDOM_DAILY_DOUBLES:
+                daily_double = choice([0, 1])
+                question = Question.get_daily_double() if daily_double else Question.get_random_question()
+            elif settings.VALID_LINKS_ONLY:
+                question = Question.get_question_with_valid_links()
         serializer = QuestionSerializer(question)
         return Response(JSONRenderer().render(serializer.data))
 

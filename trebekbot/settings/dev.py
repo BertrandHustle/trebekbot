@@ -34,8 +34,10 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 # CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 CORS_ALLOW_CREDENTIALS = True
 
+# Enable test questions
 DAILY_DOUBLES_ONLY = False
-RANDOM_DAILY_DOUBLES = True
+RANDOM_DAILY_DOUBLES = False
+VALID_LINKS_ONLY = True
 
 # Application definition
 

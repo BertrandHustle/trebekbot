@@ -79,6 +79,15 @@
     "answer": "bubbo",
     "round": "round",
     "show_number": 21389183
+  },
+  "invalid_link": {
+    "category": "test",
+    "air_date": "2000-00-00",
+    "question": "This patron saint of Lourdes'\n <a href=\"http://www.j-archive.com/media/2004-11-17_DJ_21.j\"\n target=\"_blank\">body</a>\n has remained unchanged in its glass display case since her death in 1879",
+    "value": "$2000",
+    "answer": "bubbo",
+    "round": "round",
+    "show_number": 21389183
   }
 }
 

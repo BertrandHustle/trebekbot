@@ -83,6 +83,19 @@ class Question(models.Model):
         ).values_list('pk', flat=True)
         return Question.objects.get(pk=random.choice(pks))
 
+    @staticmethod
+    def get_question_with_valid_links() -> Question:
+        """
+        gets a random question with valid links (for testing)
+        :return: Question
+        """
+        pks = Question.objects.filter(
+            reduce(operator.and_, (~Q(text__contains=phrase) for phrase in Question.banned_phrases)) &
+            ~Q(category__in=Question.banned_categories) &
+            ~Q(valid_links=[])
+        ).values_list('pk', flat=True)
+        return Question.objects.get(pk=random.choice(pks))
+
     def get_value(self):
         return '$' + str(self.value)
 

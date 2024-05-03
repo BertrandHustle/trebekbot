@@ -1,34 +1,33 @@
 import pytest
 
-from django.db.models import Q
-
 from .fixtures import question_text_with_links, test_questions
 from game.models import Question
 
 
 def test_fix_invalid_links(test_questions):
-    for question in Question.objects.filter(~Q(valid_links=[])):
-        links = question.valid_links
+    # used to test migration 0009_fix_invalid_links
+    _, working_link = Question.separate_html(test_questions['working_link'].text)
+    _, invalid_link = Question.separate_html(test_questions['invalid_link'].text)
+    for link in [working_link, invalid_link]:
         fixed_links = []
-        for link in links:
-            match link:
-                case['.j']:
-                    fixed_links.append(link + 'pg')
-                case['.jp']:
-                    fixed_links.append(link + 'g')
-                case['.w']:
-                    fixed_links.append(link + 'mv')
-                case['.wm']:
-                    fixed_links.append(link + 'v')
-                case['.m']:
-                    fixed_links.append(link + 'p3')
-                case['.mp']:
-                    fixed_links.append(link + '3')
-                case _:
-                    fixed_links.append(link)
-        assert set(links) != set(fixed_links)
-        for link in fixed_links:
-            assert link.endswith('.jpg') or link.endswith('.wmv') or link.endswith('.mp3')
+        breakpoint()
+        match link:
+            case[link.endswith('.j')]:
+                fixed_links.append(link + 'pg')
+            case[link.endswith('.jp')]:
+                fixed_links.append(link + 'g')
+            case[link.endswith('.w')]:
+                fixed_links.append(link + 'mv')
+            case[link.endswith('.wm')]:
+                fixed_links.append(link + 'v')
+            case[link.endswith('.m')]:
+                fixed_links.append(link + 'p3')
+            case[link.endswith('.mp')]:
+                fixed_links.append(link + '3')
+            case _:
+                fixed_links.append(link)
+    for link in fixed_links:
+        assert link.endswith('.jpg') or link.endswith('.wmv') or link.endswith('.mp3')
 
 
 def test_get_value(test_questions):

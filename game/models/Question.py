@@ -136,8 +136,9 @@ class Question(models.Model):
             question_text = re.sub(r'\n', '', question_text)
             # valid links to return
             valid_links = []
+            # TODO: also check for https
             # use regex to check in case link syntax got mangled
-            regex_links = re.findall(r'http://.*?\"', question_text)
+            regex_links = re.findall(r'https?://.*?\"', question_text)
             # remove trailing quotes
             regex_links = [link[:-1] for link in regex_links]
             # scrub out html from question

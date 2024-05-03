@@ -9,22 +9,25 @@ def fix_invalid_links(apps, schema_editor):
         links = question.valid_links
         fixed_links = []
         for link in links:
-            match link:
-                case[link.endswith('.j')]:
+            ext = '.' + link.rsplit('.', 1)[1]
+            match ext:
+                case '.j':
                     fixed_links.append(link + 'pg')
-                case[link.endswith('.jp')]:
+                case '.jp':
                     fixed_links.append(link + 'g')
-                case[link.endswith('.w')]:
+                case '.w':
                     fixed_links.append(link + 'mv')
-                case[link.endswith('.wm')]:
+                case '.wm':
                     fixed_links.append(link + 'v')
-                case[link.endswith('.m')]:
+                case '.m':
                     fixed_links.append(link + 'p3')
-                case[link.endswith('.mp')]:
+                case '.mp':
                     fixed_links.append(link + '3')
                 case _:
                     fixed_links.append(link)
         if set(links) != set(fixed_links):
+            print(f'links: {links}')
+            print(f'fixed_links: {fixed_links}')
             question.valid_links = fixed_links
             question.save()
 

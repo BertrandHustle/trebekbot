@@ -4,7 +4,6 @@ from django.db.models import Q
 
 def fix_invalid_links(apps, schema_editor):
     Question = apps.get_model('game', 'Question')
-
     for question in Question.objects.filter(~Q(valid_links=[])):
         links = question.valid_links
         fixed_links = []
@@ -26,8 +25,6 @@ def fix_invalid_links(apps, schema_editor):
                 case _:
                     fixed_links.append(link)
         if set(links) != set(fixed_links):
-            print(f'links: {links}')
-            print(f'fixed_links: {fixed_links}')
             question.valid_links = fixed_links
             question.save()
 
@@ -35,7 +32,7 @@ def fix_invalid_links(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('game', '0008_question_valid_links'),
+        ('game', '0009_alter_question_valid_links'),
     ]
 
     operations = [

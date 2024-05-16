@@ -46,7 +46,7 @@ class Question(models.Model):
     daily_double = models.BooleanField(default=False)
     answer = models.CharField(max_length=250)
     valid_links = ArrayField(
-        models.CharField(max_length=50, blank=True),
+        models.CharField(max_length=250, blank=True),
         size=3,
         default=list
     )

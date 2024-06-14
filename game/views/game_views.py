@@ -2,7 +2,6 @@ from random import choice
 
 from django.conf import settings
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,7 +14,6 @@ from util.judge import Judge
 
 # TODO: unit test view
 class QuestionView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         question = Question.get_random_question()
@@ -35,7 +33,6 @@ class QuestionView(APIView):
 
 
 class JudgeView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def __init__(self):
         self.judge = Judge()
@@ -70,7 +67,6 @@ class JudgeView(APIView):
 
 
 class ScoreViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
 
     def get_user_score(self, request) -> Response:
         """

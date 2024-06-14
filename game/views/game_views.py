@@ -1,6 +1,7 @@
+from random import choice
+
 from django.conf import settings
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,20 +14,25 @@ from util.judge import Judge
 
 # TODO: unit test view
 class QuestionView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         question = Question.get_random_question()
-        #question = Question.get_daily_double()
+        # debug settings
         if settings.DEBUG:
             print(question.answer)
             print(f'Daily Double: {question.daily_double}')
+            if settings.DAILY_DOUBLES_ONLY:
+                question = Question.get_daily_double()
+            elif settings.RANDOM_DAILY_DOUBLES:
+                daily_double = choice([0, 1])
+                question = Question.get_daily_double() if daily_double else Question.get_random_question()
+            elif settings.VALID_LINKS_ONLY:
+                question = Question.get_question_with_valid_links()
         serializer = QuestionSerializer(question)
         return Response(JSONRenderer().render(serializer.data))
 
 
 class JudgeView(APIView):
-    permission_classes = [IsAuthenticated]
 
     def __init__(self):
         self.judge = Judge()
@@ -61,7 +67,6 @@ class JudgeView(APIView):
 
 
 class ScoreViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated]
 
     def get_user_score(self, request) -> Response:
         """

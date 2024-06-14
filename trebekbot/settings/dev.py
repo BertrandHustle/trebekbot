@@ -34,6 +34,11 @@ CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 # CORS_EXPOSE_HEADERS = ["Content-Type", "X-CSRFToken"]
 CORS_ALLOW_CREDENTIALS = True
 
+# Enable test questions
+DAILY_DOUBLES_ONLY = False
+RANDOM_DAILY_DOUBLES = False
+VALID_LINKS_ONLY = False
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,12 +55,15 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ]
 }
 
 MIDDLEWARE = [

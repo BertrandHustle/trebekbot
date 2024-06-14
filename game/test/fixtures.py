@@ -35,6 +35,30 @@ def question_text_with_links():
                             'display case since her death in 1879',
             'cleaned_links': ['http://www.j-archive.com/media/2004-11-17_DJ_21.jpg']
         },
+        # test invalid link
+        {
+            'raw_text': '''
+                     This patron saint of Lourdes'
+                     <a href="https://www.j-archive.com/media/2004-11-17_DJ_21.jp"
+                     target="_blank">body</a>
+                     has remained unchanged in its glass display case since her death in 1879
+                     ''',
+            'cleaned_text': 'This patron saint of Lourdes\' body has remained unchanged in its glass '
+                            'display case since her death in 1879',
+            'cleaned_links': []
+        },
+        # test https link
+        {
+            'raw_text': '''
+                         This patron saint of Lourdes'
+                         <a href="https://www.j-archive.com/media/2004-11-17_DJ_21.jpg"
+                         target="_blank">body</a>
+                         has remained unchanged in its glass display case since her death in 1879
+                         ''',
+            'cleaned_text': 'This patron saint of Lourdes\' body has remained unchanged in its glass '
+                            'display case since her death in 1879',
+            'cleaned_links': ['https://www.j-archive.com/media/2004-11-17_DJ_21.jpg']
+        },
         # test 404 link
         {
             'raw_text': '''

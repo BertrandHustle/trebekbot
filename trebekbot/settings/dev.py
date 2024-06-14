@@ -37,7 +37,7 @@ CORS_ALLOW_CREDENTIALS = True
 # Enable test questions
 DAILY_DOUBLES_ONLY = False
 RANDOM_DAILY_DOUBLES = False
-VALID_LINKS_ONLY = True
+VALID_LINKS_ONLY = False
 
 # Application definition
 
@@ -55,12 +55,15 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ]
 }
 
 MIDDLEWARE = [

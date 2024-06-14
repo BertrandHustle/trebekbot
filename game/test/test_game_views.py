@@ -11,6 +11,7 @@ from game.models.Question import Question
 from game.views.game_views import JudgeView, QuestionView
 
 
+# TODO: replace mock redis/postgres instances with mocking
 class GameViewTests(TestCase):
 
     def setUp(self):

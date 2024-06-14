@@ -15,7 +15,6 @@ from django.contrib.postgres.fields import ArrayField
 
 
 class Question(models.Model):
-
     """
     Holds details about questions and questions themselves
     :str text: The actual text of the question
@@ -56,19 +55,15 @@ class Question(models.Model):
         return f'{self.category} | {self.value} | {self.air_date} | {self.text}'
 
     banned_categories = 'missing this category'
-    banned_phrases = ['seen here', 'heard here', 'audio clue']
 
     @staticmethod
     def get_random_question() -> Question:
         """
-        gets a random question from the db and filters out unwanted categories and phrases
+        gets a random question from the db and filters out unwanted categories
         :return: Question
         """
-        pks = Question.objects.exclude(
-            reduce(operator.and_, (Q(text__contains=phrase) for phrase in Question.banned_phrases)),
-            category__in=Question.banned_categories
-        ).values_list('pk', flat=True)
-        return Question.objects.get(pk=random.choice(pks))
+        valid_questions = Question.objects.filter(~Q(category__in=Question.banned_categories))
+        return random.choice(valid_questions)
 
     @staticmethod
     def get_daily_double() -> Question:
@@ -76,12 +71,8 @@ class Question(models.Model):
         gets a random daily double question (for testing)
         :return: Question
         """
-        pks = Question.objects.filter(
-            reduce(operator.and_, (~Q(text__contains=phrase) for phrase in Question.banned_phrases)) &
-            ~Q(category__in=Question.banned_categories) &
-            Q(daily_double=True)
-        ).values_list('pk', flat=True)
-        return Question.objects.get(pk=random.choice(pks))
+        valid_questions = Question.objects.filter(~Q(category__in=Question.banned_categories) & Q(daily_double=True))
+        return random.choice(valid_questions)
 
     @staticmethod
     def get_question_with_valid_links() -> Question:
@@ -89,12 +80,8 @@ class Question(models.Model):
         gets a random question with valid links (for testing)
         :return: Question
         """
-        pks = Question.objects.filter(
-            reduce(operator.and_, (~Q(text__contains=phrase) for phrase in Question.banned_phrases)) &
-            ~Q(category__in=Question.banned_categories) &
-            ~Q(valid_links=[])
-        ).values_list('pk', flat=True)
-        return Question.objects.get(pk=random.choice(pks))
+        valid_questions = Question.objects.filter(~Q(category__in=Question.banned_categories) & ~Q(valid_links=[]))
+        return random.choice(valid_questions)
 
     def get_value(self):
         return '$' + str(self.value)
@@ -108,7 +95,7 @@ class Question(models.Model):
         """
         try:
             # remove special characters if this is a string
-            if type(value) == str:
+            if type(value) is str:
                 # check for negative numbers that haven't been converted to int yet
                 if '-' in value:
                     return 0
@@ -169,4 +156,3 @@ class Question(models.Model):
                 return True
             else:
                 return False
-

@@ -1,53 +1,49 @@
 import json
 
-import testing.postgresql
+import pytest
 
-from django.test import RequestFactory, TestCase
 from django.urls import reverse
+from rest_framework.test import APIRequestFactory, force_authenticate
 
-from .fixtures import test_questions
-from game.models.Player import Player
-from game.models.Question import Question
+from game.test.fixtures import test_player, test_questions
 from game.views.game_views import JudgeView, QuestionView
 
 
-# TODO: replace mock redis/postgres instances with mocking
-class GameViewTests(TestCase):
+@pytest.mark.django_db
+class TestGameViews:
 
-    def setUp(self):
-        self.factory = RequestFactory()
-
-        # set up test postgres db
-        self.postgresql = testing.postgresql.Postgresql()
-
-        # set up test user
-        self.test_user = Player(name='Test Player')
-
-    def tearDown(self):
-        self.postgresql.stop()
-
-    def test_judge_view(self):
-        assert self.test_user.score == 0
-        self.test_question = Question.get_random_question()
-        redis_handler.set_active_question(self.test_question.to_json())
-
-        request = self.factory.post(reverse('judge'), {'userAnswer': self.test_question.answer})
-        request.user = self.test_user
-
+    # TODO: make daily double test
+    def test_judge_view(self, test_player, test_questions):
+        assert test_player.score == 0
+        test_question = test_questions['valid_question']
+        request_body = {
+            'questionId': test_question.id,
+            'userAnswer': test_question.answer
+        }
+        request = APIRequestFactory().post(reverse('judge'), request_body)
+        force_authenticate(request, user=test_player)
         response = JudgeView.as_view()(request)
-        json_response = json.loads(response.content)
+        assert response.status_code == 200
+        assert response.data['result'] is True
+        assert test_player.score == test_question.value
 
-        assert json_response['result'] is True
-        assert self.test_user.score == self.test_question.value
-
-    def test_question_view(self):
-        request = self.factory.get(reverse('question'))
-        request.user = self.test_user
+    def test_get_question_view(self, test_player, test_questions):
+        request = APIRequestFactory().get(reverse('question'))
+        force_authenticate(request, user=test_player)
         response = QuestionView.as_view()(request)
-        json_response = json.loads(response.content)
-        test_question = Question(json_response)
-        assert test_question
-        active_question = Question(json.loads(redis_handler.get_active_question()))
-        assert active_question.question == test_question.question
-        assert active_question.value == test_question.value
-        assert active_question.air_date == test_question.air_date
+        assert response.status_code == 200
+        json_response = json.loads(response.data)
+        assert json_response['text']
+        assert json_response['category']
+        assert json_response['air_date']
+
+    def test_post_question_view(self, test_player, test_questions):
+        test_question = test_questions['valid_question']
+        request = APIRequestFactory().post(reverse('question'), {'questionId': test_question.id})
+        force_authenticate(request, user=test_player)
+        response = QuestionView.as_view()(request)
+        assert response.status_code == 200
+        json_response = json.loads(response.data)
+        assert json_response['text'] == test_question.text
+        assert json_response['category'] == test_question.category
+        assert json_response['air_date'] == str(test_question.air_date)

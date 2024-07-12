@@ -1,26 +1,44 @@
 import json
+from datetime import datetime
+from pathlib import Path
 
 import pytest
 
+from game.models.Player import Player
 from game.models.Question import Question
-from game.serializers import QuestionSerializer
+from paths import ROOT_DIR
 
 
-@pytest.fixture()
+@pytest.fixture
+def test_player():
+    yield Player.objects.create(username='Test Player')
+
+
+@pytest.fixture
 def test_questions():
-    with open('game/test/test_files/test_questions.json') as test_question_json_file:
+    question_json_path = Path(ROOT_DIR, 'game', 'test', 'test_files', 'test_questions.json')
+    with open(question_json_path) as test_question_json_file:
         questions = {}
         question_json = json.load(test_question_json_file)
         for question_name, question in question_json.items():
-            question['text'], question['valid_links'] = Question.separate_html(question['question'])
-            serializer = QuestionSerializer(data=question)
-            serializer.is_valid()
-            question = serializer.create(serializer.data)
-            questions[question_name] = question
+            value = Question.convert_value_to_int(question['value'])
+            text, valid_links = Question.separate_html(question['question'])
+            test_question = Question(
+                text=text,
+                value=value,
+                category=question['category'],
+                daily_double=Question.is_daily_double(value),
+                answer=question['answer'],
+                air_date=datetime.strptime(question['air_date'], '%Y-%m-%d').date()
+            )
+            if valid_links:
+                test_question.valid_links = valid_links
+            test_question.save()
+            questions[question_name] = test_question
         yield questions
 
 
-@pytest.fixture()
+@pytest.fixture
 def question_text_with_links():
     test_question_text = [
         # test working link

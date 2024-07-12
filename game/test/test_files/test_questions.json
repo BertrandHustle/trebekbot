@@ -28,7 +28,7 @@
   },
   "test_category": {
     "category": "test",
-    "air_date": "2000-00-00",
+    "air_date": "2000-01-01",
     "question": "He's the beloved comic strip character seen here text text",
     "value": "$2000",
     "answer": "bubbo",
@@ -46,7 +46,7 @@
   },
   "working_link": {
     "category": "test",
-    "air_date": "2000-00-00",
+    "air_date": "2000-01-01",
     "question": "This patron saint of Lourdes'\n <a href=\"http://www.j-archive.com/media/2004-11-17_DJ_21.jpg\"\n target=\"_blank\">body</a>\n has remained unchanged in its glass display case since her death in 1879",
     "value": "$2000",
     "answer": "bubbo",
@@ -55,7 +55,7 @@
   },
   "invalid_link": {
     "category": "test",
-    "air_date": "2000-00-00",
+    "air_date": "2000-01-01",
     "question": "This patron saint of Lourdes'\n <a href=\"http://www.j-archive.com/media/2004-11-17_DJ_21.jp\"\n target=\"_blank\">body</a>\n has remained unchanged in its glass display case since her death in 1879",
     "value": "$2000",
     "answer": "bubbo",

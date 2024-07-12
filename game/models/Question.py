@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import operator
 import re
 import random
 from contextlib import suppress
-from functools import reduce
 
 from requests import get as get_http_code
 from requests.exceptions import RequestException

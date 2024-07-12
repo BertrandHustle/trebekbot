@@ -16,6 +16,9 @@ from util.judge import Judge
 class QuestionView(APIView):
 
     def get(self, request):
+        """
+        get a random question from the db
+        """
         question = Question.get_random_question()
         # debug settings
         if settings.DEBUG:
@@ -28,6 +31,15 @@ class QuestionView(APIView):
                 question = Question.get_daily_double() if daily_double else Question.get_random_question()
             elif settings.VALID_LINKS_ONLY:
                 question = Question.get_question_with_valid_links()
+        serializer = QuestionSerializer(question)
+        return Response(JSONRenderer().render(serializer.data))
+
+    def post(self, request):
+        """
+        get a question by id
+        """
+        question_id = request.data.get('questionId')
+        question = Question.objects.get(id=question_id)
         serializer = QuestionSerializer(question)
         return Response(JSONRenderer().render(serializer.data))
 

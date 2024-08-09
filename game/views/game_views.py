@@ -1,15 +1,53 @@
 from random import choice
 
 from django.conf import settings
-from rest_framework import viewsets
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status, viewsets
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from game.models.Board import Board
+from game.models.BoardUtils import BoardUtils
 from game.models.Player import Player
 from game.models.Question import Question
 from game.serializers import QuestionSerializer
+from game.models.QuestionTile import QuestionTile
 from util.judge import Judge
+
+
+class BoardView(APIView):
+    """
+    views for dealing with game boards/question tiles
+    """
+
+    def get(self, request):
+        """
+        get a new or existing game board
+        """
+        board_id = request.data.get('boardId')
+        if board_id:
+            try:
+                board = Board.objects.get(pk=board_id)
+            except ObjectDoesNotExist:
+                return Response('Board not found!', status=status.HTTP_404_NOT_FOUND)
+        else:
+            board = Board.objects.create()
+            board = BoardUtils.fill_board(board)
+        tiles_dict = BoardUtils.tiles_to_dict(board)
+        return Response(JSONRenderer().render(tiles_dict))
+
+    def post(self, request):
+        """
+        change state of a question tile to dead
+        """
+        question_tile_id = request.data.get('questionTileId')
+        try:
+            question_tile = QuestionTile.objects.get(pk=question_tile_id)
+            question_tile.alive = False
+            question_tile.save()
+        except ObjectDoesNotExist:
+            return Response('Board not found!', status=status.HTTP_404_NOT_FOUND)
 
 
 # TODO: unit test view

@@ -8,7 +8,7 @@ from requests import get as get_http_code
 from requests.exceptions import RequestException
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.contrib.postgres.fields import ArrayField
 
 
@@ -83,6 +83,17 @@ class Question(models.Model):
 
     def get_value(self):
         return '$' + str(self.value)
+
+    @staticmethod
+    def get_random_category(num_questions: int = 5) -> list[Question]:
+        """
+        gets a random category of <num_questions> questions
+        :param num_questions: how many questions to retrieve for a given category
+        :return: list of questions belonging to common category
+        """
+        category_count = Question.objects.all().values('category').annotate(total=Count('category'))
+        random_category = random.choice([cat for cat in category_count if cat['total'] >= num_questions])
+        return Question.objects.filter(category=random_category)[:num_questions]
 
     @staticmethod
     def convert_value_to_int(value) -> int:

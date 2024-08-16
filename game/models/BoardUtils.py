@@ -1,7 +1,7 @@
-from Board import Board
+from game.models.Board import Board
+from game.models.Question import Question
+from game.models.QuestionTile import QuestionTile
 from game.serializers import QuestionSerializer
-from Question import Question
-from QuestionTile import QuestionTile
 
 
 class BoardUtils:
@@ -12,12 +12,13 @@ class BoardUtils:
         :param board: Board instance
         :return: newly filled Board instance
         """
-        questions = Question.get_random_category(board.columns)
-        for question in questions:
-            QuestionTile.objects.create(
-                board=board,
-                question=question,
-            )
+        for _ in range(board.columns):
+            questions = Question.get_random_category(board.rows)
+            for question in questions:
+                QuestionTile.objects.create(
+                    board=board,
+                    question=question
+                )
         return board
 
     @staticmethod

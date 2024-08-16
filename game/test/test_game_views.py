@@ -5,12 +5,14 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from game.test.fixtures import test_player, test_questions
-from game.views.game_views import JudgeView, QuestionView
+from game.models.BoardUtils import BoardUtils
+from game.serializers import QuestionSerializer
+from game.test.fixtures import test_board, test_categories, test_player, test_questions
+from game.views.game_views import BoardView, JudgeView, QuestionView
 
 
 @pytest.mark.django_db
-class TestGameViews:
+class TestJudgeViews:
 
     # TODO: make daily double test
     def test_judge_view(self, test_player, test_questions):
@@ -26,6 +28,10 @@ class TestGameViews:
         assert response.status_code == 200
         assert response.data['result'] is True
         assert test_player.score == test_question.value
+
+
+@pytest.mark.django_db
+class TestQuestionViews:
 
     def test_get_question_view(self, test_player, test_questions):
         request = APIRequestFactory().get(reverse('question'))
@@ -47,3 +53,26 @@ class TestGameViews:
         assert json_response['text'] == test_question.text
         assert json_response['category'] == test_question.category
         assert json_response['air_date'] == str(test_question.air_date)
+
+
+@pytest.mark.django_db
+class TestBoardViews:
+
+    def test_get_new_board_view(self, test_categories, test_player):
+        request = APIRequestFactory().get(reverse('board'))
+        force_authenticate(request, user=test_player)
+        response = BoardView.as_view()(request)
+        assert response.status_code == 200
+        json_response = json.loads(response.data)
+        assert len(json_response.values()) == 30
+        for question_json in json_response.values():
+            QuestionSerializer(data=question_json).is_valid(raise_exception=True)
+
+    def test_get_existing_board_view(self, test_board, test_player):
+        request = APIRequestFactory().get(reverse('board'), {'boardId': test_board.pk})
+        force_authenticate(request, user=test_player)
+        response = BoardView.as_view()(request)
+        assert response.status_code == 200
+        json_response = json.loads(response.data)
+        assert BoardUtils.tiles_to_dict(test_board).values() == json_response.values()
+

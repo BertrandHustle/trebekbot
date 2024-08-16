@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pytest
 
+from game.models.Board import Board
+from game.models.BoardUtils import BoardUtils
 from game.models.Player import Player
 from game.models.Question import Question
 from paths import ROOT_DIR
@@ -12,6 +14,29 @@ from paths import ROOT_DIR
 @pytest.fixture
 def test_player():
     yield Player.objects.create(username='Test Player')
+
+
+@pytest.fixture
+def test_categories():
+    for cat in range(5):
+        for i in range(5):
+            value = 100
+            Question.objects.create(
+                text='test',
+                value=value,
+                answer='test_answer',
+                category=f'Category {cat}',
+                air_date=datetime.now(),
+                valid_links=['test.com']  # needed to satisfy serializer
+            )
+            value += 100
+
+
+@pytest.fixture
+def test_board(test_categories):
+    board = Board.objects.create()
+    BoardUtils.fill_board(board)
+    yield board
 
 
 @pytest.fixture

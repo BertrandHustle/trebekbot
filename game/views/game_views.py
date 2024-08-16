@@ -47,7 +47,7 @@ class BoardView(APIView):
             question_tile.alive = False
             question_tile.save()
         except ObjectDoesNotExist:
-            return Response('Board not found!', status=status.HTTP_404_NOT_FOUND)
+            return Response('QuestionTile not found!', status=status.HTTP_404_NOT_FOUND)
 
 
 # TODO: unit test view

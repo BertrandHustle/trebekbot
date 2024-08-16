@@ -92,7 +92,7 @@ class Question(models.Model):
         :return: list of questions belonging to common category
         """
         category_count = Question.objects.all().values('category').annotate(total=Count('category'))
-        random_category = random.choice([cat for cat in category_count if cat['total'] >= num_questions])
+        random_category = random.choice([cat['category'] for cat in category_count if cat['total'] >= num_questions])
         return Question.objects.filter(category=random_category)[:num_questions]
 
     @staticmethod

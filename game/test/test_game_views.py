@@ -58,8 +58,8 @@ class TestQuestionViews:
 @pytest.mark.django_db
 class TestBoardViews:
 
-    def test_get_new_board_view(self, test_categories, test_player):
-        request = APIRequestFactory().get(reverse('board'))
+    def test_new_board_view(self, test_categories, test_player):
+        request = APIRequestFactory().post(reverse('board'))
         force_authenticate(request, user=test_player)
         response = BoardView.as_view()(request)
         assert response.status_code == 200
@@ -68,11 +68,19 @@ class TestBoardViews:
         for question_json in json_response.values():
             QuestionSerializer(data=question_json).is_valid(raise_exception=True)
 
-    def test_get_existing_board_view(self, test_board, test_player):
+    def test_existing_board_view(self, test_board, test_player):
         request = APIRequestFactory().get(reverse('board'), {'boardId': test_board.pk})
         force_authenticate(request, user=test_player)
         response = BoardView.as_view()(request)
         assert response.status_code == 200
         json_response = json.loads(response.data)
-        assert BoardUtils.tiles_to_dict(test_board).values() == json_response.values()
+        expected_questions = BoardUtils.tiles_to_dict(test_board)
+        for question_id in json_response:
+            assert expected_questions[int(question_id)] == json_response[question_id]
+
+    def test_non_existing_board_view(self, test_player):
+        request = APIRequestFactory().get(reverse('board'), {'boardId': 0})
+        force_authenticate(request, user=test_player)
+        response = BoardView.as_view()(request)
+        assert response.status_code == 404
 

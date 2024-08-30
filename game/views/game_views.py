@@ -23,21 +23,29 @@ class BoardView(APIView):
 
     def get(self, request):
         """
-        get a new or existing game board
+        get an existing game board
         """
-        board_id = request.data.get('boardId')
+        board_id = request.query_params.get('boardId')
         if board_id:
             try:
                 board = Board.objects.get(pk=board_id)
+                tiles_dict = BoardUtils.tiles_to_dict(board)
+                return Response(JSONRenderer().render(tiles_dict))
             except ObjectDoesNotExist:
                 return Response('Board not found!', status=status.HTTP_404_NOT_FOUND)
         else:
-            board = Board.objects.create()
-            board = BoardUtils.fill_board(board)
+            return Response('boardId required!', status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        """
+        create a new game board
+        """
+        board = Board.objects.create()
+        board = BoardUtils.fill_board(board)
         tiles_dict = BoardUtils.tiles_to_dict(board)
         return Response(JSONRenderer().render(tiles_dict))
 
-    def post(self, request):
+    def patch(self, request):
         """
         change state of a question tile to dead
         """

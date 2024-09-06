@@ -22,14 +22,14 @@ class BoardUtils:
         return board
 
     @staticmethod
-    def tiles_to_dict(board: Board) -> dict:
+    def tiles_to_dict(board: Board) -> list[dict]:
         """
         convert all QuestionTiles that belong to a board into a dict
         :param board:
         :return: dict
         """
-        board_dict = {}
+        board_list = []
         for question_tile in board.questiontile_set.all():
             question_dict = QuestionSerializer(question_tile.question).data
-            board_dict[question_tile.id] = question_dict | {'alive': question_tile.alive}
-        return board_dict
+            board_list.append(question_dict | {'alive': question_tile.alive})
+        return board_list

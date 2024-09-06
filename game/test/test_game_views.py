@@ -5,6 +5,7 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
+from game.models.QuestionTile import QuestionTile
 from game.models.BoardUtils import BoardUtils
 from game.serializers import QuestionSerializer
 from game.test.fixtures import test_board, test_categories, test_player, test_questions
@@ -64,8 +65,9 @@ class TestBoardViews:
         response = BoardView.as_view()(request)
         assert response.status_code == 200
         json_response = json.loads(response.data)
-        assert len(json_response.values()) == 30
-        for question_json in json_response.values():
+        question_tiles = json_response['questionTiles']
+        assert len(question_tiles) == 30
+        for question_json in question_tiles:
             QuestionSerializer(data=question_json).is_valid(raise_exception=True)
 
     def test_existing_board_view(self, test_board, test_player):
@@ -75,8 +77,7 @@ class TestBoardViews:
         assert response.status_code == 200
         json_response = json.loads(response.data)
         expected_questions = BoardUtils.tiles_to_dict(test_board)
-        for question_id in json_response:
-            assert expected_questions[int(question_id)] == json_response[question_id]
+        assert set([q['id'] for q in expected_questions]) == set([q['id'] for q in json_response])
 
     def test_non_existing_board_view(self, test_player):
         request = APIRequestFactory().get(reverse('board'), {'boardId': 0})
@@ -84,3 +85,12 @@ class TestBoardViews:
         response = BoardView.as_view()(request)
         assert response.status_code == 404
 
+    def test_patch_board_view(self, test_board, test_player):
+        test_question_tile = QuestionTile.objects.first()
+        assert test_question_tile.alive is True
+        request = APIRequestFactory().patch(reverse('board'), {'questionTileId': test_question_tile.pk})
+        force_authenticate(request, user=test_player)
+        response = BoardView.as_view()(request)
+        assert response.status_code == 200
+        updated_question_tile = QuestionTile.objects.get(pk=test_question_tile.pk)
+        assert updated_question_tile.alive is False

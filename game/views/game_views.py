@@ -43,7 +43,11 @@ class BoardView(APIView):
         board = Board.objects.create()
         board = BoardUtils.fill_board(board)
         tiles_dict = BoardUtils.tiles_to_dict(board)
-        return Response(JSONRenderer().render(tiles_dict))
+        resp_dict = {
+            'boardId': board.pk,
+            'questionTiles': tiles_dict
+        }
+        return Response(JSONRenderer().render(resp_dict))
 
     def patch(self, request):
         """
@@ -54,6 +58,7 @@ class BoardView(APIView):
             question_tile = QuestionTile.objects.get(pk=question_tile_id)
             question_tile.alive = False
             question_tile.save()
+            return Response()
         except ObjectDoesNotExist:
             return Response('QuestionTile not found!', status=status.HTTP_404_NOT_FOUND)
 

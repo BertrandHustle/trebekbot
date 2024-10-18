@@ -12,8 +12,12 @@ class BoardUtils:
         :param board: Board instance
         :return: newly filled Board instance
         """
+        used_categories = []
         for _ in range(board.columns):
-            questions = Question.get_random_category(board.rows)
+            questions = Question.get_random_category(excluded_categories=used_categories, num_questions=board.rows)
+            # this should yield only one category
+            category = next(iter(set(questions.values_list('category', flat=True))))
+            used_categories.append(category)
             for question in questions:
                 QuestionTile.objects.create(
                     board=board,
@@ -22,14 +26,15 @@ class BoardUtils:
         return board
 
     @staticmethod
-    def tiles_to_dict(board: Board) -> list[dict]:
+    def tiles_to_dict(board: Board) -> dict:
         """
-        convert all QuestionTiles that belong to a board into a dict
-        :param board:
+        convert all QuestionTiles that belong to a board into a dict of lists of question dicts
+        :param board: Board instance pre-populated with question tiles
         :return: dict
         """
-        board_list = []
-        for question_tile in board.questiontile_set.all():
+        board_tiles = board.questiontile_set.all()
+        board_dict = {category: [] for category in {tile.question.category for tile in board_tiles}}
+        for question_tile in board_tiles:
             question_dict = QuestionSerializer(question_tile.question).data
-            board_list.append(question_dict | {'alive': question_tile.alive})
-        return board_list
+            board_dict[question_tile.question.category].append(question_dict | {'alive': question_tile.alive})
+        return board_dict

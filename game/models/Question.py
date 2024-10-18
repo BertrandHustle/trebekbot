@@ -85,14 +85,22 @@ class Question(models.Model):
         return '$' + str(self.value)
 
     @staticmethod
-    def get_random_category(num_questions: int = 5) -> list[Question]:
+    def get_random_category(excluded_categories: list = None, num_questions: int = 5) -> list[Question]:
         """
         gets a random category of <num_questions> questions
+        :param excluded_categories: categories to exclude if they turn up in random choice
         :param num_questions: how many questions to retrieve for a given category
         :return: list of questions belonging to common category
         """
         category_count = Question.objects.all().values('category').annotate(total=Count('category'))
-        random_category = random.choice([cat['category'] for cat in category_count if cat['total'] >= num_questions])
+        if not excluded_categories:
+            excluded_categories = []
+        random_category = random.choice(
+            [
+                cat['category'] for cat in category_count
+                if cat['total'] >= num_questions and cat['category'] not in excluded_categories
+            ]
+        )
         return Question.objects.filter(category=random_category)[:num_questions]
 
     @staticmethod

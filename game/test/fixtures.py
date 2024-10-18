@@ -18,9 +18,9 @@ def test_player():
 
 @pytest.fixture
 def test_categories():
-    for cat in range(5):
+    for cat in range(6):
+        value = 100
         for i in range(5):
-            value = 100
             Question.objects.create(
                 text='test',
                 value=value,

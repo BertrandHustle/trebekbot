@@ -65,10 +65,13 @@ class TestBoardViews:
         response = BoardView.as_view()(request)
         assert response.status_code == 200
         json_response = json.loads(response.data)
-        question_tiles = json_response['questionTiles']
-        assert len(question_tiles) == 30
-        for question_json in question_tiles:
-            QuestionSerializer(data=question_json).is_valid(raise_exception=True)
+        question_dict = json_response['questionTiles']
+        assert len(question_dict) == 6
+        for category in question_dict:
+            question_tiles = question_dict[category]
+            assert len(question_tiles) == 5
+            for question_json in question_tiles:
+                QuestionSerializer(data=question_json).is_valid(raise_exception=True)
 
     def test_existing_board_view(self, test_board, test_player):
         request = APIRequestFactory().get(reverse('board'), {'boardId': test_board.pk})

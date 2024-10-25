@@ -42,10 +42,10 @@ class BoardView(APIView):
         """
         board = Board.objects.create()
         board = BoardUtils.fill_board(board)
-        tiles_dict = BoardUtils.tiles_to_dict(board)
+        board_dict = BoardUtils.tiles_to_dict(board)
         resp_dict = {
             'boardId': board.pk,
-            'questionTiles': tiles_dict
+            'boardDict': board_dict
         }
         return Response(JSONRenderer().render(resp_dict))
 

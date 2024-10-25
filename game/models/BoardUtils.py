@@ -16,7 +16,7 @@ class BoardUtils:
         for _ in range(board.columns):
             questions = Question.get_random_category(excluded_categories=used_categories, num_questions=board.rows)
             # this should yield only one category
-            category = next(iter(set(questions.values_list('category', flat=True))))
+            category = next(iter(set([question.category for question in questions])))
             used_categories.append(category)
             for question in questions:
                 QuestionTile.objects.create(

@@ -37,17 +37,18 @@ class Question(models.Model):
     "show_number": 4680}
     """
 
-    text = models.CharField(max_length=750)
-    value = models.IntegerField()
+    air_date = models.DateField()
+    answer = models.CharField(max_length=250)
     category = models.CharField(max_length=100)
     daily_double = models.BooleanField(default=False)
-    answer = models.CharField(max_length=250)
+    round = models.CharField()
+    text = models.CharField(max_length=750)
     valid_links = ArrayField(
         models.CharField(max_length=250, blank=True),
         size=3,
         default=list
     )
-    air_date = models.DateField()
+    value = models.IntegerField()
 
     def __str__(self):
         return f'{self.category} | {self.value} | {self.air_date} | {self.text}'
@@ -101,7 +102,8 @@ class Question(models.Model):
                 if cat['total'] >= num_questions and cat['category'] not in excluded_categories
             ]
         )
-        return Question.objects.filter(category=random_category)[:num_questions]
+        random_questions = random.choices(Question.objects.filter(category=random_category), k=num_questions)
+        return sorted(random_questions, key=lambda question: question.value)
 
     @staticmethod
     def convert_value_to_int(value) -> int:

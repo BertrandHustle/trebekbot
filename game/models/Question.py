@@ -41,7 +41,7 @@ class Question(models.Model):
     answer = models.CharField(max_length=250)
     category = models.CharField(max_length=100)
     daily_double = models.BooleanField(default=False)
-    round = models.CharField()
+    round = models.CharField(null=True, blank=True)
     text = models.CharField(max_length=750)
     valid_links = ArrayField(
         models.CharField(max_length=250, blank=True),
@@ -85,24 +85,34 @@ class Question(models.Model):
     def get_value(self):
         return '$' + str(self.value)
 
+
+    #TODO: sprinkle in daily doubles
+    #TODO: standardize on point value increases
     @staticmethod
-    def get_random_category(excluded_categories: list = None, num_questions: int = 5) -> list[Question]:
+    def get_random_category(
+        excluded_categories: list = None,
+        num_questions: int = 5,
+        round: str = 'Jeopardy!'
+    ) -> list[Question]:
         """
         gets a random category of <num_questions> questions
         :param excluded_categories: categories to exclude if they turn up in random choice
         :param num_questions: how many questions to retrieve for a given category
+        :param round: which round of questions to retrieve (Jeopardy!, Double Jeopardy!, or Final Jeopardy!)
         :return: list of questions belonging to common category
         """
-        category_count = Question.objects.all().values('category').annotate(total=Count('category'))
+        category_count = Question.objects.all().values('category', 'round').annotate(total=Count('category'))
         if not excluded_categories:
             excluded_categories = []
         random_category = random.choice(
             [
                 cat['category'] for cat in category_count
                 if cat['total'] >= num_questions and cat['category'] not in excluded_categories
+                and cat['round'] == round
             ]
         )
-        random_questions = random.choices(Question.objects.filter(category=random_category), k=num_questions)
+        random_air_date = random.choice(Question.objects.filter(category=random_category).values_list('air_date'))[0]
+        random_questions = Question.objects.filter(category=random_category, air_date=random_air_date)
         return sorted(random_questions, key=lambda question: question.value)
 
     @staticmethod

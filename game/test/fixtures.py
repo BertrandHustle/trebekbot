@@ -27,6 +27,7 @@ def test_categories():
                 answer='test_answer',
                 category=f'Category {cat}',
                 air_date=datetime.now(),
+                round='Jeopardy!',
                 valid_links=['test.com']  # needed to satisfy serializer
             )
             value += 100

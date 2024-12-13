@@ -1,6 +1,6 @@
 import pytest
 
-from .fixtures import question_text_with_links, test_questions
+from .fixtures import question_text_with_links, test_categories, test_questions
 from game.models import Question
 
 
@@ -52,3 +52,13 @@ def test_is_daily_double(test_value, expected_value):
 def test_convert_value_to_int(test_value, expected_value):
     assert Question.convert_value_to_int(test_value) == expected_value
 
+
+@pytest.mark.django_db
+def test_get_random_category(test_categories):
+    random_category = Question.get_random_category()
+    assert len(set(q.category for q in random_category)) == 1
+    value_diff = random_category[1].value - random_category[0].value
+    for ix, question in enumerate(random_category):
+        if ix+1 < len(random_category):
+            next_question = random_category[ix+1]
+            assert next_question.value - question.value == value_diff

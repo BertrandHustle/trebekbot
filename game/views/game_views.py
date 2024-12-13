@@ -90,7 +90,10 @@ class QuestionView(APIView):
         get a question by id
         """
         question_id = request.data.get('questionId')
-        question = Question.objects.get(id=question_id)
+        try:
+            question = Question.objects.get(id=question_id)
+        except ObjectDoesNotExist:
+            return Response('Question not found!', status=status.HTTP_404_NOT_FOUND)
         serializer = QuestionSerializer(question)
         return Response(JSONRenderer().render(serializer.data))
 
@@ -106,10 +109,14 @@ class JudgeView(APIView):
         :param request:
         :return: json with result of the answer (is the answer right or wrong?)
         """
+        question_id = request.data.get('questionId')
         user = request.user
         user_answer = request.data.get('userAnswer')
         wager = request.data.get('wager')
-        question = Question.objects.get(id=request.data.get('questionId'))
+        try:
+            question = Question.objects.get(id=question_id)
+        except ObjectDoesNotExist:
+            return Response('Question not found!', status=status.HTTP_404_NOT_FOUND)
         judging_result = self.judge.judge_answer(user_answer, question.answer)
         question_value = wager if question.daily_double else question.value
         answer_result = {'result': '', 'text': '', 'score': 0}

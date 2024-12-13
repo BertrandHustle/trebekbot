@@ -29,8 +29,12 @@ class BoardView(APIView):
         if board_id:
             try:
                 board = Board.objects.get(pk=board_id)
-                tiles_dict = BoardUtils.tiles_to_dict(board)
-                return Response(JSONRenderer().render(tiles_dict))
+                board_dict = BoardUtils.tiles_to_dict(board)
+                resp_dict = {
+                    'boardId': board.pk,
+                    'boardDict': board_dict
+                }
+                return Response(JSONRenderer().render(resp_dict))
             except ObjectDoesNotExist:
                 return Response('Board not found!', status=status.HTTP_404_NOT_FOUND)
         else:

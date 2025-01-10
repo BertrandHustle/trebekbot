@@ -53,8 +53,9 @@ def test_convert_value_to_int(test_value, expected_value):
     assert Question.convert_value_to_int(test_value) == expected_value
 
 
+# TODO: flesh this out w/more tests
 @pytest.mark.django_db
-def test_get_random_category(test_categories):
+def test_get_random_category(self, test_categories):
     random_category = Question.get_random_category()
     assert len(set(q.category for q in random_category)) == 1
     value_diff = random_category[1].value - random_category[0].value
@@ -62,3 +63,5 @@ def test_get_random_category(test_categories):
         if ix+1 < len(random_category):
             next_question = random_category[ix+1]
             assert next_question.value - question.value == value_diff
+
+

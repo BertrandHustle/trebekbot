@@ -23,9 +23,10 @@ class BoardView(APIView):
 
     def get(self, request):
         """
-        get an existing game board
+        get an existing game board or tile
         """
         board_id = request.query_params.get('boardId')
+        tile_id = request.query_params.get('tileId')
         if board_id:
             try:
                 board = Board.objects.get(pk=board_id)
@@ -37,15 +38,22 @@ class BoardView(APIView):
                 return Response(JSONRenderer().render(resp_dict))
             except ObjectDoesNotExist:
                 return Response('Board not found!', status=status.HTTP_404_NOT_FOUND)
+        elif tile_id:
+            try:
+                tile = QuestionTile.objects.get(pk=tile_id)
+                return Response(JSONRenderer().render(tile.to_json()))
+            except ObjectDoesNotExist:
+                return Response('Tile not found!', status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response('boardId required!', status=status.HTTP_400_BAD_REQUEST)
+            return Response('boardId or tileId required!', status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         """
         create a new game board
         """
+        round = request.data.get('round')
         board = Board.objects.create()
-        board = BoardUtils.fill_board(board)
+        board = BoardUtils.fill_board(board, round)
         board_dict = BoardUtils.tiles_to_dict(board)
         resp_dict = {
             'boardId': board.pk,

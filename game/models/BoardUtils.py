@@ -6,15 +6,20 @@ from game.serializers import QuestionSerializer
 
 class BoardUtils:
     @staticmethod
-    def fill_board(board: Board) -> Board:
+    def fill_board(board: Board, round: str) -> Board:
         """
         creates question tiles to fill up board
         :param board: Board instance
+        :param round: which round to build board for (Jeopardy!, Double Jeopardy!, or Final Jeopardy!)
         :return: newly filled Board instance
         """
         used_categories = []
         for _ in range(board.columns):
-            questions = Question.get_random_category(excluded_categories=used_categories, num_questions=board.rows)
+            questions = Question.get_random_category(
+                excluded_categories=used_categories,
+                num_questions=board.rows,
+                round=round
+            )
             # this should yield only one category
             category = next(iter(set([question.category for question in questions])))
             used_categories.append(category)

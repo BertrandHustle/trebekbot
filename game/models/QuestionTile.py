@@ -14,3 +14,10 @@ class QuestionTile(models.Model):
     alive = models.BooleanField(default=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+
+    def to_dict(self):
+        return {
+            'alive': self.alive,
+            'board': self.board,
+            'question': self.question
+        }

@@ -101,18 +101,24 @@ class Question(models.Model):
         :param round: which round of questions to retrieve (Jeopardy!, Double Jeopardy!, or Final Jeopardy!)
         :return: list of questions belonging to common category
         """
-        category_count = Question.objects.all().values('category', 'round').annotate(total=Count('category'))
+        category_count = (Question.objects.filter(round=round)
+                          .values('category')
+                          .annotate(total=Count('category')))
         if not excluded_categories:
             excluded_categories = []
+        # TODO: do something about questions with no round
         random_category = random.choice(
             [
                 cat['category'] for cat in category_count
                 if cat['total'] >= num_questions and cat['category'] not in excluded_categories
-                and cat['round'] == round
             ]
         )
         random_air_date = random.choice(Question.objects.filter(category=random_category).values_list('air_date'))[0]
-        random_questions = Question.objects.filter(category=random_category, air_date=random_air_date)
+        random_questions = Question.objects.filter(
+            category=random_category,
+            air_date=random_air_date,
+            round__iexact=round
+        )[:num_questions]
         return sorted(random_questions, key=lambda question: question.value)
 
     @staticmethod

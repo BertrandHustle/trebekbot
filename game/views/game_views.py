@@ -41,7 +41,7 @@ class BoardView(APIView):
         elif tile_id:
             try:
                 tile = QuestionTile.objects.get(pk=tile_id)
-                return Response(JSONRenderer().render(tile.to_json()))
+                return Response(JSONRenderer().render({'alive': tile.alive}))
             except ObjectDoesNotExist:
                 return Response('Tile not found!', status=status.HTTP_404_NOT_FOUND)
         else:

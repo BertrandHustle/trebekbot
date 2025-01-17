@@ -41,5 +41,7 @@ class BoardUtils:
         board_dict = {category: [] for category in {tile.question.category for tile in board_tiles}}
         for question_tile in board_tiles:
             question_dict = QuestionSerializer(question_tile.question).data
+            # needed since the serializer uses the Question id, not the QuestionTile id
+            question_dict['id'] = question_tile.id
             board_dict[question_tile.question.category].append(question_dict | {'alive': question_tile.alive})
         return board_dict

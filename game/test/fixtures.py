@@ -36,7 +36,7 @@ def test_categories():
 @pytest.fixture
 def test_board(test_categories):
     board = Board.objects.create()
-    BoardUtils.fill_board(board)
+    BoardUtils.fill_board(board, 'Jeopardy!')
     yield board
 
 

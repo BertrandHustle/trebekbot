@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+import dotenv
+
+# not sure why, but this throws a warning without the .env arg
+dotenv.read_dotenv('.env')
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -104,10 +108,10 @@ WSGI_APPLICATION = 'trebekbot.wsgi.application'
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'PORT': '5433',
+            'PORT': '5432',
             'NAME': 'django',
             'USER': 'postgres',
-            'PASSWORD': 'test',
+            'PASSWORD': os.environ.get('LOCAL_POSTGRES_PASSWORD'),
             'HOST': '127.0.0.1'
         }
     }

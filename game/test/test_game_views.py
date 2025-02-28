@@ -60,12 +60,14 @@ class TestQuestionViews:
 class TestBoardViews:
 
     def test_new_board_view(self, test_categories, test_player):
-        request = APIRequestFactory().post(reverse('board'))
+        request = APIRequestFactory().post(reverse('board'), {'round': 'Jeopardy!'})
         force_authenticate(request, user=test_player)
         response = BoardView.as_view()(request)
         assert response.status_code == 200
         json_response = json.loads(response.data)
-        question_dict = json_response['questionTiles']
+        board_id = json_response['boardId']
+        assert board_id == 1
+        question_dict = json_response['boardDict']
         assert len(question_dict) == 6
         for category in question_dict:
             question_tiles = question_dict[category]
@@ -79,8 +81,13 @@ class TestBoardViews:
         response = BoardView.as_view()(request)
         assert response.status_code == 200
         json_response = json.loads(response.data)
-        expected_questions = BoardUtils.tiles_to_dict(test_board)
-        assert set([q['id'] for q in expected_questions]) == set([q['id'] for q in json_response])
+        expected_board_dict = BoardUtils.tiles_to_dict(test_board)
+        expected_ids, test_ids = set(), set()
+        for category, questions in expected_board_dict.items():
+            expected_ids.update([q['id'] for q in questions])
+        for category, questions in json_response['boardDict'].items():
+            test_ids.update([q['id'] for q in questions])
+        assert expected_ids == test_ids
 
     def test_non_existing_board_view(self, test_player):
         request = APIRequestFactory().get(reverse('board'), {'boardId': 0})

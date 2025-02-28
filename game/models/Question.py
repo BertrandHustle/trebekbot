@@ -93,7 +93,7 @@ class Question(models.Model):
         excluded_categories: list = None,
         num_questions: int = 5,
         round: str = 'Jeopardy!'
-    ) -> list[Question]:
+    ) -> tuple[list[Question], str]:
         """
         gets a random category of <num_questions> questions
         :param excluded_categories: categories to exclude if they turn up in random choice
@@ -119,7 +119,7 @@ class Question(models.Model):
             air_date=random_air_date,
             round__iexact=round
         )[:num_questions]
-        return sorted(random_questions, key=lambda question: question.value)
+        return sorted(random_questions, key=lambda question: question.value), random_category
 
     @staticmethod
     def convert_value_to_int(value) -> int:

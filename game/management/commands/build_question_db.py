@@ -70,7 +70,7 @@ class Command(BaseCommand):
         filtered_question_list = self.filter_questions(
             json.loads(jeopardy_json_file),
             banned_categories=Question.banned_categories,
-            banned_phrases=Question.banned_phrases,
+            #banned_phrases=Question.banned_phrases,
         )
         question_counter = 0
         try:

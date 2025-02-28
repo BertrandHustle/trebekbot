@@ -23,3 +23,4 @@ class Command(BaseCommand):
                     question = Question.objects.get(text=question_json['question'], air_date=air_date)
                     question.round = question_json['round']
                     question.save()
+                    print(question)

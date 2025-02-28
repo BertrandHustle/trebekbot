@@ -15,13 +15,11 @@ class BoardUtils:
         """
         used_categories = []
         for _ in range(board.columns):
-            questions = Question.get_random_category(
+            questions, category = Question.get_random_category(
                 excluded_categories=used_categories,
                 num_questions=board.rows,
                 round=round
             )
-            # this should yield only one category
-            category = next(iter(set([question.category for question in questions])))
             used_categories.append(category)
             for question in questions:
                 QuestionTile.objects.create(

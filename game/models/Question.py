@@ -152,7 +152,6 @@ class Question(models.Model):
                     value=missing_score
                 )[:1]
                 random_questions |= fill_in_question
-                print('FILL IN SUCCESSFUL!')
             except ObjectDoesNotExist:
                 return None, None
         return sorted(random_questions, key=lambda question: question.value), random_category

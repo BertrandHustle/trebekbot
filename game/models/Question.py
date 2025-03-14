@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import re
 import random
+from collections import Counter
 from contextlib import suppress
 
+from django.core.exceptions import ObjectDoesNotExist
 from requests import get as get_http_code
 from requests.exceptions import RequestException
 
@@ -56,6 +58,24 @@ class Question(models.Model):
     banned_categories = 'missing this category'
 
     @staticmethod
+    def _calculate_category_score_range(questions: list[Question]) -> int:
+        """
+        calculate the missing score for a category missing a question
+        used to find candidates if a category is missing a question
+        """
+        scores = questions.values_list('value', flat=True)
+        score_deltas = []
+        for ix, score in enumerate(scores):
+            try:
+                score_deltas.append(scores[ix+1] - score)
+            except IndexError:
+                break
+        most_common_delta = Counter(score_deltas).most_common(1)[0][0]
+        score_list = [i*most_common_delta for i in range(5)]
+        return set(score_list).symmetric_difference(scores).pop()
+
+
+    @staticmethod
     def get_random_question() -> Question:
         """
         gets a random question from the db and filters out unwanted categories
@@ -93,7 +113,7 @@ class Question(models.Model):
         excluded_categories: list = None,
         num_questions: int = 5,
         round: str = 'Jeopardy!'
-    ) -> tuple[list[Question], str]:
+    ) -> tuple[list[Question], str] or (None, None):
         """
         gets a random category of <num_questions> questions
         :param excluded_categories: categories to exclude if they turn up in random choice
@@ -113,12 +133,28 @@ class Question(models.Model):
                 if cat['total'] >= num_questions and cat['category'] not in excluded_categories
             ]
         )
-        random_air_date = random.choice(Question.objects.filter(category=random_category).values_list('air_date'))[0]
+        random_air_date = random.choice(
+            Question.objects.filter(category=random_category, round=round).values_list('air_date')
+        )[0]
         random_questions = Question.objects.filter(
             category=random_category,
             air_date=random_air_date,
             round__iexact=round
         )[:num_questions]
+        if len(random_questions) < 4:
+            breakpoint()
+        if len(random_questions) < num_questions:
+            missing_score = Question._calculate_category_score_range(random_questions)
+            try:
+                fill_in_question = Question.objects.filter(
+                    category=random_category,
+                    round__iexact=round,
+                    value=missing_score
+                )[:1]
+                random_questions |= fill_in_question
+                print('FILL IN SUCCESSFUL!')
+            except ObjectDoesNotExist:
+                return None, None
         return sorted(random_questions, key=lambda question: question.value), random_category
 
     @staticmethod

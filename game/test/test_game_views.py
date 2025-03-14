@@ -5,8 +5,9 @@ import pytest
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from game.models.QuestionTile import QuestionTile
+from game.models.Board import Board
 from game.models.BoardUtils import BoardUtils
+from game.models.QuestionTile import QuestionTile
 from game.serializers import QuestionSerializer
 from game.test.fixtures import test_board, test_categories, test_player, test_questions
 from game.views.game_views import BoardView, JudgeView, QuestionView
@@ -66,6 +67,8 @@ class TestBoardViews:
         assert response.status_code == 200
         json_response = json.loads(response.data)
         board_id = json_response['boardId']
+        test_board = Board.objects.get(id=board_id)
+        assert len(test_board.questiontile_set.all()) == 30
         assert board_id == 1
         question_dict = json_response['boardDict']
         assert len(question_dict) == 6

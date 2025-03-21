@@ -58,21 +58,21 @@ class Question(models.Model):
     banned_categories = 'missing this category'
 
     @staticmethod
-    def _calculate_category_score_range(questions: list[Question]) -> int:
+    def _calculate_category_score_range(questions: list[Question]) -> set:
         """
         calculate the missing score for a category missing a question
         used to find candidates if a category is missing a question
         """
-        scores = questions.values_list('value', flat=True)
+        scores = sorted([q.value for q in questions])
         score_deltas = []
         for ix, score in enumerate(scores):
             try:
-                score_deltas.append(scores[ix+1] - score)
+                score_deltas.append(scores[ix+1]-score)
             except IndexError:
                 break
         most_common_delta = Counter(score_deltas).most_common(1)[0][0]
-        score_list = [i*most_common_delta for i in range(5)]
-        return set(score_list).symmetric_difference(scores).pop()
+        score_list = [i*most_common_delta for i in range(1,6)]
+        return set(score_list).symmetric_difference(scores)
 
 
     @staticmethod
@@ -136,24 +136,24 @@ class Question(models.Model):
         random_air_date = random.choice(
             Question.objects.filter(category=random_category, round=round).values_list('air_date')
         )[0]
-        random_questions = Question.objects.filter(
+        random_questions = list(Question.objects.filter(
             category=random_category,
             air_date=random_air_date,
             round__iexact=round
-        )[:num_questions]
-        if len(random_questions) < 4:
-            breakpoint()
+        ))[:num_questions]
         if len(random_questions) < num_questions:
-            missing_score = Question._calculate_category_score_range(random_questions)
-            try:
+            missing_scores = Question._calculate_category_score_range(random_questions)
+            for missing_score in missing_scores:
                 fill_in_question = Question.objects.filter(
                     category=random_category,
                     round__iexact=round,
                     value=missing_score
-                )[:1]
-                random_questions |= fill_in_question
-            except ObjectDoesNotExist:
-                return None, None
+                ).first()
+                if not fill_in_question:
+                    return None, None
+                else:
+                    random_questions.append(fill_in_question)
+
         return sorted(random_questions, key=lambda question: question.value), random_category
 
     @staticmethod

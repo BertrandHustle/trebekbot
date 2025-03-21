@@ -16,6 +16,29 @@ def test_player():
     yield Player.objects.create(username='Test Player')
 
 
+class GenericTestQuestionCreator:
+    def __init__(self, num_questions: int, starting_value: int = 100):
+        self.num_questions = num_questions
+        self.starting_value = starting_value
+
+    def create_generic_questions(self, num_questions, starting_value):
+        value = starting_value
+        for i in range(num_questions):
+            Question.objects.create(
+                text='test',
+                value=value,
+                answer='test_answer',
+                category=f'Test Category',
+                air_date=datetime.now(),
+                round='Jeopardy!',
+                valid_links=['test.com']  # needed to satisfy serializer
+            )
+            value += starting_value
+
+@pytest.fixture
+def generic_test_questions(request):
+    return GenericTestQuestionCreator(request.param)
+
 @pytest.fixture
 def test_categories():
     for cat in range(6):

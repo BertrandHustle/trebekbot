@@ -1,6 +1,6 @@
 import pytest
 
-from .fixtures import question_text_with_links, test_categories, test_questions
+from .fixtures import generic_test_questions, question_text_with_links, test_categories, test_questions
 from game.models import Question
 
 
@@ -55,13 +55,23 @@ def test_convert_value_to_int(test_value, expected_value):
 
 # TODO: flesh this out w/more tests
 @pytest.mark.django_db
-def test_get_random_category(self, test_categories):
-    test_questions, category = Question.get_random_category()
-    assert len(set(q.category for q in test_questions)) == 1
-    value_diff = test_questions[1].value - test_questions[0].value
-    for ix, question in enumerate(test_questions):
-        if ix+1 < len(test_questions):
-            next_question = test_questions[ix+1]
+def test_get_random_category(test_categories):
+    questions, category = Question.get_random_category()
+    assert len(set(q.category for q in questions)) == 1
+    value_diff = questions[1].value - questions[0].value
+    for ix, question in enumerate(questions):
+        if ix+1 < len(questions):
+            next_question = questions[ix+1]
             assert next_question.value - question.value == value_diff
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('generic_test_questions', [None], indirect=['generic_test_questions'])
+class TestCalculateCategoryScoreRange:
+    def test_four_questions(self, generic_test_questions):
+        generic_test_questions.create_generic_questions(5, 100)
+        Question.objects.get(value=300).delete()
+        missing_values = Question._calculate_category_score_range(Question.objects.all())
+        assert missing_values == {300}
 
 

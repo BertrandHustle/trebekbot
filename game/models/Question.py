@@ -5,12 +5,11 @@ import random
 from collections import Counter
 from contextlib import suppress
 
-from django.core.exceptions import ObjectDoesNotExist
 from requests import get as get_http_code
 from requests.exceptions import RequestException
 
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count, Min, Q
 from django.contrib.postgres.fields import ArrayField
 
 
@@ -111,19 +110,21 @@ class Question(models.Model):
     @staticmethod
     def get_random_category(
         excluded_categories: list = None,
+        min_value = 100,
         num_questions: int = 5,
         round: str = 'Jeopardy!'
     ) -> tuple[list[Question], str] or (None, None):
         """
         gets a random category of <num_questions> questions
         :param excluded_categories: categories to exclude if they turn up in random choice
+        :param min_value: minimum dollar value that a question can have in a category
         :param num_questions: how many questions to retrieve for a given category
         :param round: which round of questions to retrieve (Jeopardy!, Double Jeopardy!, or Final Jeopardy!)
         :return: list of questions belonging to common category
         """
         category_count = (Question.objects.filter(round=round)
                           .values('category')
-                          .annotate(total=Count('category')))
+                          .annotate(min_value=Min('value'), total=Count('category')))
         if not excluded_categories:
             excluded_categories = []
         # TODO: do something about questions with no round
@@ -131,16 +132,14 @@ class Question(models.Model):
             [
                 cat['category'] for cat in category_count
                 if cat['total'] >= num_questions and cat['category'] not in excluded_categories
+                and cat['min_value'] == min_value
             ]
         )
-        random_air_date = random.choice(
-            Question.objects.filter(category=random_category, round=round).values_list('air_date')
-        )[0]
-        random_questions = list(Question.objects.filter(
-            category=random_category,
-            air_date=random_air_date,
-            round__iexact=round
-        ))[:num_questions]
+        random_questions = Question.objects.filter(
+            category=random_category, round=round
+        ).order_by('value')[:num_questions]
+        if len(set(random_questions.values_list('value'))) != len(random_questions.values_list('value')):
+            pass  # use distinct() here?
         if len(random_questions) < num_questions:
             missing_scores = Question._calculate_category_score_range(random_questions)
             for missing_score in missing_scores:

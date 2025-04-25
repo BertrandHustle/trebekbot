@@ -137,9 +137,7 @@ class Question(models.Model):
         )
         random_questions = Question.objects.filter(
             category=random_category, round=round
-        ).order_by('value')[:num_questions]
-        if len(set(random_questions.values_list('value'))) != len(random_questions.values_list('value')):
-            pass  # use distinct() here?
+        ).distinct('value')[:num_questions]  # distinct SHOULD do the sorting on value for free
         if len(random_questions) < num_questions:
             missing_scores = Question._calculate_category_score_range(random_questions)
             for missing_score in missing_scores:

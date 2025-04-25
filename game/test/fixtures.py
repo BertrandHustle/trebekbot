@@ -42,7 +42,11 @@ def generic_test_questions(request):
 @pytest.fixture
 def test_categories():
     for cat in range(6):
-        value = 100
+        if cat % 2 == 0:
+            value_scaler = 100
+        else:
+            value_scaler = 200
+        value = value_scaler
         for i in range(5):
             Question.objects.create(
                 text='test',
@@ -53,7 +57,7 @@ def test_categories():
                 round='Jeopardy!',
                 valid_links=['test.com']  # needed to satisfy serializer
             )
-            value += 100
+            value += value_scaler
 
 
 @pytest.fixture

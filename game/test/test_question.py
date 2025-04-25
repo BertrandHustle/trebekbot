@@ -65,6 +65,12 @@ class TestGetRandomCategory:
                 next_question = questions[ix+1]
                 assert next_question.value - question.value == value_diff
 
+    def test_get_random_category_with_min_value(self, test_categories):
+        questions, category = Question.get_random_category(min_value=100)
+        assert min([q.value for q in questions]) == 100
+        questions, category = Question.get_random_category(min_value=200)
+        assert min([q.value for q in questions]) == 200
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('generic_test_questions', [None], indirect=['generic_test_questions'])
@@ -81,4 +87,3 @@ class TestCalculateCategoryScoreRange:
         Question.objects.get(value=400).delete()
         missing_values = Question._calculate_category_score_range(Question.objects.all())
         assert missing_values == {300, 400}
-

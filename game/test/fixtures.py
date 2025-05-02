@@ -8,6 +8,7 @@ from game.models.Board import Board
 from game.models.BoardUtils import BoardUtils
 from game.models.Player import Player
 from game.models.Question import Question
+from game.serializers import QuestionSerializer
 from paths import ROOT_DIR
 
 
@@ -21,19 +22,35 @@ class GenericTestQuestionCreator:
         self.num_questions = num_questions
         self.starting_value = starting_value
 
-    def create_generic_questions(self, num_questions, starting_value):
-        value = starting_value
-        for i in range(num_questions):
-            Question.objects.create(
-                text='test',
-                value=value,
-                answer='test_answer',
-                category=f'Test Category',
-                air_date=datetime.now(),
-                round='Jeopardy!',
-                valid_links=['test.com']  # needed to satisfy serializer
-            )
-            value += starting_value
+    def create_generic_questions(self, num_questions: int, starting_value: int = None, value_list: list[int] = None):
+
+        generic_question_data = {
+            'text': 'test',
+            'value': 0,
+            'answer': 'test_answer',
+            'category': 'Test Category',
+            'air_date': '1999-09-09',
+            'round': 'Jeopardy!',
+            'valid_links': ['test.com']
+        }
+
+        if starting_value:
+            value = starting_value
+            for i in range(num_questions):
+                new_question_data = generic_question_data.copy()
+                new_question_data['value'] = value
+                question_serializer = QuestionSerializer(data=new_question_data)
+                question_serializer.is_valid(raise_exception=True)
+                question_serializer.create(new_question_data).save()
+                value += starting_value
+        elif value_list:
+            for value in value_list:
+                new_question_data = generic_question_data.copy()
+                new_question_data['value'] = value
+                question_serializer = QuestionSerializer(data=new_question_data)
+                question_serializer.is_valid(raise_exception=True)
+                question_serializer.create(new_question_data).save()
+
 
 @pytest.fixture
 def generic_test_questions(request):

@@ -3,6 +3,7 @@ dj-database-url
 django
 django-cors-headers
 django-dotenv
+django-stubs
 djangorestframework
 editdistance
 gunicorn

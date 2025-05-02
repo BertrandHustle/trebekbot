@@ -76,14 +76,20 @@ class TestGetRandomCategory:
 @pytest.mark.parametrize('generic_test_questions', [None], indirect=['generic_test_questions'])
 class TestCalculateCategoryScoreRange:
     def test_four_questions(self, generic_test_questions):
-        generic_test_questions.create_generic_questions(5, 100)
+        generic_test_questions.create_generic_questions(num_questions=5, starting_value=100)
         Question.objects.get(value=300).delete()
         missing_values = Question._calculate_category_score_range(Question.objects.all())
         assert missing_values == {300}
 
     def test_three_questions(self, generic_test_questions):
-        generic_test_questions.create_generic_questions(5, 100)
+        generic_test_questions.create_generic_questions(num_questions=5, starting_value=100)
         Question.objects.get(value=300).delete()
         Question.objects.get(value=400).delete()
         missing_values = Question._calculate_category_score_range(Question.objects.all())
         assert missing_values == {300, 400}
+
+    def test_strange_range_of_values(self, generic_test_questions):
+        test_values = [100, 200, 400, 500, 800]
+        generic_test_questions.create_generic_questions(num_questions=5, value_list=test_values)
+        missing_values = Question._calculate_category_score_range(Question.objects.all())
+        assert missing_values == {300}

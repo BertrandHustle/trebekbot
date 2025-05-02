@@ -57,7 +57,7 @@ class Question(models.Model):
     banned_categories = 'missing this category'
 
     @staticmethod
-    def _calculate_category_score_range(questions: list[Question]) -> set:
+    def _calculate_category_score_range(questions: list[Question], num_questions: int = 5) -> set:
         """
         calculate the missing score for a category missing a question
         used to find candidates if a category is missing a question
@@ -70,8 +70,8 @@ class Question(models.Model):
             except IndexError:
                 break
         most_common_delta = Counter(score_deltas).most_common(1)[0][0]
-        score_list = [i*most_common_delta for i in range(1,6)]
-        return set(score_list).symmetric_difference(scores)
+        score_list = [i*most_common_delta for i in range(1,num_questions)]
+        return set(score_list).difference(scores)
 
 
     @staticmethod

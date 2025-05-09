@@ -88,8 +88,18 @@ class TestCalculateCategoryScoreRange:
         missing_values = Question._calculate_category_score_range(Question.objects.all())
         assert missing_values == {300, 400}
 
-    def test_strange_range_of_values(self, generic_test_questions):
-        test_values = [100, 200, 400, 500, 800]
-        generic_test_questions.create_generic_questions(num_questions=5, value_list=test_values)
+    @pytest.mark.parametrize('value_list, missing_value_set', [
+        ([100, 200, 400, 500, 800], {300}),
+        ([100, 200, 300, 500, 700], {400}),
+        ([100, 300, 400, 500, 600], {200}),
+        ([200, 300, 400, 500, 600], {100}),
+        ([100, 200, 300, 400, 500], set()),
+    ])
+    def test_strange_range_of_values(self, generic_test_questions, value_list, missing_value_set):
+        generic_test_questions.create_generic_questions(num_questions=5, value_list=value_list)
         missing_values = Question._calculate_category_score_range(Question.objects.all())
-        assert missing_values == {300}
+        assert missing_values == missing_value_set
+
+
+
+

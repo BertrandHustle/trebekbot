@@ -138,8 +138,10 @@ class Question(models.Model):
         random_questions = Question.objects.filter(
             category=random_category, round=round
         ).distinct('value')[:num_questions]  # distinct SHOULD do the sorting on value for free
-        if len(random_questions) < num_questions:
-            missing_scores = Question._calculate_category_score_range(random_questions)
+        missing_scores = Question._calculate_category_score_range(random_questions)
+        if len(random_questions) < num_questions or missing_scores:
+            print(random_questions.values_list('value', flat=True))
+            random_questions = list(random_questions)
             for missing_score in missing_scores:
                 fill_in_question = Question.objects.filter(
                     category=random_category,
@@ -149,6 +151,7 @@ class Question(models.Model):
                 if not fill_in_question:
                     return None, None
                 else:
+                    random_questions.pop()
                     random_questions.append(fill_in_question)
 
         return sorted(random_questions, key=lambda question: question.value), random_category

@@ -56,7 +56,10 @@ def test_convert_value_to_int(test_value, expected_value):
 # TODO: flesh this out w/more tests
 @pytest.mark.django_db
 class TestGetRandomCategory:
+
+    @pytest.mark.parametrize('test_categories', [None], indirect=['test_categories'])
     def test_get_random_category(self, test_categories):
+        test_categories.create_test_categories()
         questions, category = Question.get_random_category()
         assert len(set(q.category for q in questions)) == 1
         value_diff = questions[1].value - questions[0].value
@@ -65,7 +68,9 @@ class TestGetRandomCategory:
                 next_question = questions[ix+1]
                 assert next_question.value - question.value == value_diff
 
+    @pytest.mark.parametrize('test_categories', [None], indirect=['test_categories'])
     def test_get_random_category_with_min_value(self, test_categories):
+        test_categories.create_test_categories(variable_values=True)
         questions, category = Question.get_random_category(min_value=100)
         assert min([q.value for q in questions]) == 100
         questions, category = Question.get_random_category(min_value=200)

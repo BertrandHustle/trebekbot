@@ -60,10 +60,15 @@ class TestQuestionViews:
 @pytest.mark.django_db
 class TestBoardViews:
 
+    @pytest.mark.parametrize('test_categories', [None], indirect=['test_categories'])
     def test_new_board_view(self, test_categories, test_player):
+        # arrange
+        test_categories.create_test_categories()
+        # act
         request = APIRequestFactory().post(reverse('board'), {'round': 'Jeopardy!'})
         force_authenticate(request, user=test_player)
         response = BoardView.as_view()(request)
+        # assert
         assert response.status_code == 200
         json_response = json.loads(response.data)
         board_id = json_response['boardId']
@@ -76,12 +81,16 @@ class TestBoardViews:
             question_tiles = question_dict[category]
             assert len(question_tiles) == 5
             for question_json in question_tiles:
-                QuestionSerializer(data=question_json).is_valid(raise_exception=True)
+                question_serializer = QuestionSerializer(data=question_json['question'])
+                question_serializer.is_valid(raise_exception=True)
+
 
     def test_existing_board_view(self, test_board, test_player):
+        # act
         request = APIRequestFactory().get(reverse('board'), {'boardId': test_board.pk})
         force_authenticate(request, user=test_player)
         response = BoardView.as_view()(request)
+        # assert
         assert response.status_code == 200
         json_response = json.loads(response.data)
         expected_board_dict = BoardUtils.tiles_to_dict(test_board)
@@ -92,11 +101,13 @@ class TestBoardViews:
             test_ids.update([q['id'] for q in questions])
         assert expected_ids == test_ids
 
+
     def test_non_existing_board_view(self, test_player):
         request = APIRequestFactory().get(reverse('board'), {'boardId': 0})
         force_authenticate(request, user=test_player)
         response = BoardView.as_view()(request)
         assert response.status_code == 404
+
 
     def test_patch_board_view(self, test_board, test_player):
         test_question_tile = QuestionTile.objects.first()

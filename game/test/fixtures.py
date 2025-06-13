@@ -56,29 +56,48 @@ class GenericTestQuestionCreator:
 def generic_test_questions(request):
     return GenericTestQuestionCreator(request.param)
 
-@pytest.fixture
-def test_categories():
-    for cat in range(6):
-        if cat % 2 == 0:
-            value_scaler = 100
-        else:
-            value_scaler = 200
-        value = value_scaler
-        for i in range(5):
-            Question.objects.create(
-                text='test',
-                value=value,
-                answer='test_answer',
-                category=f'Category {cat}',
-                air_date=datetime.now(),
-                round='Jeopardy!',
-                valid_links=['test.com']  # needed to satisfy serializer
-            )
-            value += value_scaler
+
+class TestCategoriesCreator:
+    """
+    create a set of questions in django db organized by category
+    :param variable_values: (optional) default False, set to True to have some categories increment value by 200
+                            (ala Double Jeopardy! round) instead of by 100 (ala Jeopardy! round)
+    """
+    def __init__(self, variable_values: bool = False):
+        self.variable_values = variable_values
+
+    @staticmethod
+    def create_test_categories(variable_values: bool = False):
+        for cat in range(6):
+            if variable_values:
+                if cat % 2 == 0:
+                    value_scaler = 100
+                else:
+                    value_scaler = 200
+            else:
+                value_scaler = 100
+            value = value_scaler
+            for i in range(5):
+                Question.objects.create(
+                    text='test',
+                    value=value,
+                    answer='test_answer',
+                    category=f'Category {cat}',
+                    air_date=datetime.now(),
+                    round='Jeopardy!',
+                    valid_links=['test.com']  # needed to satisfy serializer
+                )
+                value += value_scaler
 
 
 @pytest.fixture
-def test_board(test_categories):
+def test_categories(request):
+    return TestCategoriesCreator(request.param)
+
+
+@pytest.fixture
+def test_board():
+    TestCategoriesCreator.create_test_categories()
     board = Board.objects.create()
     BoardUtils.fill_board(board, 'Jeopardy!')
     yield board

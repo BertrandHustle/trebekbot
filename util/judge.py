@@ -14,6 +14,8 @@ class Judge:
     Class that checks and verifies user answers to Questions
     """
 
+    # TODO: dont require answer to have words that are in the question text (e.g. "this port..." -> "Sumter" vs "Port Sumter"
+
     # initialize dictionary
     eng_dict = open(WORDS).read().splitlines()
 

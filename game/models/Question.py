@@ -105,7 +105,8 @@ class Question(models.Model):
         return '$' + str(self.value)
 
 
-    #TODO: sprinkle in daily doubles
+    #TODO: filter out seen here/heard here
+    #TODO: make anomalous values daily doubles
     #TODO: standardize on point value increases
     @staticmethod
     def get_random_category(
@@ -127,14 +128,13 @@ class Question(models.Model):
                           .annotate(min_value=Min('value'), total=Count('category')))
         if not excluded_categories:
             excluded_categories = []
+        filtered_categories = [
+            cat['category'] for cat in category_count
+            if cat['total'] >= num_questions and cat['category'] not in excluded_categories
+            and cat['min_value'] == min_value
+        ]
         # TODO: do something about questions with no round
-        random_category = random.choice(
-            [
-                cat['category'] for cat in category_count
-                if cat['total'] >= num_questions and cat['category'] not in excluded_categories
-                and cat['min_value'] == min_value
-            ]
-        )
+        random_category = random.choice(filtered_categories)
         random_questions = Question.objects.filter(
             category=random_category, round=round
         ).distinct('value')[:num_questions]  # distinct SHOULD do the sorting on value for free

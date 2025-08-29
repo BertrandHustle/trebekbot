@@ -3,7 +3,6 @@ from random import choice
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status, viewsets
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -35,13 +34,13 @@ class BoardView(APIView):
                     'boardId': board.pk,
                     'boardDict': board_dict
                 }
-                return Response(JSONRenderer().render(resp_dict))
+                return Response(resp_dict)
             except ObjectDoesNotExist:
                 return Response('Board not found!', status=status.HTTP_404_NOT_FOUND)
         elif tile_id:
             try:
                 tile = QuestionTile.objects.get(pk=tile_id)
-                return Response(JSONRenderer().render({'alive': tile.alive}))
+                return Response({'alive': tile.alive})
             except ObjectDoesNotExist:
                 return Response('Tile not found!', status=status.HTTP_404_NOT_FOUND)
         else:
@@ -59,7 +58,10 @@ class BoardView(APIView):
             'boardId': board.pk,
             'boardDict': board_dict
         }
-        return Response(JSONRenderer().render(resp_dict))
+        # import json
+        # with open('testBoard.json', 'w') as test_board_json:
+        #     json.dump(resp_dict, test_board_json)
+        return Response(resp_dict)
 
     def patch(self, request):
         """
@@ -95,7 +97,7 @@ class QuestionView(APIView):
             elif settings.VALID_LINKS_ONLY:
                 question = Question.get_question_with_valid_links()
         serializer = QuestionSerializer(question)
-        return Response(JSONRenderer().render(serializer.data))
+        return Response(serializer.data)
 
     def post(self, request):
         """
@@ -107,7 +109,7 @@ class QuestionView(APIView):
         except ObjectDoesNotExist:
             return Response('Question not found!', status=status.HTTP_404_NOT_FOUND)
         serializer = QuestionSerializer(question)
-        return Response(JSONRenderer().render(serializer.data))
+        return Response(serializer.data)
 
 
 class JudgeView(APIView):

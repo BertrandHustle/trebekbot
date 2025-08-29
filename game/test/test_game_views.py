@@ -40,10 +40,9 @@ class TestQuestionViews:
         force_authenticate(request, user=test_player)
         response = QuestionView.as_view()(request)
         assert response.status_code == 200
-        json_response = json.loads(response.data)
-        assert json_response['text']
-        assert json_response['category']
-        assert json_response['air_date']
+        assert response.data['text']
+        assert response.data['category']
+        assert response.data['air_date']
 
     def test_post_question_view(self, test_player, test_questions):
         test_question = test_questions['valid_question']
@@ -51,10 +50,9 @@ class TestQuestionViews:
         force_authenticate(request, user=test_player)
         response = QuestionView.as_view()(request)
         assert response.status_code == 200
-        json_response = json.loads(response.data)
-        assert json_response['text'] == test_question.text
-        assert json_response['category'] == test_question.category
-        assert json_response['air_date'] == str(test_question.air_date)
+        assert response.data['text'] == test_question.text
+        assert response.data['category'] == test_question.category
+        assert response.data['air_date'] == str(test_question.air_date)
 
 
 @pytest.mark.django_db
@@ -70,12 +68,11 @@ class TestBoardViews:
         response = BoardView.as_view()(request)
         # assert
         assert response.status_code == 200
-        json_response = json.loads(response.data)
-        board_id = json_response['boardId']
+        board_id = response.data['boardId']
         test_board = Board.objects.get(id=board_id)
         assert len(test_board.questiontile_set.all()) == 30
         assert board_id == 1
-        question_dict = json_response['boardDict']
+        question_dict = response.data['boardDict']
         assert len(question_dict) == 6
         for category in question_dict:
             question_tiles = question_dict[category]
@@ -92,12 +89,11 @@ class TestBoardViews:
         response = BoardView.as_view()(request)
         # assert
         assert response.status_code == 200
-        json_response = json.loads(response.data)
         expected_board_dict = BoardUtils.tiles_to_dict(test_board)
         expected_ids, test_ids = set(), set()
         for category, questions in expected_board_dict.items():
             expected_ids.update([q['id'] for q in questions])
-        for category, questions in json_response['boardDict'].items():
+        for category, questions in response.data['boardDict'].items():
             test_ids.update([q['id'] for q in questions])
         assert expected_ids == test_ids
 
